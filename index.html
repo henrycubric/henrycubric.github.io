@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Henry Cubric — Engineer. Designer. Builder.</title>
+  <meta name="description" content="Henry Cubric is a young innovator, builder, and entrepreneur based in Vancouver, BC — working at the intersection of engineering, design, and impact." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:           #F8F7F2;
+      --bg-dark:      #111110;
+      --bg-card:      #FFFFFF;
+      --text:         #0F0F0E;
+      --text-muted:   #7A7A74;
+      --text-light:   #A8A8A2;
+      --border:       #E3DFD6;
+      --accent:       #B07D45;
+      --accent-dim:   #F0E9DF;
+      --white:        #FFFFFF;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'Inter', system-ui, sans-serif;
+      --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-in-out:  cubic-bezier(0.65, 0, 0.35, 1);
+      --section-pad:  clamp(80px, 12vw, 140px);
+      --gutter:       clamp(24px, 5vw, 80px);
+      --max-w:        1200px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 400;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font: inherit; }
+    .container {
+      width: 100%;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+    .label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--accent);
+      margin: 20px 0 28px;
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 24px var(--gutter);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), padding 0.4s var(--ease-out);
+    }
+    nav.scrolled {
+      background: rgba(248, 247, 242, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 var(--border);
+      padding: 16px var(--gutter);
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 18px; font-weight: 500; letter-spacing: 0.02em; }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--text-muted); transition: color 0.25s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { font-size: 13px; font-weight: 500; letter-spacing: 0.06em; color: var(--text); border: 1px solid var(--border); padding: 9px 20px; border-radius: 100px; transition: background 0.25s, color 0.25s, border-color 0.25s; }
+    .nav-cta:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+    #hero {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 var(--gutter) 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-text {
+      position: absolute;
+      top: 50%; left: var(--gutter);
+      transform: translateY(-58%);
+      font-family: var(--font-display);
+      font-size: clamp(120px, 18vw, 280px);
+      font-weight: 300;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(0,0,0,0.06);
+      line-height: 0.9;
+      pointer-events: none;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; opacity: 0; animation: fadeUp 0.9s var(--ease-out) 0.3s forwards; }
+    .hero-headline { font-family: var(--font-display); font-size: clamp(48px, 8.5vw, 122px); font-weight: 300; line-height: 0.94; letter-spacing: -0.02em; max-width: 900px; margin-bottom: 36px; opacity: 0; animation: fadeUp 1s var(--ease-out) 0.5s forwards; }
+    .hero-headline em { font-style: italic; color: var(--accent); }
+    .hero-sub { font-size: clamp(15px, 1.6vw, 18px); font-weight: 300; color: var(--text-muted); max-width: 480px; line-height: 1.7; margin-bottom: 48px; opacity: 0; animation: fadeUp 1s var(--ease-out) 0.7s forwards; }
+    .hero-actions { display: flex; gap: 16px; align-items: center; opacity: 0; animation: fadeUp 1s var(--ease-out) 0.9s forwards; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--text); color: var(--bg); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; padding: 14px 28px; border-radius: 100px; transition: background 0.25s, transform 0.25s var(--ease-out); }
+    .btn-primary:hover { background: #333; transform: translateY(-1px); }
+    .btn-ghost { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--text-muted); border-bottom: 1px solid transparent; padding-bottom: 2px; transition: color 0.25s, border-color 0.25s; }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+    .hero-scroll { position: absolute; bottom: 36px; right: var(--gutter); display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0; animation: fadeIn 1s var(--ease-out) 1.4s forwards; }
+    .scroll-line { width: 1px; height: 56px; background: linear-gradient(to bottom, transparent, var(--text-light)); animation: scrollPulse 2s ease-in-out 1.4s infinite; }
+    .scroll-label { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-light); writing-mode: vertical-lr; }
+    .hero-location { position: absolute; top: 50%; right: var(--gutter); transform: translateY(-50%); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); writing-mode: vertical-rl; opacity: 0; animation: fadeIn 1s var(--ease-out) 1.2s forwards; }
+    .marquee-band { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; padding: 18px 0; background: var(--bg); }
+    .marquee-track { display: flex; gap: 0; animation: marquee 28s linear infinite; width: max-content; }
+    .marquee-band:hover .marquee-track { animation-play-state: paused; }
+    .marquee-item { display: flex; align-items: center; gap: 24px; padding: 0 32px; white-space: nowrap; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+    .marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    #about { padding: var(--section-pad) 0; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .about-img-placeholder { width: 100%; aspect-ratio: 4/5; background: var(--accent-dim); border-radius: 2px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: var(--text-muted); }
+    .about-img-placeholder svg { opacity: 0.4; }
+    .about-img-placeholder span { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.5; }
+    .about-right { padding-top: 8px; }
+    .about-headline { font-family: var(--font-display); font-size: clamp(36px, 4.5vw, 58px); font-weight: 300; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 28px; }
+    .about-headline em { font-style: italic; color: var(--accent); }
+    .about-body { font-size: 16px; font-weight: 300; color: var(--text-muted); line-height: 1.85; margin-bottom: 40px; }
+    .about-body p + p { margin-top: 20px; }
+    .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; border-top: 1px solid var(--border); padding-top: 36px; }
+    .stat-num { font-family: var(--font-display); font-size: 48px; font-weight: 300; line-height: 1; color: var(--text); margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: var(--text-muted); }
+    #projects { padding: var(--section-pad) 0; background: var(--bg-dark); color: var(--white); }
+    #projects .label { color: rgba(255,255,255,0.4); }
+    .projects-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 64px; gap: 40px; }
+    .projects-headline { font-family: var(--font-display); font-size: clamp(38px, 5vw, 68px); font-weight: 300; line-height: 1.05; letter-spacing: -0.02em; max-width: 560px; }
+    .projects-headline em { font-style: italic; color: var(--accent); }
+    .projects-intro { font-size: 15px; font-weight: 300; color: rgba(255,255,255,0.45); max-width: 300px; line-height: 1.7; flex-shrink: 0; }
+    .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .project-card { background: #1A1A18; padding: 48px; display: flex; flex-direction: column; gap: 0; position: relative; overflow: hidden; transition: background 0.35s var(--ease-out); cursor: default; }
+    .project-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease-out); }
+    .project-card:hover { background: #222220; }
+    .project-card:hover::before { transform: scaleX(1); }
+    .project-num { font-family: var(--font-display); font-size: 13px; font-weight: 400; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 40px; opacity: 0.8; }
+    .project-tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 100px; margin-bottom: 24px; width: fit-content; }
+    .project-img-placeholder { width: 100%; aspect-ratio: 16/9; background: #242422; border-radius: 2px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: rgba(255,255,255,0.2); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .project-title { font-family: var(--font-display); font-size: clamp(26px, 3vw, 38px); font-weight: 300; line-height: 1.1; color: var(--white); margin-bottom: 16px; letter-spacing: -0.01em; }
+    .project-desc { font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.5); line-height: 1.75; margin-bottom: 36px; flex: 1; }
+    .project-skills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+    .skill-chip { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 100px; }
+    .project-link { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); opacity: 0; transform: translateX(-6px); transition: opacity 0.3s, transform 0.3s var(--ease-out); }
+    .project-card:hover .project-link { opacity: 1; transform: none; }
+    #impact { padding: var(--section-pad) 0; }
+    .impact-inner { display: grid; grid-template-columns: 1fr 1.6fr; gap: 80px; align-items: start; }
+    .impact-quote { font-family: var(--font-display); font-size: clamp(32px, 4.5vw, 58px); font-weight: 300; line-height: 1.1; letter-spacing: -0.02em; color: var(--text); }
+    .impact-quote em { font-style: italic; color: var(--accent); }
+    .impact-right { padding-top: 12px; }
+    .impact-body { font-size: 16px; font-weight: 300; color: var(--text-muted); line-height: 1.85; }
+    .impact-body p + p { margin-top: 20px; }
+    .impact-pillars { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); margin-top: 48px; border: 1px solid var(--border); }
+    .pillar { background: var(--bg); padding: 28px 24px; }
+    .pillar-icon { font-size: 22px; margin-bottom: 12px; }
+    .pillar-title { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--text); margin-bottom: 6px; }
+    .pillar-text { font-size: 13px; font-weight: 300; color: var(--text-muted); line-height: 1.65; }
+    #skills { padding: var(--section-pad) 0; background: var(--accent-dim); }
+    .skills-header { margin-bottom: 60px; }
+    .skills-headline { font-family: var(--font-display); font-size: clamp(36px, 4.5vw, 58px); font-weight: 300; line-height: 1.1; letter-spacing: -0.02em; max-width: 540px; }
+    .skills-headline em { font-style: italic; color: var(--accent); }
+    .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .skill-group { background: var(--white); padding: 36px 32px; }
+    .skill-group-title { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+    .skill-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .skill-list li { font-size: 15px; font-weight: 400; color: var(--text); display: flex; align-items: center; gap: 12px; }
+    .skill-list li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    #vision { padding: var(--section-pad) 0; background: var(--bg-dark); color: var(--white); position: relative; overflow: hidden; }
+    .vision-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(176,125,69,0.08) 0%, transparent 70%); pointer-events: none; }
+    .vision-inner { position: relative; z-index: 1; }
+    .vision-statement { font-family: var(--font-display); font-size: clamp(40px, 6.5vw, 96px); font-weight: 300; line-height: 1.0; letter-spacing: -0.025em; max-width: 900px; margin-bottom: 56px; }
+    .vision-statement em { font-style: italic; color: var(--accent); }
+    .vision-body { font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.5); max-width: 500px; line-height: 1.8; margin-bottom: 56px; }
+    .vision-items { display: flex; gap: 48px; flex-wrap: wrap; }
+    .vision-item { display: flex; flex-direction: column; gap: 6px; }
+    .vision-item-num { font-family: var(--font-display); font-size: 36px; font-weight: 300; color: var(--accent); }
+    .vision-item-label { font-size: 13px; font-weight: 500; letter-spacing: 0.08em; color: rgba(255,255,255,0.5); }
+    #contact { padding: var(--section-pad) 0; }
+    .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .contact-headline { font-family: var(--font-display); font-size: clamp(40px, 5.5vw, 76px); font-weight: 300; line-height: 1.05; letter-spacing: -0.02em; }
+    .contact-headline em { font-style: italic; color: var(--accent); }
+    .contact-sub { font-size: 16px; font-weight: 300; color: var(--text-muted); line-height: 1.75; margin-top: 24px; max-width: 360px; }
+    .contact-right { padding-top: 12px; }
+    .contact-links { display: flex; flex-direction: column; gap: 2px; margin-bottom: 40px; }
+    .contact-link-item { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; background: var(--bg-card); border: 1px solid var(--border); transition: background 0.25s, border-color 0.25s, transform 0.3s var(--ease-out); }
+    .contact-link-item:hover { background: var(--text); border-color: var(--text); transform: translateX(4px); }
+    .contact-link-item:hover .contact-link-label, .contact-link-item:hover .contact-link-type { color: rgba(255,255,255,0.9); }
+    .contact-link-item:hover .contact-link-arrow { color: var(--accent); }
+    .contact-link-label { font-size: 15px; font-weight: 500; color: var(--text); transition: color 0.25s; }
+    .contact-link-type { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; transition: color 0.25s; }
+    .contact-link-arrow { font-size: 18px; color: var(--text-muted); transition: color 0.25s, transform 0.25s var(--ease-out); }
+    .contact-link-item:hover .contact-link-arrow { transform: translateX(4px); }
+    .contact-email-block { padding: 28px 24px; background: var(--accent-dim); border: 1px solid rgba(176,125,69,0.2); }
+    .contact-email-label { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .contact-email { font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--text); }
+    footer { border-top: 1px solid var(--border); padding: 32px var(--gutter); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .footer-left { font-size: 13px; font-weight: 400; color: var(--text-muted); }
+    .footer-center { font-family: var(--font-display); font-size: 15px; font-weight: 400; color: var(--text); letter-spacing: 0.02em; }
+    .footer-right { font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: var(--text-light); text-align: right; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    @media (max-width: 900px) {
+      .about-grid { grid-template-columns: 1fr; gap: 48px; }
+      .projects-header { flex-direction: column; align-items: flex-start; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .impact-inner { grid-template-columns: 1fr; gap: 48px; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .hero-bg-text { font-size: 80px; }
+      .impact-pillars { grid-template-columns: 1fr; }
+      footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .nav-cta { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="nav">
+    <div class="nav-logo">Henry Cubric</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Work</a></li>
+      <li><a href="#impact">Impact</a></li>
+      <li><a href="#vision">Vision</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Get in Touch</a>
+  </nav>
+  <section id="hero">
+    <div class="hero-bg-text" aria-hidden="true">BUILD</div>
+    <div class="hero-location" aria-hidden="true">Vancouver · BC · Canada</div>
+    <div class="container" style="position:relative;z-index:1;">
+      <div class="hero-eyebrow">Engineer · Designer · Builder</div>
+      <h1 class="hero-headline">Building things<br>that <em>actually</em><br>matter.</h1>
+      <p class="hero-sub">Henry Cubric is a young innovator working at the intersection of engineering, design, entrepreneurship, and community impact — driven by a belief that purposeful work changes things.</p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn-primary">Explore My Work <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="#about" class="btn-ghost">Learn about me</a>
+      </div>
+    </div>
+    <div class="hero-scroll" aria-hidden="true"><div class="scroll-line"></div><span class="scroll-label">Scroll</span></div>
+  </section>
+  <div class="marquee-band" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-item"><span>Engineering Design</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>3D Printing &amp; Prototyping</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Product Development</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>CAD &amp; 3D Modeling</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Robotics</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Entrepreneurship</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Branding &amp; Creative Direction</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Community Impact</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Innovation</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Engineering Design</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>3D Printing &amp; Prototyping</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Product Development</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>CAD &amp; 3D Modeling</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Robotics</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Entrepreneurship</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Branding &amp; Creative Direction</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Community Impact</span><span class="marquee-dot"></span></div>
+      <div class="marquee-item"><span>Innovation</span><span class="marquee-dot"></span></div>
+    </div>
+  </div>
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-left reveal">
+          <div class="about-img-placeholder">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Portrait coming soon</span>
+          </div>
+        </div>
+        <div class="about-right">
+          <div class="label reveal">About</div>
+          <div class="divider reveal reveal-delay-1"></div>
+          <h2 class="about-headline reveal reveal-delay-2">Driven by<br><em>purpose,</em><br>built on craft.</h2>
+          <div class="about-body reveal reveal-delay-3">
+            <p>I'm Henry Cubric — a young innovator, builder, and entrepreneur based in Vancouver, BC. I work at the intersection of engineering, design, and entrepreneurship, driven by the belief that the best projects are both technically rigorous and deeply meaningful.</p>
+            <p>What sets my work apart isn't just technical skill — it's intentionality. I care about why something is built as much as how it's built. Whether it's designing a product from scratch, competing in robotics, or creating opportunities for the next generation of makers, I bring the same commitment: build it right, build it well, make it matter.</p>
+            <p>I'm a student of the full process — from first principles and early sketches to prototypes, refinements, and finished work that holds up.</p>
+          </div>
+          <div class="about-stats reveal reveal-delay-4">
+            <div class="stat"><div class="stat-num">4+</div><div class="stat-label">Active Projects</div></div>
+            <div class="stat"><div class="stat-num">10+</div><div class="stat-label">Skills &amp; Disciplines</div></div>
+            <div class="stat"><div class="stat-num">YVR</div><div class="stat-label">Vancouver, BC</div></div>
+            <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Ideas in Progress</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="projects">
+    <div class="container">
+      <div class="projects-header">
+        <h2 class="projects-headline reveal">Work that speaks<br>for <em>itself.</em></h2>
+        <p class="projects-intro reveal reveal-delay-2">A selection of projects that reflect my range — from product design and fabrication to robotics and community impact.</p>
+      </div>
+      <div class="projects-grid">
+        <div class="project-card reveal">
+          <div class="project-num">01</div>
+          <div class="project-tag">Platform · Design · Engineering</div>
+          <div class="project-img-placeholder"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="24" height="24" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h24M9 2v24" stroke="currentColor" stroke-width="1.5"/></svg><span>Project visuals coming soon</span></div>
+          <h3 class="project-title">On the Edge Engineering</h3>
+          <p class="project-desc">A personal engineering and design platform where every project is built with intention — combining innovation, technical depth, and a commitment to making things that are both excellent and meaningful.</p>
+          <div class="project-skills"><span class="skill-chip">Product Design</span><span class="skill-chip">Prototyping</span><span class="skill-chip">Branding</span><span class="skill-chip">Creative Direction</span></div>
+          <div class="project-link">View Project <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="project-card reveal reveal-delay-1">
+          <div class="project-num">02</div>
+          <div class="project-tag">Product Design · Fabrication</div>
+          <div class="project-img-placeholder"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2L2 8l12 6 12-6-12-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 20l12 6 12-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14l12 6 12-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Product shots coming soon</span></div>
+          <h3 class="project-title">Oakridge Park Chess Sets</h3>
+          <p class="project-desc">Architecture-inspired chess sets designed in CAD and brought to life through 3D printing — connected to the vision of Oakridge Park. Technical precision meets design thinking.</p>
+          <div class="project-skills"><span class="skill-chip">CAD Design</span><span class="skill-chip">3D Printing</span><span class="skill-chip">Production Planning</span><span class="skill-chip">Design Thinking</span></div>
+          <div class="project-link">View Project <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="project-card reveal reveal-delay-2">
+          <div class="project-num">03</div>
+          <div class="project-tag">Robotics · Engineering · Competition</div>
+          <div class="project-img-placeholder"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="8" y="10" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M11 10V7a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/></svg><span>Robotics visuals coming soon</span></div>
+          <h3 class="project-title">VEX Robotics</h3>
+          <p class="project-desc">Competitive robotics built on rigorous engineering and real-time iteration. Designing, testing, and improving robot systems under genuine competitive pressure.</p>
+          <div class="project-skills"><span class="skill-chip">Mechanical Design</span><span class="skill-chip">Systems Engineering</span><span class="skill-chip">Iteration</span><span class="skill-chip">Teamwork</span></div>
+          <div class="project-link">View Project <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="project-card reveal reveal-delay-3">
+          <div class="project-num">04</div>
+          <div class="project-tag">Community · Entrepreneurship · Impact</div>
+          <div class="project-img-placeholder"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="20" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 24c0-3.314 2.686-6 6-6h8c3.314 0 6 2.686 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Event visuals coming soon</span></div>
+          <h3 class="project-title">Student Makers Market</h3>
+          <p class="project-desc">Creating space for young makers, entrepreneurs, and builders to grow. Through workshops, mentorship, and community events, this work opens doors for students ready to build.</p>
+          <div class="project-skills"><span class="skill-chip">Community Building</span><span class="skill-chip">Mentorship</span><span class="skill-chip">Entrepreneurship</span><span class="skill-chip">Leadership</span></div>
+          <div class="project-link">View Project <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="impact">
+    <div class="container">
+      <div class="impact-inner">
+        <div class="impact-left">
+          <div class="label reveal">Purpose &amp; Impact</div>
+          <div class="divider reveal reveal-delay-1"></div>
+          <blockquote class="impact-quote reveal reveal-delay-2">&ldquo;The work<br>should mean<br><em>something.</em>&rdquo;</blockquote>
+        </div>
+        <div class="impact-right">
+          <div class="impact-body reveal">
+            <p>I believe the most compelling work is both technically strong and genuinely meaningful. A product that solves a real problem. An event that creates real opportunity. A design that communicates something true.</p>
+            <p>This isn't about looking impressive — it's about building things that hold up when the context matters. I'm drawn to projects where the stakes are real, where the craft shows, and where the outcome moves something forward.</p>
+          </div>
+          <div class="impact-pillars reveal reveal-delay-2">
+            <div class="pillar"><div class="pillar-icon">⚙️</div><div class="pillar-title">Technical Rigor</div><div class="pillar-text">Engineering that holds up under scrutiny — designed with precision, built to last.</div></div>
+            <div class="pillar"><div class="pillar-icon">✦</div><div class="pillar-title">Design Intentionality</div><div class="pillar-text">Every decision deliberate. Form and function in conversation, never at war.</div></div>
+            <div class="pillar"><div class="pillar-icon">◎</div><div class="pillar-title">Real-World Impact</div><div class="pillar-text">Work that creates value beyond the project itself — for communities, not just portfolios.</div></div>
+            <div class="pillar"><div class="pillar-icon">↗</div><div class="pillar-title">Forward Momentum</div><div class="pillar-text">Always iterating. Every project makes the next one better.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="skills">
+    <div class="container">
+      <div class="skills-header">
+        <div class="label reveal">Skills &amp; Disciplines</div>
+        <div class="divider reveal reveal-delay-1"></div>
+        <h2 class="skills-headline reveal reveal-delay-2">A broad toolkit.<br>An <em>integrated</em> mind.</h2>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-group reveal"><div class="skill-group-title">Engineering</div><ul class="skill-list"><li>CAD &amp; 3D Modeling</li><li>3D Printing &amp; Prototyping</li><li>Engineering Design Process</li><li>Robotics &amp; Mechanical Systems</li><li>Iterative Development</li></ul></div>
+        <div class="skill-group reveal reveal-delay-1"><div class="skill-group-title">Design &amp; Creative</div><ul class="skill-list"><li>Product Design</li><li>Branding &amp; Visual Identity</li><li>Creative Direction</li><li>Design Thinking</li><li>Visual Concept Development</li></ul></div>
+        <div class="skill-group reveal reveal-delay-2"><div class="skill-group-title">Leadership &amp; Impact</div><ul class="skill-list"><li>Entrepreneurship</li><li>Community Building</li><li>Mentorship &amp; Teaching</li><li>Collaboration &amp; Teamwork</li><li>Problem Solving</li></ul></div>
+      </div>
+    </div>
+  </section>
+  <section id="vision">
+    <div class="vision-bg" aria-hidden="true"></div>
+    <div class="container vision-inner">
+      <div class="label reveal" style="color:rgba(255,255,255,0.4)">Vision</div>
+      <div class="divider reveal reveal-delay-1"></div>
+      <h2 class="vision-statement reveal reveal-delay-2">Engineering<br>a future worth<br><em>building toward.</em></h2>
+      <p class="vision-body reveal reveal-delay-3">I'm building toward a future in innovation, product development, and entrepreneurship — where engineering and design serve human ambition, and where what gets made actually improves the world it enters.</p>
+      <div class="vision-items reveal reveal-delay-4">
+        <div class="vision-item"><div class="vision-item-num">01</div><div class="vision-item-label">Innovate deeply</div></div>
+        <div class="vision-item"><div class="vision-item-num">02</div><div class="vision-item-label">Design with purpose</div></div>
+        <div class="vision-item"><div class="vision-item-num">03</div><div class="vision-item-label">Build for impact</div></div>
+        <div class="vision-item"><div class="vision-item-num">04</div><div class="vision-item-label">Lift others along the way</div></div>
+      </div>
+    </div>
+  </section>
+  <section id="contact">
+    <div class="container">
+      <div class="contact-inner">
+        <div class="contact-left">
+          <div class="label reveal">Let's Connect</div>
+          <div class="divider reveal reveal-delay-1"></div>
+          <h2 class="contact-headline reveal reveal-delay-2">Let's build<br>something<br><em>real.</em></h2>
+          <p class="contact-sub reveal reveal-delay-3">Whether you're working on something interesting, have a project in mind, or simply want to connect — I'm always open to a good conversation.</p>
+        </div>
+        <div class="contact-right">
+          <div class="contact-links reveal reveal-delay-1">
+            <a href="mailto:henrycubric@icloud.com" class="contact-link-item"><div><div class="contact-link-label">henrycubric@icloud.com</div><div class="contact-link-type">Email</div></div><div class="contact-link-arrow">→</div></a>
+            <a href="#" class="contact-link-item"><div><div class="contact-link-label">On the Edge Engineering</div><div class="contact-link-type">Platform</div></div><div class="contact-link-arrow">→</div></a>
+            <a href="#" class="contact-link-item"><div><div class="contact-link-label">GitHub</div><div class="contact-link-type">Coming Soon</div></div><div class="contact-link-arrow">→</div></a>
+          </div>
+          <div class="contact-email-block reveal reveal-delay-2">
+            <div class="contact-email-label">Based in</div>
+            <div class="contact-email">Vancouver, BC · Canada</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="footer-left">© 2026 Henry Cubric. All rights reserved.</div>
+    <div class="footer-center">henrycubric.com</div>
+    <div class="footer-right">Engineer · Designer · Builder</div>
+  </footer>
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => revealObserver.observe(el));
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+      });
+    });
+    if (window.matchMedia('(pointer: fine)').matches) {
+      const glow = document.createElement('div');
+      glow.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(176,125,69,0.06) 0%,transparent 70%);transform:translate(-50%,-50%);transition:opacity 0.4s;left:-999px;top:-999px;';
+      document.body.appendChild(glow);
+      document.addEventListener('mousemove', e => { glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px'; });
+      document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+      document.addEventListener('mouseenter', () => { glow.style.opacity = '1'; });
+    }
+  <\/script>
+</body>
+</html>
