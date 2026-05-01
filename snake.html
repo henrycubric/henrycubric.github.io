@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SNAKE — Henry Cubric</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  :root {
+    --bg:     #0a0a0f;
+    --panel:  #0f0f1a;
+    --border: #1a1a3a;
+    --cyan:   #00fff0;
+    --yellow: #ffd700;
+    --purple: #bf5fff;
+    --green:  #39ff14;
+    --red:    #ff3131;
+    --blue:   #3f8fff;
+    --orange: #ff8c00;
+    --ghost:  rgba(255,255,255,0.07);
+    --text:   #c8c8e0;
+    --dim:    #4a4a6a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Press Start 2P', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* CRT scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.18) 2px,
+      rgba(0,0,0,0.18) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* CRT vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+    z-index: 998;
+  }
+
+  h1 {
+    font-size: clamp(1rem, 3vw, 1.6rem);
+    letter-spacing: 0.4em;
+    color: var(--green);
+    text-shadow: 0 0 20px var(--green), 0 0 40px var(--green);
+    margin-bottom: 1.4rem;
+    animation: flicker 4s infinite;
+  }
+
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96%  { opacity: 0.7; }
+    97%  { opacity: 1; }
+    98%  { opacity: 0.5; }
+    99%  { opacity: 1; }
+  }
+
+  .game-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  /* ── MAIN BOARD ── */
+  #board-wrap {
+    position: relative;
+    border: 2px solid var(--green);
+    box-shadow: 0 0 20px var(--green), inset 0 0 30px rgba(57,255,20,0.04);
+    background: #050508;
+  }
+
+  #board {
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  /* ── SIDE PANEL ── */
+  .panel {
+    width: 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .box {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 0.8rem;
+    box-shadow: 0 0 10px rgba(0,255,240,0.05);
+  }
+
+  .box-label {
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .box-value {
+    font-size: 0.7rem;
+    color: var(--cyan);
+    text-shadow: 0 0 10px var(--cyan);
+    letter-spacing: 0.05em;
+    word-break: break-all;
+  }
+
+  /* ── CONTROLS ── */
+  .controls-box {
+    font-size: 0.35rem;
+    line-height: 1.9;
+    color: var(--dim);
+  }
+
+  .controls-box span {
+    color: var(--text);
+  }
+
+  /* ── LEVEL BAR ── */
+  #level-bar-wrap {
+    height: 4px;
+    background: var(--border);
+    margin-top: 0.4rem;
+  }
+
+  #level-bar {
+    height: 100%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  /* ── OVERLAY ── */
+  #overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5,5,8,0.88);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+    z-index: 10;
+  }
+
+  #overlay h2 {
+    font-size: clamp(0.6rem, 2vw, 1rem);
+    letter-spacing: 0.3em;
+    color: var(--yellow);
+    text-shadow: 0 0 20px var(--yellow);
+    text-align: center;
+  }
+
+  #overlay p {
+    font-size: 0.45rem;
+    color: var(--text);
+    letter-spacing: 0.15em;
+    text-align: center;
+    line-height: 2;
+  }
+
+  #overlay .start-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    background: none;
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    text-shadow: 0 0 10px var(--green);
+    box-shadow: 0 0 10px rgba(57,255,20,0.3);
+    transition: all 0.2s;
+    animation: pulse-btn 1.5s infinite;
+  }
+
+  #overlay .start-btn:hover {
+    background: rgba(57,255,20,0.15);
+    transform: scale(1.05);
+  }
+
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 0 10px rgba(57,255,20,0.3); }
+    50%       { box-shadow: 0 0 22px rgba(57,255,20,0.7); }
+  }
+
+  /* back link */
+  #back {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.35rem;
+    color: var(--dim);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+    z-index: 1000;
+  }
+
+  #back:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<a id="back" href="games.html">← BACK</a>
+
+<h1>SNAKE</h1>
+
+<div class="game-wrapper">
+
+  <!-- Board -->
+  <div id="board-wrap">
+    <canvas id="board" width="400" height="400"></canvas>
+    <div id="overlay">
+      <h2 id="overlay-title">SNAKE</h2>
+      <p id="overlay-msg">ARROW KEYS OR WASD<br>TO CONTROL THE SNAKE<br>EAT FOOD TO GROW<br>DON'T HIT WALLS!</p>
+      <button class="start-btn" id="start-btn">START GAME</button>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="panel">
+    <div class="box">
+      <div class="box-label">Score</div>
+      <div class="box-value" id="score-val">0</div>
+    </div>
+    <div class="box">
+      <div class="box-label">High Score</div>
+      <div class="box-value" id="hi-val">0</div>
+    </div>
+    <div class="box">
+      <div class="box-label">Level</div>
+      <div class="box-value" id="level-val">1</div>
+      <div id="level-bar-wrap"><div id="level-bar"></div></div>
+    </div>
+    <div class="box">
+      <div class="box-label">Food</div>
+      <div class="box-value" id="food-val">0</div>
+    </div>
+    <div class="box controls-box">
+      <div class="box-label">Controls</div>
+      <span>↑↓←→</span> Move<br>
+      <span>WASD</span> Move<br>
+      <span>Swipe</span> Touch
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+  // ── Constants ──────────────────────────────────────────
+  const COLS = 20, ROWS = 20, CELL = 20;
+  const CANVAS_W = COLS * CELL; // 400
+  const CANVAS_H = ROWS * CELL; // 400
+
+  // ms per step at each level (level 1 = 200ms, speeds up by 15ms per level)
+  const BASE_SPEED   = 200;
+  const SPEED_STEP   = 15;
+  const FOODS_PER_LVL = 5;
+
+  const COLOR_HEAD   = '#7fff5a'; // brighter green for head
+  const COLOR_BODY   = '#39ff14'; // standard neon green
+  const COLOR_FOOD   = '#ff3131'; // red food
+  const COLOR_BG     = '#050508';
+
+  // ── Canvas ────────────────────────────────────────────
+  const canvas = document.getElementById('board');
+  const ctx    = canvas.getContext('2d');
+
+  // ── State ─────────────────────────────────────────────
+  let snake, dir, nextDir, food, score, hiScore, level, foodEaten;
+  let gameRunning = false;
+  let animId      = null;
+  let lastStepTime = 0;
+  let foodPulseT   = 0; // for food pulse animation
+
+  // ── Load hi score ─────────────────────────────────────
+  hiScore = parseInt(localStorage.getItem('snake-hi') || '0');
+  document.getElementById('hi-val').textContent = hiScore;
+
+  // ── Game init ─────────────────────────────────────────
+  function startGame() {
+    // Start snake in the middle, length 3, heading right
+    const startX = Math.floor(COLS / 2);
+    const startY = Math.floor(ROWS / 2);
+    snake = [
+      { x: startX,     y: startY },
+      { x: startX - 1, y: startY },
+      { x: startX - 2, y: startY }
+    ];
+    dir      = { x: 1, y: 0 };
+    nextDir  = { x: 1, y: 0 };
+    score    = 0;
+    level    = 1;
+    foodEaten = 0;
+    spawnFood();
+    updateUI();
+    hideOverlay();
+    gameRunning  = true;
+    lastStepTime = performance.now();
+    foodPulseT   = 0;
+    if (animId) cancelAnimationFrame(animId);
+    animId = requestAnimationFrame(loop);
+  }
+
+  // ── Food spawn ────────────────────────────────────────
+  function spawnFood() {
+    let pos;
+    do {
+      pos = {
+        x: Math.floor(Math.random() * COLS),
+        y: Math.floor(Math.random() * ROWS)
+      };
+    } while (snake.some(s => s.x === pos.x && s.y === pos.y));
+    food = pos;
+  }
+
+  // ── Step speed ────────────────────────────────────────
+  function stepInterval() {
+    return Math.max(60, BASE_SPEED - (level - 1) * SPEED_STEP);
+  }
+
+  // ── Game loop ─────────────────────────────────────────
+  function loop(ts) {
+    if (!gameRunning) return;
+    foodPulseT = ts * 0.003; // drive food pulse
+
+    const elapsed = ts - lastStepTime;
+    if (elapsed >= stepInterval()) {
+      lastStepTime = ts;
+      step();
+    }
+    if (gameRunning) {
+      render(ts);
+      animId = requestAnimationFrame(loop);
+    }
+  }
+
+  // ── One game step ─────────────────────────────────────
+  function step() {
+    // Commit queued direction (prevent reversing)
+    dir = nextDir;
+
+    const head = snake[0];
+    const newHead = { x: head.x + dir.x, y: head.y + dir.y };
+
+    // Wall collision
+    if (newHead.x < 0 || newHead.x >= COLS || newHead.y < 0 || newHead.y >= ROWS) {
+      gameOver();
+      return;
+    }
+
+    // Self collision (skip last segment — it will move away)
+    for (let i = 0; i < snake.length - 1; i++) {
+      if (snake[i].x === newHead.x && snake[i].y === newHead.y) {
+        gameOver();
+        return;
+      }
+    }
+
+    // Move: prepend new head
+    snake.unshift(newHead);
+
+    // Check food
+    if (newHead.x === food.x && newHead.y === food.y) {
+      // Grow: don't remove tail
+      score += 10;
+      foodEaten++;
+      if (score > hiScore) {
+        hiScore = score;
+        localStorage.setItem('snake-hi', hiScore);
+      }
+      // Level up every FOODS_PER_LVL foods
+      level = Math.floor(foodEaten / FOODS_PER_LVL) + 1;
+      spawnFood();
+      updateUI();
+    } else {
+      // Remove tail to keep length
+      snake.pop();
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────
+  function render(ts) {
+    // Clear
+    ctx.fillStyle = COLOR_BG;
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // Grid dots
+    ctx.fillStyle = 'rgba(255,255,255,0.03)';
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        ctx.fillRect(c * CELL + CELL / 2 - 0.5, r * CELL + CELL / 2 - 0.5, 1, 1);
+      }
+    }
+
+    // Draw snake body (tail → head-1) with ghost trail (gradient opacity)
+    const len = snake.length;
+    for (let i = len - 1; i >= 1; i--) {
+      // Opacity gradient: tail is dim, near-head is bright
+      const t = 1 - i / len; // 0 at tail, ~1 near head
+      const alpha = 0.18 + t * 0.72; // range [0.18, 0.90]
+      drawSnakeSegment(snake[i].x, snake[i].y, COLOR_BODY, alpha, false);
+    }
+
+    // Draw head (always full brightness, slightly different color)
+    if (len > 0) {
+      drawSnakeSegment(snake[0].x, snake[0].y, COLOR_HEAD, 1.0, true);
+    }
+
+    // Draw food (pulsing glow)
+    drawFood(ts);
+  }
+
+  function drawSnakeSegment(gx, gy, color, alpha, isHead) {
+    const px = gx * CELL;
+    const py = gy * CELL;
+    const pad = 1;
+    const sz  = CELL - pad * 2;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // Glow
+    ctx.shadowColor = color;
+    ctx.shadowBlur  = isHead ? 18 : 10;
+
+    ctx.fillStyle = color;
+    ctx.fillRect(px + pad, py + pad, sz, sz);
+
+    // Inner highlight (top-left bevel)
+    ctx.shadowBlur  = 0;
+    ctx.fillStyle   = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(px + pad + 1, py + pad + 1, sz - 6, 3);
+
+    ctx.restore();
+  }
+
+  function drawFood(ts) {
+    const pulse  = 0.5 + 0.5 * Math.sin(ts * 0.004); // 0…1
+    const glow   = 12 + pulse * 16; // 12…28
+    const alpha  = 0.75 + pulse * 0.25; // 0.75…1.0
+
+    const px = food.x * CELL;
+    const py = food.y * CELL;
+    const pad = 2;
+    const sz  = CELL - pad * 2;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.shadowColor = COLOR_FOOD;
+    ctx.shadowBlur  = glow;
+    ctx.fillStyle   = COLOR_FOOD;
+    ctx.fillRect(px + pad, py + pad, sz, sz);
+
+    // Bright core highlight
+    ctx.shadowBlur  = 0;
+    ctx.fillStyle   = 'rgba(255,180,180,0.5)';
+    ctx.fillRect(px + pad + 1, py + pad + 1, sz - 6, 3);
+
+    // Extra outer glow pass
+    ctx.globalAlpha = 0.25 * pulse;
+    ctx.shadowColor = COLOR_FOOD;
+    ctx.shadowBlur  = glow * 2;
+    ctx.fillStyle   = COLOR_FOOD;
+    ctx.fillRect(px + pad - 2, py + pad - 2, sz + 4, sz + 4);
+
+    ctx.restore();
+  }
+
+  // ── UI helpers ────────────────────────────────────────
+  function updateUI() {
+    document.getElementById('score-val').textContent    = score;
+    document.getElementById('hi-val').textContent       = hiScore;
+    document.getElementById('level-val').textContent    = level;
+    document.getElementById('food-val').textContent     = foodEaten;
+    const pct = ((foodEaten % FOODS_PER_LVL) / FOODS_PER_LVL) * 100;
+    document.getElementById('level-bar').style.width   = pct + '%';
+  }
+
+  function showOverlay(title, msg, btnLabel) {
+    document.getElementById('overlay-title').textContent = title;
+    document.getElementById('overlay-msg').innerHTML    = msg;
+    document.getElementById('start-btn').textContent    = btnLabel;
+    document.getElementById('overlay').style.display   = 'flex';
+  }
+
+  function hideOverlay() {
+    document.getElementById('overlay').style.display = 'none';
+  }
+
+  function gameOver() {
+    gameRunning = false;
+    if (animId) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+    showOverlay(
+      'GAME OVER',
+      `SCORE: ${score}<br>BEST: ${hiScore}<br>LEVEL: ${level}<br>FOOD: ${foodEaten}`,
+      'PLAY AGAIN'
+    );
+  }
+
+  // ── Input ─────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    const key = e.code;
+
+    // Allow starting via Enter/Space on overlay
+    if (!gameRunning) {
+      if (key === 'Enter' || key === 'Space') {
+        e.preventDefault();
+        startGame();
+      }
+      return;
+    }
+
+    switch (key) {
+      case 'ArrowUp':    case 'KeyW':
+        if (dir.y !== 1)  nextDir = { x: 0, y: -1 };
+        e.preventDefault(); break;
+      case 'ArrowDown':  case 'KeyS':
+        if (dir.y !== -1) nextDir = { x: 0, y: 1 };
+        e.preventDefault(); break;
+      case 'ArrowLeft':  case 'KeyA':
+        if (dir.x !== 1)  nextDir = { x: -1, y: 0 };
+        e.preventDefault(); break;
+      case 'ArrowRight': case 'KeyD':
+        if (dir.x !== -1) nextDir = { x: 1, y: 0 };
+        e.preventDefault(); break;
+    }
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startGame);
+
+  // ── Touch swipe support ───────────────────────────────
+  let touchStartX = 0, touchStartY = 0;
+
+  canvas.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => {
+    if (!gameRunning) {
+      startGame();
+      return;
+    }
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+    const threshold = 20;
+
+    if (Math.max(absDx, absDy) < threshold) return;
+
+    if (absDx > absDy) {
+      // Horizontal swipe
+      if (dx > 0 && dir.x !== -1) nextDir = { x: 1,  y: 0 };
+      if (dx < 0 && dir.x !== 1)  nextDir = { x: -1, y: 0 };
+    } else {
+      // Vertical swipe
+      if (dy > 0 && dir.y !== -1) nextDir = { x: 0, y: 1  };
+      if (dy < 0 && dir.y !== 1)  nextDir = { x: 0, y: -1 };
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  // ── Initial static render ─────────────────────────────
+  // Draw a blank board so something shows behind the overlay
+  ctx.fillStyle = COLOR_BG;
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      ctx.fillRect(c * CELL + CELL / 2 - 0.5, r * CELL + CELL / 2 - 0.5, 1, 1);
+    }
+  }
+})();
+</script>
+</body>
+</html>

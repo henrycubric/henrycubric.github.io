@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCADE — Henry Cubric</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  :root {
+    --bg:     #0a0a0f;
+    --panel:  #0f0f1a;
+    --border: #1a1a3a;
+    --cyan:   #00fff0;
+    --yellow: #ffd700;
+    --purple: #bf5fff;
+    --green:  #39ff14;
+    --red:    #ff3131;
+    --blue:   #3f8fff;
+    --orange: #ff8c00;
+    --text:   #c8c8e0;
+    --dim:    #3a3a5a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Press Start 2P', monospace;
+    overflow-x: hidden;
+  }
+
+  /* CRT scanlines */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* CRT vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%);
+    pointer-events: none;
+    z-index: 998;
+  }
+
+  /* ── BACK LINK ── */
+  #back {
+    position: fixed;
+    top: 1.2rem;
+    left: 1.2rem;
+    font-size: 0.35rem;
+    color: var(--dim);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+    z-index: 1000;
+  }
+  #back:hover { color: var(--cyan); }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 3.5rem 1rem 1.5rem;
+  }
+
+  .arcade-title {
+    font-size: clamp(1.4rem, 5vw, 3rem);
+    letter-spacing: 0.5em;
+    color: var(--yellow);
+    text-shadow: 0 0 20px var(--yellow), 0 0 60px rgba(255,215,0,0.4);
+    animation: flicker 5s infinite;
+  }
+
+  .arcade-sub {
+    margin-top: 0.9rem;
+    font-size: 0.4rem;
+    letter-spacing: 0.3em;
+    color: var(--dim);
+  }
+
+  .coin-prompt {
+    margin-top: 1.6rem;
+    font-size: 0.45rem;
+    letter-spacing: 0.25em;
+    color: var(--cyan);
+    text-shadow: 0 0 10px var(--cyan);
+    animation: blink 1.2s step-start infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  @keyframes flicker {
+    0%, 92%, 100% { opacity: 1; }
+    93% { opacity: 0.6; }
+    94% { opacity: 1; }
+    95% { opacity: 0.4; }
+    96% { opacity: 1; }
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    margin: 0 auto 2.5rem;
+    width: min(700px, 90%);
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--cyan), transparent);
+    box-shadow: 0 0 10px var(--cyan);
+    opacity: 0.4;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.6rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  /* ── CARD ── */
+  .card {
+    position: relative;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.25s, transform 0.25s;
+    cursor: pointer;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+  }
+
+  .card:hover .card-border-top { transform: scaleX(1); }
+  .card:hover .card-canvas-overlay { opacity: 0; }
+  .card:hover .play-btn { opacity: 1; transform: translateY(0); }
+
+  .card-border-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  /* Preview canvas */
+  .card-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #050508;
+    overflow: hidden;
+  }
+
+  .card-preview canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .card-canvas-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5,5,8,0.45);
+    transition: opacity 0.3s;
+  }
+
+  .play-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, calc(-50% + 8px));
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    padding: 0.6rem 1.1rem;
+    border: 1px solid currentColor;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+  }
+
+  /* Card info */
+  .card-info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .card-name {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+  }
+
+  .card-desc {
+    font-size: 0.32rem;
+    line-height: 1.9;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+  }
+
+  .card-tags {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
+  }
+
+  .tag {
+    font-size: 0.28rem;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid;
+    opacity: 0.6;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.3rem;
+    letter-spacing: 0.15em;
+    color: var(--dim);
+    border-top: 1px solid var(--border);
+  }
+
+  footer a { color: var(--cyan); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<a id="back" href="index.html">← BACK TO PORTFOLIO</a>
+
+<header>
+  <div class="arcade-title">ARCADE</div>
+  <div class="arcade-sub">HENRY CUBRIC · RETRO GAME COLLECTION</div>
+  <div class="coin-prompt">— SELECT YOUR GAME —</div>
+</header>
+
+<div class="divider"></div>
+
+<div class="grid" id="game-grid"></div>
+
+<footer>
+  <a href="index.html">← HENRYCUBRIC.GITHUB.IO</a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  ALL GAMES MADE WITH HTML5 CANVAS
+</footer>
+
+<script>
+const GAMES = [
+  {
+    id: 'tetris',
+    name: 'TETRIS',
+    url: 'tetris.html',
+    desc: 'Classic falling blocks. Stack, clear lines, survive.',
+    color: '#00fff0',
+    tags: ['PUZZLE', '1 PLAYER'],
+    draw(ctx, w, h, t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, w, h);
+      const COLORS = ['#00fff0','#ffd700','#bf5fff','#39ff14','#ff3131','#3f8fff','#ff8c00'];
+      const S = 18;
+      const cols = Math.floor(w / S);
+      const rows = Math.floor(h / S);
+      // Falling pieces animation
+      const pieces = [
+        {shape:[[1,1,1,1]], x:2, spd:0.6},
+        {shape:[[1,1],[1,1]], x:6, spd:0.8},
+        {shape:[[0,1,0],[1,1,1]], x:1, spd:0.5},
+        {shape:[[1,1,0],[0,1,1]], x:8, spd:0.9},
+        {shape:[[0,1,1],[1,1,0]], x:4, spd:0.7},
+      ];
+      pieces.forEach((p, i) => {
+        const y = ((t * p.spd * 0.04 + i * 4) % (rows + 4)) - 2;
+        const col = COLORS[(i + Math.floor(t*0.01)) % COLORS.length];
+        p.shape.forEach((row, r) => row.forEach((cell, c) => {
+          if (!cell) return;
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = col;
+          ctx.fillRect((p.x + c) * S + 1, (y + r) * S + 1, S - 2, S - 2);
+          ctx.shadowBlur = 0;
+        }));
+      });
+    }
+  },
+  {
+    id: 'snake',
+    name: 'SNAKE',
+    url: 'snake.html',
+    desc: 'Eat, grow, don\'t hit yourself. How long can you last?',
+    color: '#39ff14',
+    tags: ['ARCADE', '1 PLAYER'],
+    draw(ctx, w, h, t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, w, h);
+      const S = 16;
+      const frame = Math.floor(t * 0.05);
+      // Animated snake path
+      const path = [];
+      const len = 12;
+      for (let i = 0; i < len; i++) {
+        const angle = (frame + i * 2.5) * 0.12;
+        const px = w/2 + Math.cos(angle) * (w * 0.28) - (i * 2);
+        const py = h/2 + Math.sin(angle * 1.3) * (h * 0.25);
+        path.push({x: Math.floor(px/S), y: Math.floor(py/S)});
+      }
+      path.forEach((seg, i) => {
+        const alpha = 1 - i / len * 0.6;
+        ctx.globalAlpha = alpha;
+        ctx.shadowColor = '#39ff14';
+        ctx.shadowBlur = i === 0 ? 16 : 8;
+        ctx.fillStyle = i === 0 ? '#80ff60' : '#39ff14';
+        ctx.fillRect(seg.x * S + 1, seg.y * S + 1, S - 2, S - 2);
+      });
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+      // Food
+      const fx = Math.floor(w / 2 / S) + 3;
+      const fy = Math.floor(h / 2 / S) - 2;
+      const pulse = 0.6 + Math.sin(t * 0.08) * 0.4;
+      ctx.globalAlpha = pulse;
+      ctx.shadowColor = '#ff3131';
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = '#ff3131';
+      ctx.fillRect(fx * S + 1, fy * S + 1, S - 2, S - 2);
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+  },
+  {
+    id: 'breakout',
+    name: 'BREAKOUT',
+    url: 'breakout.html',
+    desc: 'Smash bricks with a bouncing ball. Don\'t let it drop.',
+    color: '#ff8c00',
+    tags: ['ARCADE', '1 PLAYER'],
+    draw(ctx, w, h, t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, w, h);
+      const COLORS = ['#ff3131','#ff8c00','#ffd700','#39ff14','#00fff0','#3f8fff','#bf5fff'];
+      const bW = Math.floor(w / 8) - 2;
+      const bH = 10;
+      // Bricks
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 8; c++) {
+          const hit = (Math.floor(t * 0.02) + r + c) % 12 === 0;
+          ctx.globalAlpha = hit ? 0.1 : 0.85;
+          const col = COLORS[r % COLORS.length];
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 6;
+          ctx.fillStyle = col;
+          ctx.fillRect(c * (bW + 2) + 2, r * (bH + 3) + 12, bW, bH);
+        }
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+      // Paddle
+      const pW = 50, pH = 8;
+      const px = (w - pW) / 2 + Math.sin(t * 0.03) * (w * 0.3 - pW/2);
+      const py = h - 20;
+      ctx.shadowColor = '#ff8c00';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#ff8c00';
+      ctx.fillRect(px, py, pW, pH);
+      ctx.shadowBlur = 0;
+      // Ball
+      const bx = px + pW/2 + Math.cos(t * 0.05) * 30;
+      const by = h - 50 - Math.abs(Math.sin(t * 0.04)) * (h * 0.5);
+      ctx.beginPath();
+      ctx.arc(bx, by, 5, 0, Math.PI * 2);
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = '#ffd700';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  },
+  {
+    id: 'space-invaders',
+    name: 'INVADERS',
+    url: 'space-invaders.html',
+    desc: 'Defend Earth from the alien horde. They\'re coming faster.',
+    color: '#bf5fff',
+    tags: ['SHOOTER', '1 PLAYER'],
+    draw(ctx, w, h, t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, w, h);
+      const frame = Math.floor(t * 0.03) % 2;
+      // Stars
+      for (let i = 0; i < 30; i++) {
+        const sx = (i * 73 + 11) % w;
+        const sy = (i * 47 + 7) % h;
+        const alpha = 0.3 + Math.sin(t * 0.05 + i) * 0.2;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(sx, sy, 1, 1);
+      }
+      ctx.globalAlpha = 1;
+      const rows = 3, cols = 7;
+      const dx = Math.sin(t * 0.015) * (w * 0.2);
+      const COLORS = ['#00fff0','#bf5fff','#39ff14'];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const ax = (w/2 - cols*18/2) + c * 18 + dx;
+          const ay = 20 + r * 22;
+          const col = COLORS[r % 3];
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 8;
+          ctx.fillStyle = col;
+          if (frame === 0) {
+            ctx.fillRect(ax, ay + 4, 10, 8);
+            ctx.fillRect(ax + 2, ay, 6, 4);
+            ctx.fillRect(ax - 2, ay + 8, 3, 4);
+            ctx.fillRect(ax + 9, ay + 8, 3, 4);
+          } else {
+            ctx.fillRect(ax, ay + 2, 10, 10);
+            ctx.fillRect(ax + 3, ay, 4, 2);
+            ctx.fillRect(ax - 3, ay + 6, 4, 4);
+            ctx.fillRect(ax + 9, ay + 6, 4, 4);
+          }
+          ctx.shadowBlur = 0;
+        }
+      }
+      // Player
+      const px = w / 2 + Math.sin(t * 0.02) * 30;
+      ctx.shadowColor = '#39ff14';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#39ff14';
+      ctx.fillRect(px - 8, h - 22, 16, 8);
+      ctx.fillRect(px - 3, h - 28, 6, 6);
+      ctx.shadowBlur = 0;
+      // Bullet
+      const bulY = h - 30 - (t * 2.5 % (h - 30));
+      ctx.shadowColor = '#ff3131';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = '#ff3131';
+      ctx.fillRect(px - 1, bulY, 2, 8);
+      ctx.shadowBlur = 0;
+    }
+  },
+  {
+    id: 'pong',
+    name: 'PONG',
+    url: 'pong.html',
+    desc: 'The original. You vs AI. First to 7 wins.',
+    color: '#ffd700',
+    tags: ['CLASSIC', '1 PLAYER'],
+    draw(ctx, w, h, t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, w, h);
+      // Center dashes
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(w/2, 0);
+      ctx.lineTo(w/2, h);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Ball position
+      const bx = w/2 + Math.sin(t * 0.04) * (w * 0.4);
+      const by = h/2 + Math.cos(t * 0.033) * (h * 0.38);
+      // Paddles
+      const pH = 40, pW = 8;
+      const p1y = by - pH/2 + Math.sin(t * 0.035) * 5;
+      const p2y = by - pH/2 + Math.cos(t * 0.028) * 8;
+      ctx.shadowColor = '#00fff0';
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = '#00fff0';
+      ctx.fillRect(10, Math.max(0, Math.min(h - pH, p1y)), pW, pH);
+      ctx.shadowColor = '#ff3131';
+      ctx.fillStyle = '#ff3131';
+      ctx.fillRect(w - 18, Math.max(0, Math.min(h - pH, p2y)), pW, pH);
+      ctx.shadowBlur = 0;
+      // Ball trail
+      for (let i = 3; i >= 0; i--) {
+        const trailT = t - i * 2;
+        const tx = w/2 + Math.sin(trailT * 0.04) * (w * 0.4);
+        const ty = h/2 + Math.cos(trailT * 0.033) * (h * 0.38);
+        ctx.globalAlpha = (4 - i) / 4 * 0.3;
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(tx - 4, ty - 4, 8, 8);
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(bx - 5, by - 5, 10, 10);
+      ctx.shadowBlur = 0;
+    }
+  }
+];
+
+// Build cards
+const grid = document.getElementById('game-grid');
+
+GAMES.forEach(game => {
+  const card = document.createElement('a');
+  card.href = game.url;
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-border-top" style="background:${game.color};box-shadow:0 0 10px ${game.color};"></div>
+    <div class="card-preview">
+      <canvas id="prev-${game.id}" width="320" height="240"></canvas>
+      <div class="card-canvas-overlay"></div>
+      <div class="play-btn" style="color:${game.color};box-shadow:0 0 14px ${game.color}40;">▶ PLAY</div>
+    </div>
+    <div class="card-info">
+      <div class="card-name" style="color:${game.color};text-shadow:0 0 10px ${game.color};">${game.name}</div>
+      <div class="card-desc">${game.desc}</div>
+      <div class="card-tags">
+        ${game.tags.map(t => `<span class="tag" style="border-color:${game.color};color:${game.color};">${t}</span>`).join('')}
+      </div>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+// Animate previews
+let t = 0;
+function animatePreviews() {
+  GAMES.forEach(game => {
+    const canvas = document.getElementById(`prev-${game.id}`);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    game.draw(ctx, canvas.width, canvas.height, t);
+  });
+  t++;
+  requestAnimationFrame(animatePreviews);
+}
+animatePreviews();
+</script>
+</body>
+</html>
