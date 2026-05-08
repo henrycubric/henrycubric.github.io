@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEX Override Simulator — 2025-2026</title>
+<style>
+:root {
+  --bg: #080b14;
+  --bg2: #0d1120;
+  --bg3: #111827;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --red: #ff2244;
+  --red-dim: rgba(255,34,68,0.15);
+  --red-glow: 0 0 20px rgba(255,34,68,0.4);
+  --blue: #2266ff;
+  --blue-dim: rgba(34,102,255,0.15);
+  --blue-glow: 0 0 20px rgba(34,102,255,0.4);
+  --gold: #f5a623;
+  --text: #e2e8f0;
+  --text-dim: #64748b;
+  --panel-w: 280px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* ── HEADER ── */
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+  gap: 12px;
+}
+#logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--red), var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+}
+#logo span { font-size: 0.7rem; opacity: 0.6; display: block; letter-spacing: 0.15em; }
+#timer-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+#phase-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+#timer {
+  font-size: 2.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  line-height: 1;
+  transition: color 0.3s;
+}
+#timer.urgent { color: var(--red); animation: pulse 0.5s infinite alternate; }
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+#score-header {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.score-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.score-pill.red { border-color: var(--red); box-shadow: var(--red-glow); }
+.score-pill.blue { border-color: var(--blue); box-shadow: var(--blue-glow); }
+.score-pill .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.score-pill.red .dot { background: var(--red); }
+.score-pill.blue .dot { background: var(--blue); }
+#header-btns {
+  display: flex;
+  gap: 8px;
+}
+.hbtn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.hbtn:hover { background: rgba(255,255,255,0.08); }
+.hbtn.active-red { background: var(--red-dim); border-color: var(--red); color: var(--red); box-shadow: var(--red-glow); }
+.hbtn.active-blue { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); box-shadow: var(--blue-glow); }
+.hbtn.start { background: rgba(34,197,94,0.15); border-color: #22c55e; color: #22c55e; }
+.hbtn.start:hover { background: rgba(34,197,94,0.25); }
+.hbtn.reset-btn { background: rgba(100,116,139,0.15); border-color: #475569; color: #94a3b8; }
+
+/* ── MAIN LAYOUT ── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── PANELS ── */
+.panel {
+  width: var(--panel-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #1e293b transparent;
+}
+.panel.right { border-right: none; border-left: 1px solid var(--glass-border); }
+.panel-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.panel-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-size: 0.78rem;
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 5px;
+  background: var(--bg3);
+  border: 1px solid var(--glass-border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+  font-family: monospace;
+}
+.key.active-key {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+}
+.key.alliance-blue.active-key {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.ctrl-label { color: var(--text-dim); line-height: 1.3; }
+
+/* status indicators */
+.status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.stat-box {
+  background: var(--bg3);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); }
+.stat-val { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-val.on { color: #22c55e; }
+.stat-val.off { color: var(--text-dim); }
+.stat-val.rev { color: var(--gold); }
+.stat-val.up { color: #a78bfa; }
+
+/* score breakdown */
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 0.78rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+.score-row:last-child { border-bottom: none; }
+.score-row .label { color: var(--text-dim); }
+.score-row .val-red { color: var(--red); font-weight: 700; }
+.score-row .val-blue { color: var(--blue); font-weight: 700; }
+
+/* event log */
+#event-log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+  overflow-y: auto;
+  max-height: 180px;
+  scrollbar-width: thin;
+  scrollbar-color: #1e293b transparent;
+}
+.log-entry {
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-dim);
+  display: flex;
+  gap: 6px;
+}
+.log-entry .log-time { color: var(--text-dim); opacity: 0.6; font-variant-numeric: tabular-nums; min-width: 32px; }
+.log-entry.log-score-r { color: var(--red); }
+.log-entry.log-score-b { color: var(--blue); }
+.log-entry.log-auton { color: #a78bfa; }
+.log-entry.log-action { color: var(--gold); }
+
+/* field area */
+#field-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+#field-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#field-canvas {
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+}
+/* overlay for phase announcements */
+#phase-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+#phase-overlay.show { opacity: 1; pointer-events: none; }
+#phase-msg {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 0 40px currentColor;
+  color: #fff;
+  background: rgba(0,0,0,0.7);
+  padding: 20px 40px;
+  border-radius: 16px;
+  border: 2px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(16px);
+  text-align: center;
+}
+
+/* footer */
+#footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: var(--bg2);
+  border-top: 1px solid var(--glass-border);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  gap: 12px;
+}
+#footer .hint { letter-spacing: 0.04em; }
+#mode-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+#mode-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-dim);
+  animation: none;
+}
+#mode-dot.live { background: #22c55e; animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* override node flash */
+@keyframes nodeFlash {
+  0% { box-shadow: 0 0 0 0 var(--red); }
+  100% { box-shadow: 0 0 30px 10px transparent; }
+}
+
+/* mobo info table */
+.mogo-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+.mogo-table td { padding: 4px 6px; }
+.mogo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+.mogo-badge {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+/* auton path toggle */
+#auton-overlay { position: absolute; inset: 0; pointer-events: none; }
+
+/* alliance selector */
+.alliance-btns { display: flex; gap: 8px; }
+.alliance-btn {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.alliance-btn.sel-red {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: var(--red-glow);
+}
+.alliance-btn.sel-blue {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+  color: var(--blue);
+  box-shadow: var(--blue-glow);
+}
+
+/* held item display */
+.held-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  margin-top: 4px;
+}
+.held-item .disc-icon {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 3px solid #c8821a;
+}
+.held-item.empty { color: var(--text-dim); }
+
+/* mini mogo visualizer */
+.mogo-vis {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mogo-vis-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--glass-border);
+  font-size: 0.72rem;
+}
+.mogo-vis-row .rings-bar {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.disc-pip {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid #c8821a;
+  flex-shrink: 0;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div id="header">
+  <div id="logo">
+    VEX Override <span>2025–2026 Season Simulator</span>
+  </div>
+
+  <div id="timer-block">
+    <div id="phase-label">SETUP</div>
+    <div id="timer">2:00</div>
+  </div>
+
+  <div id="score-header">
+    <div class="score-pill red"><div class="dot"></div><span id="score-red">0</span></div>
+    <div style="font-size:0.8rem;color:var(--text-dim);font-weight:700;">VS</div>
+    <div class="score-pill blue"><div class="dot"></div><span id="score-blue">0</span></div>
+  </div>
+
+  <div id="header-btns">
+    <button class="hbtn start" id="btn-start" onclick="startMatch()">▶ Start Match</button>
+    <button class="hbtn" id="btn-auton" onclick="showAuton()" style="display:none">⚡ Auton Preview</button>
+    <button class="hbtn reset-btn" onclick="resetAll()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+
+  <!-- LEFT PANEL -->
+  <div class="panel">
+    <div class="panel-section">
+      <div class="panel-title">Alliance</div>
+      <div class="alliance-btns">
+        <button class="alliance-btn sel-red" id="btn-red" onclick="setAlliance('red')">RED</button>
+        <button class="alliance-btn" id="btn-blue" onclick="setAlliance('blue')">BLUE</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Drive Controls</div>
+      <div class="ctrl-row"><div class="key" id="key-w">W</div><span class="ctrl-label">Move Forward</span></div>
+      <div class="ctrl-row"><div class="key" id="key-s">S</div><span class="ctrl-label">Move Backward</span></div>
+      <div class="ctrl-row"><div class="key" id="key-a">A</div><span class="ctrl-label">Turn Left</span></div>
+      <div class="ctrl-row"><div class="key" id="key-d">D</div><span class="ctrl-label">Turn Right</span></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Component Controls</div>
+      <div class="ctrl-row"><div class="key" id="key-1">1</div><span class="ctrl-label">Intake ON</span></div>
+      <div class="ctrl-row"><div class="key" id="key-2">2</div><span class="ctrl-label">Intake Reverse</span></div>
+      <div class="ctrl-row"><div class="key" id="key-3">3</div><span class="ctrl-label">Lift Up</span></div>
+      <div class="ctrl-row"><div class="key" id="key-4">4</div><span class="ctrl-label">Lift Down</span></div>
+      <div class="ctrl-row"><div class="key" id="key-5">5</div><span class="ctrl-label">Score / Release</span></div>
+      <div class="ctrl-row"><div class="key" id="key-6">6</div><span class="ctrl-label">Toggle Clamp</span></div>
+      <div class="ctrl-row"><div class="key" id="key-7">7</div><span class="ctrl-label">Auton Preview</span></div>
+      <div class="ctrl-row"><div class="key" id="key-8">8</div><span class="ctrl-label">Reset Position</span></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Robot Status</div>
+      <div class="status-grid">
+        <div class="stat-box">
+          <div class="stat-label">Intake</div>
+          <div class="stat-val off" id="st-intake">OFF</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Lift</div>
+          <div class="stat-val off" id="st-lift">DOWN</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Clamp</div>
+          <div class="stat-val off" id="st-clamp">OPEN</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Discs Held</div>
+          <div class="stat-val" id="st-discs">0</div>
+        </div>
+      </div>
+      <div class="held-item empty" id="held-display">
+        No game object held
+      </div>
+    </div>
+
+    <div class="panel-section" style="flex:1">
+      <div class="panel-title">Match Log</div>
+      <div id="event-log"></div>
+    </div>
+  </div>
+
+  <!-- FIELD AREA -->
+  <div id="field-area">
+    <div id="field-wrap">
+      <canvas id="field-canvas"></canvas>
+      <div id="phase-overlay">
+        <div id="phase-msg">AUTONOMOUS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel right">
+    <div class="panel-section">
+      <div class="panel-title">Score Breakdown</div>
+      <div class="score-row">
+        <span class="label">Override Nodes</span>
+        <span><span class="val-red" id="sc-nodes-r">0</span> / <span class="val-blue" id="sc-nodes-b">0</span></span>
+      </div>
+      <div class="score-row">
+        <span class="label">Discs Scored</span>
+        <span><span class="val-red" id="sc-discs-r">0</span> / <span class="val-blue" id="sc-discs-b">0</span></span>
+      </div>
+      <div class="score-row">
+        <span class="label">Mobile Goals</span>
+        <span><span class="val-red" id="sc-mogo-r">0</span> / <span class="val-blue" id="sc-mogo-b">0</span></span>
+      </div>
+      <div class="score-row">
+        <span class="label">Corner Bonus</span>
+        <span><span class="val-red" id="sc-corner-r">0</span> / <span class="val-blue" id="sc-corner-b">0</span></span>
+      </div>
+      <div class="score-row">
+        <span class="label">Auton Win Pt</span>
+        <span><span class="val-red" id="sc-auto-r">0</span> / <span class="val-blue" id="sc-auto-b">0</span></span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Mobile Goals</div>
+      <div class="mogo-vis" id="mogo-vis"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Override Nodes</div>
+      <div id="node-status" style="display:flex;flex-direction:column;gap:4px;font-size:0.72rem;"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Field Overview</div>
+      <div style="font-size:0.7rem;color:var(--text-dim);line-height:1.7;">
+        <div>🔴 Red Alliance: Bottom zone</div>
+        <div>🔵 Blue Alliance: Top zone</div>
+        <div>⚙️ Override Nodes: 6 on field</div>
+        <div>📀 Discs: Collect &amp; score on nodes</div>
+        <div>📦 Mobile Goals: 5 on field</div>
+        <div>🏆 Corners: Bonus scoring zones</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">VEX Override Rules</div>
+      <div style="font-size:0.68rem;color:var(--text-dim);line-height:1.8;">
+        <div>• Override Node: 3 pts (neutral → captured)</div>
+        <div>• Each disc on a node: 1 pt</div>
+        <div>• Mobile goal owned: 5 pts</div>
+        <div>• Mogo in positive corner: +3 bonus</div>
+        <div>• Autonomous win point: 10 pts</div>
+        <div>• Disc on wall stake: 2 pts</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div id="footer">
+  <div class="hint">WASD = Drive &nbsp;|&nbsp; 1-8 = Components &nbsp;|&nbsp; Click field to focus</div>
+  <div id="mode-indicator"><div id="mode-dot"></div><span id="mode-text">SETUP — Press Start to begin</span></div>
+  <div class="hint" style="text-align:right">VEX Override 2025–2026 &nbsp;|&nbsp; Strategy Simulator v1.0</div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CONSTANTS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const C = document.getElementById('field-canvas');
+const CTX = C.getContext('2d');
+
+const FIELD_PX = 660;   // canvas size in px
+const TILES = 12;
+const TILE = FIELD_PX / TILES;  // 55px per tile
+
+const ROBOT_W = 46, ROBOT_H = 46;
+const DISC_R = 10;
+const MOGO_W = 20, MOGO_H = 20;
+const NODE_R = 28;
+
+const DRIVE_SPEED = 3.2;
+const TURN_SPEED = 0.048;
+const FRICTION = 0.82;
+
+// Field coordinates (tile units → pixel: multiply by TILE)
+const tx = t => t * TILE;
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let alliance = 'red';
+let gamePhase = 'setup'; // setup | autonomous | driver | ended
+let matchTime = 0; // ms elapsed in current phase
+let autonDuration = 15000;
+let driverDuration = 105000;
+let lastTimestamp = null;
+let animFrame = null;
+let showAutonPath = false;
+let autonStep = 0;
+let autonTimer = 0;
+let autoWinPt = { red: false, blue: false };
+
+let keys = {};
+let pressedThisFrame = {};
+
+const robot = {
+  x: tx(9.5), y: tx(10.5),
+  angle: -Math.PI / 2,
+  vx: 0, vy: 0, vAngle: 0,
+  intakeState: 'off',
+  armAngle: 0,      // 0–1 (0=down, 1=up)
+  armTarget: 0,
+  clampActive: false,
+  heldDiscs: [],
+  heldMogo: null,
+  intakeAnim: 0,
+  wheelSpin: 0,
+  exhaustAnim: 0,
+};
+
+// Override Nodes (6 on field)
+// type: 'neutral' | 'red' | 'blue'
+// discs: array of disc ids scored here
+const nodes = [
+  { id: 0, tx: 2,   ty: 2,   owner: 'neutral', discs: [], label: 'NW Node' },
+  { id: 1, tx: 10,  ty: 2,   owner: 'neutral', discs: [], label: 'NE Node' },
+  { id: 2, tx: 6,   ty: 4,   owner: 'neutral', discs: [], label: 'N-Center' },
+  { id: 3, tx: 6,   ty: 8,   owner: 'neutral', discs: [], label: 'S-Center' },
+  { id: 4, tx: 2,   ty: 10,  owner: 'neutral', discs: [], label: 'SW Node' },
+  { id: 5, tx: 10,  ty: 10,  owner: 'neutral', discs: [], label: 'SE Node' },
+];
+
+// Mobile Goals
+const mogos = [
+  { id: 0, x: tx(2),   y: tx(8.5),  owner: 'red',     discs: [], inCorner: false, label: 'R-MG1' },
+  { id: 1, x: tx(9.5), y: tx(8.5),  owner: 'red',     discs: [], inCorner: false, label: 'R-MG2' },
+  { id: 2, x: tx(6),   y: tx(6),    owner: 'neutral',  discs: [], inCorner: false, label: 'Neutral' },
+  { id: 3, x: tx(2),   y: tx(3.5),  owner: 'blue',    discs: [], inCorner: false, label: 'B-MG1' },
+  { id: 4, x: tx(9.5), y: tx(3.5),  owner: 'blue',    discs: [], inCorner: false, label: 'B-MG2' },
+];
+
+// Wall Stakes (fixed positions, can hold 1 disc each)
+const wallStakes = [
+  { id: 0, x: tx(3),   y: 4,    alliance: 'red',  disc: null, label: 'R-WS1' },
+  { id: 1, x: tx(9),   y: 4,    alliance: 'red',  disc: null, label: 'R-WS2' },
+  { id: 2, x: tx(3),   y: FIELD_PX-4, alliance: 'blue', disc: null, label: 'B-WS1' },
+  { id: 3, x: tx(9),   y: FIELD_PX-4, alliance: 'blue', disc: null, label: 'B-WS2' },
+];
+
+// Free discs on field
+let discs = [];
+
+// Scoring
+let score = { red: 0, blue: 0 };
+let breakdown = {
+  nodesR: 0, nodesB: 0,
+  discsR: 0, discsB: 0,
+  mogoR: 0, mogoB: 0,
+  cornerR: 0, cornerB: 0,
+  autoR: 0, autoB: 0,
+};
+
+// Events log
+let eventLog = [];
+
+// Auton waypoints (red alliance)
+const autonPath = [
+  { action: 'move', dx: 0,  dy: -tx(2) },
+  { action: 'rotate', da: Math.PI / 2 },
+  { action: 'intake', state: 'on' },
+  { action: 'move', dx: -tx(2), dy: 0 },
+  { action: 'score', nodeId: 3 },
+  { action: 'move', dx: tx(1), dy: 0 },
+  { action: 'intake', state: 'off' },
+];
+
+// Positive corner zones (tile coords, 2x2 areas)
+const corners = [
+  { x1: 0,   y1: 0,   x2: 2,   y2: 2   },
+  { x1: 10,  y1: 0,   x2: 12,  y2: 2   },
+  { x1: 0,   y1: 10,  x2: 2,   y2: 12  },
+  { x1: 10,  y1: 10,  x2: 12,  y2: 12  },
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function initDiscs() {
+  discs = [];
+  let id = 0;
+  // Center cluster
+  const centerPositions = [
+    [5.5,5.5],[6.5,5.5],[5.5,6.5],[6.5,6.5],
+    [4.5,6],[7.5,6],[6,4.5],[6,7.5],
+    [4,5],[8,5],[4,7],[8,7],
+  ];
+  centerPositions.forEach(([tx2, ty2]) => {
+    discs.push({ id: id++, x: tx(tx2), y: tx(ty2), vx: 0, vy: 0, onField: true, scored: false, scoredBy: null });
+  });
+  // Near mogos
+  const mogoNear = [[2.5,9],[9,9],[2.5,3],[9,3]];
+  mogoNear.forEach(([tx2, ty2]) => {
+    discs.push({ id: id++, x: tx(tx2), y: tx(ty2), vx: 0, vy: 0, onField: true, scored: false, scoredBy: null });
+    discs.push({ id: id++, x: tx(tx2+0.5), y: tx(ty2-0.5), vx: 0, vy: 0, onField: true, scored: false, scoredBy: null });
+  });
+  // Additional scattered
+  const extra = [[3.5,5],[4,4.5],[7.5,7.5],[8,5.5],[3,7],[9,7.5]];
+  extra.forEach(([tx2, ty2]) => {
+    discs.push({ id: id++, x: tx(tx2), y: tx(ty2), vx: 0, vy: 0, onField: true, scored: false, scoredBy: null });
+  });
+}
+
+function initCanvas() {
+  const available = Math.min(
+    window.innerHeight - 120,
+    window.innerWidth - 600
+  );
+  const size = Math.max(400, Math.min(FIELD_PX, available));
+  C.width = size;
+  C.height = size;
+  C.style.width = size + 'px';
+  C.style.height = size + 'px';
+}
+
+function resetAll() {
+  cancelAnimationFrame(animFrame);
+  gamePhase = 'setup';
+  matchTime = 0;
+  lastTimestamp = null;
+  showAutonPath = false;
+  autonStep = 0;
+  autonTimer = 0;
+  autoWinPt = { red: false, blue: false };
+  score = { red: 0, blue: 0 };
+  robot.x = alliance === 'red' ? tx(9.5) : tx(2.5);
+  robot.y = alliance === 'red' ? tx(10.5) : tx(1.5);
+  robot.angle = alliance === 'red' ? -Math.PI / 2 : Math.PI / 2;
+  robot.vx = 0; robot.vy = 0; robot.vAngle = 0;
+  robot.intakeState = 'off';
+  robot.armAngle = 0; robot.armTarget = 0;
+  robot.clampActive = false;
+  robot.heldDiscs = [];
+  robot.heldMogo = null;
+  nodes.forEach(n => { n.owner = 'neutral'; n.discs = []; });
+  mogos[0].x = tx(2);   mogos[0].y = tx(8.5);  mogos[0].owner = 'red';    mogos[0].discs = []; mogos[0].inCorner = false;
+  mogos[1].x = tx(9.5); mogos[1].y = tx(8.5);  mogos[1].owner = 'red';    mogos[1].discs = []; mogos[1].inCorner = false;
+  mogos[2].x = tx(6);   mogos[2].y = tx(6);     mogos[2].owner = 'neutral';mogos[2].discs = []; mogos[2].inCorner = false;
+  mogos[3].x = tx(2);   mogos[3].y = tx(3.5);   mogos[3].owner = 'blue';   mogos[3].discs = []; mogos[3].inCorner = false;
+  mogos[4].x = tx(9.5); mogos[4].y = tx(3.5);   mogos[4].owner = 'blue';   mogos[4].discs = []; mogos[4].inCorner = false;
+  wallStakes.forEach(ws => ws.disc = null);
+  initDiscs();
+  eventLog = [];
+  document.getElementById('event-log').innerHTML = '';
+  document.getElementById('btn-start').textContent = '▶ Start Match';
+  document.getElementById('btn-start').style.display = '';
+  document.getElementById('btn-auton').style.display = 'none';
+  document.getElementById('phase-label').textContent = 'SETUP';
+  document.getElementById('timer').textContent = '2:00';
+  document.getElementById('timer').className = '';
+  document.getElementById('mode-dot').className = '';
+  document.getElementById('mode-text').textContent = 'SETUP — Press Start to begin';
+  hideOverlay();
+  updateUI();
+  render();
+  animFrame = requestAnimationFrame(gameLoop);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MATCH CONTROL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function startMatch() {
+  if (gamePhase === 'setup' || gamePhase === 'ended') {
+    gamePhase = 'autonomous';
+    matchTime = 0;
+    lastTimestamp = null;
+    showOverlay('AUTONOMOUS', '#a78bfa');
+    document.getElementById('phase-label').textContent = 'AUTONOMOUS';
+    document.getElementById('btn-start').style.display = 'none';
+    document.getElementById('btn-auton').style.display = '';
+    document.getElementById('mode-dot').className = 'live';
+    document.getElementById('mode-text').textContent = 'AUTONOMOUS — 15 seconds';
+    logEvent('Match started — Autonomous phase', 'log-auton');
+    setTimeout(hideOverlay, 2000);
+  }
+}
+
+function startDriver() {
+  gamePhase = 'driver';
+  matchTime = 0;
+  showOverlay('DRIVER CONTROL', '#22c55e');
+  document.getElementById('phase-label').textContent = 'DRIVER';
+  document.getElementById('mode-text').textContent = 'DRIVER CONTROL — 1:45';
+  logEvent('Driver control period started', 'log-auton');
+  setTimeout(hideOverlay, 2000);
+}
+
+function endMatch() {
+  gamePhase = 'ended';
+  calculateScore();
+  const winner = score.red > score.blue ? 'RED WINS' : score.blue > score.red ? 'BLUE WINS' : 'TIE GAME';
+  const color = score.red > score.blue ? '#ff2244' : score.blue > score.red ? '#2266ff' : '#f5a623';
+  showOverlay(`${winner}\n${score.red} – ${score.blue}`, color);
+  document.getElementById('phase-label').textContent = 'FINAL';
+  document.getElementById('mode-dot').className = '';
+  document.getElementById('mode-text').textContent = `Match ended — Red ${score.red} : Blue ${score.blue}`;
+  document.getElementById('btn-start').textContent = '↺ New Match';
+  document.getElementById('btn-start').style.display = '';
+  document.getElementById('btn-start').className = 'hbtn reset-btn';
+  logEvent(`Match ended! Red: ${score.red} — Blue: ${score.blue}`, 'log-auton');
+}
+
+function showOverlay(msg, color) {
+  const el = document.getElementById('phase-overlay');
+  const msgEl = document.getElementById('phase-msg');
+  msgEl.textContent = msg;
+  msgEl.style.color = color;
+  msgEl.style.textShadow = `0 0 40px ${color}`;
+  el.classList.add('show');
+}
+function hideOverlay() {
+  document.getElementById('phase-overlay').classList.remove('show');
+}
+
+function showAuton() {
+  showAutonPath = !showAutonPath;
+  document.getElementById('btn-auton').textContent = showAutonPath ? '✕ Hide Path' : '⚡ Auton Preview';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INPUT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('keydown', e => {
+  if (['w','a','s','d','1','2','3','4','5','6','7','8'].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+  }
+  const k = e.key.toLowerCase();
+  if (!keys[k]) pressedThisFrame[k] = true;
+  keys[k] = true;
+  highlightKey(k, true);
+});
+document.addEventListener('keyup', e => {
+  const k = e.key.toLowerCase();
+  keys[k] = false;
+  highlightKey(k, false);
+});
+
+function highlightKey(k, on) {
+  const map = { w:'key-w', a:'key-a', s:'key-s', d:'key-d',
+    '1':'key-1','2':'key-2','3':'key-3','4':'key-4',
+    '5':'key-5','6':'key-6','7':'key-7','8':'key-8' };
+  const el = document.getElementById(map[k]);
+  if (!el) return;
+  if (on) {
+    el.classList.add('active-key');
+    if (alliance === 'blue') el.classList.add('alliance-blue');
+  } else {
+    el.classList.remove('active-key', 'alliance-blue');
+  }
+}
+
+function processInput(dt) {
+  if (gamePhase === 'autonomous') return; // no player input in auto
+
+  // Movement
+  let forward = 0, turn = 0;
+  if (keys['w']) forward += 1;
+  if (keys['s']) forward -= 1;
+  if (keys['a']) turn -= 1;
+  if (keys['d']) turn += 1;
+
+  const speed = DRIVE_SPEED * (dt / 16.67);
+  const tspeed = TURN_SPEED * (dt / 16.67);
+
+  if (forward !== 0) {
+    robot.vx += Math.cos(robot.angle) * forward * speed;
+    robot.vy += Math.sin(robot.angle) * forward * speed;
+    robot.wheelSpin += forward * 0.3;
+  }
+  if (turn !== 0) {
+    robot.vAngle += turn * tspeed;
+  }
+
+  // Component single-press actions
+  if (pressedThisFrame['1']) {
+    robot.intakeState = robot.intakeState === 'on' ? 'off' : 'on';
+    logEvent(`Intake ${robot.intakeState.toUpperCase()}`, 'log-action');
+  }
+  if (pressedThisFrame['2']) {
+    robot.intakeState = robot.intakeState === 'reverse' ? 'off' : 'reverse';
+    logEvent(`Intake ${robot.intakeState === 'reverse' ? 'REVERSED' : 'OFF'}`, 'log-action');
+  }
+  if (pressedThisFrame['3']) robot.armTarget = Math.min(1, robot.armTarget + 0.5);
+  if (pressedThisFrame['4']) robot.armTarget = Math.max(0, robot.armTarget - 0.5);
+  if (pressedThisFrame['5']) scoreAction();
+  if (pressedThisFrame['6']) toggleClamp();
+  if (pressedThisFrame['7']) showAuton();
+  if (pressedThisFrame['8']) resetRobotPos();
+
+  // Hold keys for arm
+  if (keys['3']) robot.armTarget = Math.min(1, robot.armTarget + 0.02 * (dt / 16.67));
+  if (keys['4']) robot.armTarget = Math.max(0, robot.armTarget - 0.02 * (dt / 16.67));
+
+  pressedThisFrame = {};
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// GAME ACTIONS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function scoreAction() {
+  if (robot.heldDiscs.length > 0) {
+    // Try to score on nearest node or mogo
+    const target = findNearestTarget();
+    if (target) {
+      const disc = robot.heldDiscs.pop();
+      if (target.type === 'node') {
+        const node = nodes[target.id];
+        node.discs.push(disc.id);
+        if (node.owner === 'neutral') node.owner = alliance;
+        disc.scored = true;
+        disc.scoredBy = alliance;
+        calculateScore();
+        logEvent(`Disc scored on ${node.label} (+1 ${alliance.toUpperCase()})`, alliance === 'red' ? 'log-score-r' : 'log-score-b');
+      } else if (target.type === 'mogo') {
+        const mogo = mogos[target.id];
+        mogo.discs.push(disc.id);
+        mogo.owner = alliance;
+        disc.scored = true;
+        disc.scoredBy = alliance;
+        calculateScore();
+        logEvent(`Disc scored on ${mogo.label} (${alliance.toUpperCase()})`, alliance === 'red' ? 'log-score-r' : 'log-score-b');
+      } else if (target.type === 'wallstake') {
+        const ws = wallStakes[target.id];
+        if (!ws.disc) {
+          ws.disc = disc.id;
+          disc.scored = true;
+          disc.scoredBy = alliance;
+          calculateScore();
+          logEvent(`Disc on wall stake! (+2 ${alliance.toUpperCase()})`, alliance === 'red' ? 'log-score-r' : 'log-score-b');
+        }
+      }
+      updateUI();
+      return;
+    }
+    // Drop disc
+    const disc = robot.heldDiscs.pop();
+    disc.x = robot.x + Math.cos(robot.angle) * 30;
+    disc.y = robot.y + Math.sin(robot.angle) * 30;
+    disc.onField = true;
+    discs.push(disc);
+    logEvent('Disc released', 'log-action');
+  }
+  // Release held mogo
+  if (robot.heldMogo !== null) {
+    const mogo = mogos[robot.heldMogo];
+    mogo.x = robot.x + Math.cos(robot.angle) * 35;
+    mogo.y = robot.y + Math.sin(robot.angle) * 35;
+    checkMogoInCorner(mogo);
+    robot.heldMogo = null;
+    robot.clampActive = false;
+    calculateScore();
+    logEvent(`Mobile goal released`, 'log-action');
+    updateUI();
+  }
+}
+
+function toggleClamp() {
+  robot.clampActive = !robot.clampActive;
+  if (robot.clampActive) {
+    // Try to grab nearest mogo
+    const nearest = findNearestMogo();
+    if (nearest !== null && nearest.dist < 50) {
+      robot.heldMogo = nearest.id;
+      logEvent(`Mogo ${mogos[nearest.id].label} clamped!`, 'log-action');
+    } else {
+      logEvent('Clamp active — no mogo in range', 'log-action');
+    }
+  } else {
+    if (robot.heldMogo !== null) {
+      const mogo = mogos[robot.heldMogo];
+      mogo.x = robot.x + Math.cos(robot.angle) * 38;
+      mogo.y = robot.y + Math.sin(robot.angle) * 38;
+      checkMogoInCorner(mogo);
+      robot.heldMogo = null;
+      calculateScore();
+    }
+    logEvent('Clamp released', 'log-action');
+  }
+  updateUI();
+}
+
+function resetRobotPos() {
+  robot.x = alliance === 'red' ? tx(9.5) : tx(2.5);
+  robot.y = alliance === 'red' ? tx(10.5) : tx(1.5);
+  robot.angle = alliance === 'red' ? -Math.PI / 2 : Math.PI / 2;
+  robot.vx = 0; robot.vy = 0; robot.vAngle = 0;
+  logEvent('Robot position reset', 'log-action');
+}
+
+function findNearestTarget() {
+  let best = null, bestDist = 80;
+  const frontX = robot.x + Math.cos(robot.angle) * 36;
+  const frontY = robot.y + Math.sin(robot.angle) * 36;
+
+  nodes.forEach(n => {
+    const nx = tx(n.tx), ny = tx(n.ty);
+    const d = Math.hypot(frontX - nx, frontY - ny);
+    if (d < bestDist) { bestDist = d; best = { type: 'node', id: n.id }; }
+  });
+  mogos.forEach(m => {
+    const d = Math.hypot(frontX - m.x, frontY - m.y);
+    if (d < bestDist) { bestDist = d; best = { type: 'mogo', id: m.id }; }
+  });
+  wallStakes.forEach(ws => {
+    const d = Math.hypot(robot.x - ws.x, robot.y - ws.y);
+    if (d < bestDist && robot.armAngle > 0.5) { bestDist = d; best = { type: 'wallstake', id: ws.id }; }
+  });
+  return best;
+}
+
+function findNearestMogo() {
+  let best = null, bestDist = Infinity;
+  mogos.forEach(m => {
+    const d = Math.hypot(robot.x - m.x, robot.y - m.y);
+    if (d < bestDist) { bestDist = d; best = { id: m.id, dist: d }; }
+  });
+  return best;
+}
+
+function checkMogoInCorner(mogo) {
+  mogo.inCorner = false;
+  const mx = mogo.x / TILE, my = mogo.y / TILE;
+  corners.forEach(c => {
+    if (mx >= c.x1 && mx <= c.x2 && my >= c.y1 && my <= c.y2) {
+      mogo.inCorner = true;
+    }
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PHYSICS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function updatePhysics(dt) {
+  const f = Math.pow(FRICTION, dt / 16.67);
+  robot.vx *= f;
+  robot.vy *= f;
+  robot.vAngle *= f;
+
+  robot.x += robot.vx;
+  robot.y += robot.vy;
+  robot.angle += robot.vAngle;
+
+  const half = ROBOT_W / 2 + 2;
+  robot.x = Math.max(half, Math.min(FIELD_PX - half, robot.x));
+  robot.y = Math.max(half, Math.min(FIELD_PX - half, robot.y));
+
+  // Arm animation
+  robot.armAngle += (robot.armTarget - robot.armAngle) * 0.12;
+
+  // Intake animation
+  if (robot.intakeState !== 'off') robot.intakeAnim += 0.2;
+  robot.wheelSpin *= 0.95;
+
+  // Intake disc pickup
+  if (robot.intakeState === 'on' && robot.heldDiscs.length < 3) {
+    const frontX = robot.x + Math.cos(robot.angle) * 30;
+    const frontY = robot.y + Math.sin(robot.angle) * 30;
+    discs.forEach(d => {
+      if (!d.onField || d.scored) return;
+      if (Math.hypot(d.x - frontX, d.y - frontY) < 28) {
+        d.onField = false;
+        robot.heldDiscs.push(d);
+        logEvent(`Disc collected! (${robot.heldDiscs.length} held)`, 'log-action');
+        updateUI();
+      }
+    });
+  }
+
+  // Eject disc if reverse
+  if (robot.intakeState === 'reverse' && robot.heldDiscs.length > 0 && Math.random() < 0.02) {
+    const d = robot.heldDiscs.pop();
+    d.x = robot.x + Math.cos(robot.angle - Math.PI) * 40;
+    d.y = robot.y + Math.sin(robot.angle - Math.PI) * 40;
+    d.vx = Math.cos(robot.angle - Math.PI) * 3;
+    d.vy = Math.sin(robot.angle - Math.PI) * 3;
+    d.onField = true;
+    discs.push(d);
+    updateUI();
+  }
+
+  // Move held mogo with robot
+  if (robot.heldMogo !== null) {
+    const m = mogos[robot.heldMogo];
+    m.x = robot.x + Math.cos(robot.angle) * 36;
+    m.y = robot.y + Math.sin(robot.angle) * 36;
+  }
+
+  // Move free discs (friction)
+  discs.forEach(d => {
+    if (!d.onField) return;
+    d.x += d.vx;
+    d.y += d.vy;
+    d.vx *= 0.92;
+    d.vy *= 0.92;
+    d.x = Math.max(DISC_R, Math.min(FIELD_PX - DISC_R, d.x));
+    d.y = Math.max(DISC_R, Math.min(FIELD_PX - DISC_R, d.y));
+  });
+}
+
+// Autonomous routine (simple scripted path for player's alliance)
+function updateAutonomous(dt) {
+  autonTimer += dt;
+  if (autonStep >= autonPath.length) {
+    // Auton done — check for win point
+    if (!autoWinPt[alliance]) {
+      autoWinPt[alliance] = true;
+      calculateScore();
+      logEvent(`Autonomous Win Point earned! (${alliance.toUpperCase()})`, 'log-auton');
+    }
+    return;
+  }
+  const step = autonPath[autonStep];
+  const speed = 2.5;
+
+  if (step.action === 'move') {
+    const targetX = robot.x + step.dx * 0.01;
+    const targetY = robot.y + step.dy * 0.01;
+    const dx = step.dx - (targetX - robot.x) * 100;
+    const dy = step.dy - (targetY - robot.y) * 100;
+    const dist = Math.hypot(step.dx, step.dy);
+    robot.vx = (step.dx / dist) * speed * (dt / 16.67);
+    robot.vy = (step.dy / dist) * speed * (dt / 16.67);
+    if (autonTimer > Math.abs(dist) / speed * 16.67 + 200) {
+      robot.vx = 0; robot.vy = 0;
+      autonStep++; autonTimer = 0;
+    }
+  } else if (step.action === 'rotate') {
+    robot.vAngle = (step.da > 0 ? 1 : -1) * 0.05;
+    if (autonTimer > 600) { robot.vAngle = 0; autonStep++; autonTimer = 0; }
+  } else if (step.action === 'intake') {
+    robot.intakeState = step.state;
+    autonStep++; autonTimer = 0;
+  } else if (step.action === 'score') {
+    if (robot.heldDiscs.length > 0) {
+      const disc = robot.heldDiscs.pop();
+      const node = nodes[step.nodeId];
+      node.discs.push(disc.id);
+      node.owner = alliance;
+      disc.scored = true;
+      calculateScore();
+      logEvent(`Auto: scored on ${node.label}`, 'log-auton');
+      updateUI();
+    }
+    autonStep++; autonTimer = 0;
+  } else {
+    autonStep++;
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SCORING
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function calculateScore() {
+  breakdown = { nodesR:0, nodesB:0, discsR:0, discsB:0, mogoR:0, mogoB:0, cornerR:0, cornerB:0, autoR:0, autoB:0 };
+
+  // Override nodes: 3 pts for capture + 1 pt per disc
+  nodes.forEach(n => {
+    if (n.owner === 'red') {
+      breakdown.nodesR += 3;
+      breakdown.discsR += n.discs.length;
+    } else if (n.owner === 'blue') {
+      breakdown.nodesB += 3;
+      breakdown.discsB += n.discs.length;
+    }
+  });
+
+  // Mobile goals: 5 pts for ownership + 1 pt per disc + corner bonus
+  mogos.forEach(m => {
+    const discPts = m.discs.length;
+    if (m.owner === 'red') {
+      breakdown.mogoR += 5;
+      breakdown.discsR += discPts;
+      if (m.inCorner) breakdown.cornerR += 3;
+    } else if (m.owner === 'blue') {
+      breakdown.mogoB += 5;
+      breakdown.discsB += discPts;
+      if (m.inCorner) breakdown.cornerB += 3;
+    }
+  });
+
+  // Wall stakes: 2 pts
+  wallStakes.forEach(ws => {
+    if (ws.disc !== null) {
+      const d = discs.find(x => x.id === ws.disc);
+      if (d?.scoredBy === 'red') breakdown.discsR += 2;
+      else if (d?.scoredBy === 'blue') breakdown.discsB += 2;
+    }
+  });
+
+  // Auton win point: 10 pts
+  if (autoWinPt.red) breakdown.autoR = 10;
+  if (autoWinPt.blue) breakdown.autoB = 10;
+
+  score.red = breakdown.nodesR + breakdown.discsR + breakdown.mogoR + breakdown.cornerR + breakdown.autoR;
+  score.blue = breakdown.nodesB + breakdown.discsB + breakdown.mogoB + breakdown.cornerB + breakdown.autoB;
+
+  document.getElementById('score-red').textContent = score.red;
+  document.getElementById('score-blue').textContent = score.blue;
+  document.getElementById('sc-nodes-r').textContent = breakdown.nodesR;
+  document.getElementById('sc-nodes-b').textContent = breakdown.nodesB;
+  document.getElementById('sc-discs-r').textContent = breakdown.discsR;
+  document.getElementById('sc-discs-b').textContent = breakdown.discsB;
+  document.getElementById('sc-mogo-r').textContent = breakdown.mogoR;
+  document.getElementById('sc-mogo-b').textContent = breakdown.mogoB;
+  document.getElementById('sc-corner-r').textContent = breakdown.cornerR;
+  document.getElementById('sc-corner-b').textContent = breakdown.cornerB;
+  document.getElementById('sc-auto-r').textContent = breakdown.autoR;
+  document.getElementById('sc-auto-b').textContent = breakdown.autoB;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UI UPDATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function updateUI() {
+  // Robot status
+  const iEl = document.getElementById('st-intake');
+  iEl.textContent = robot.intakeState.toUpperCase();
+  iEl.className = 'stat-val ' + (robot.intakeState === 'on' ? 'on' : robot.intakeState === 'reverse' ? 'rev' : 'off');
+
+  const lEl = document.getElementById('st-lift');
+  lEl.textContent = robot.armAngle > 0.5 ? 'UP' : 'DOWN';
+  lEl.className = 'stat-val ' + (robot.armAngle > 0.5 ? 'up' : 'off');
+
+  document.getElementById('st-clamp').textContent = robot.clampActive ? 'LOCKED' : 'OPEN';
+  document.getElementById('st-clamp').className = 'stat-val ' + (robot.clampActive ? 'on' : 'off');
+
+  document.getElementById('st-discs').textContent = robot.heldDiscs.length;
+
+  const held = document.getElementById('held-display');
+  if (robot.heldDiscs.length > 0) {
+    held.className = 'held-item';
+    held.innerHTML = Array(robot.heldDiscs.length).fill('<div class="disc-icon"></div>').join('') +
+      `<span style="color:var(--gold)">${robot.heldDiscs.length} disc${robot.heldDiscs.length>1?'s':''} held</span>`;
+  } else if (robot.heldMogo !== null) {
+    held.className = 'held-item';
+    held.innerHTML = `<span style="color:#aaa">📦 ${mogos[robot.heldMogo].label} clamped</span>`;
+  } else {
+    held.className = 'held-item empty';
+    held.innerHTML = 'No game object held';
+  }
+
+  // Mogo visualizer
+  const mv = document.getElementById('mogo-vis');
+  mv.innerHTML = mogos.map(m => {
+    const col = m.owner === 'red' ? 'var(--red)' : m.owner === 'blue' ? 'var(--blue)' : 'var(--text-dim)';
+    const corner = m.inCorner ? ' ⭐' : '';
+    const pips = m.discs.map(() => '<div class="disc-pip"></div>').join('');
+    return `<div class="mogo-vis-row">
+      <span style="color:${col};font-weight:700;min-width:52px">${m.label}</span>
+      <div class="rings-bar">${pips || '<span style="color:var(--text-dim);font-size:0.65rem">empty</span>'}</div>
+      ${corner}
+    </div>`;
+  }).join('');
+
+  // Node status
+  const ns = document.getElementById('node-status');
+  ns.innerHTML = nodes.map(n => {
+    const col = n.owner === 'red' ? 'var(--red)' : n.owner === 'blue' ? 'var(--blue)' : 'var(--text-dim)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 4px;border-radius:4px;background:var(--bg3);border:1px solid var(--glass-border)">
+      <span style="color:${col};font-weight:600">${n.label}</span>
+      <span style="color:var(--gold)">${n.discs.length} 📀</span>
+    </div>`;
+  }).join('');
+}
+
+function logEvent(msg, cls = '') {
+  const remaining = gamePhase === 'autonomous'
+    ? Math.max(0, autonDuration - matchTime)
+    : gamePhase === 'driver'
+    ? Math.max(0, driverDuration - matchTime)
+    : matchTime;
+  const s = Math.floor(remaining / 1000);
+  const timeStr = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${cls}`;
+  entry.innerHTML = `<span class="log-time">${timeStr}</span><span>${msg}</span>`;
+  const log = document.getElementById('event-log');
+  log.insertBefore(entry, log.firstChild);
+  eventLog.unshift({ msg, cls, time: timeStr });
+  if (log.children.length > 40) log.removeChild(log.lastChild);
+}
+
+function updateTimer() {
+  let remaining, total;
+  if (gamePhase === 'autonomous') {
+    remaining = Math.max(0, autonDuration - matchTime);
+    total = autonDuration;
+    const s = Math.ceil(remaining / 1000);
+    document.getElementById('timer').textContent = String(s);
+    document.getElementById('timer').className = remaining < 5000 ? 'urgent' : '';
+  } else if (gamePhase === 'driver') {
+    remaining = Math.max(0, driverDuration - matchTime);
+    const s = Math.ceil(remaining / 1000);
+    const m = Math.floor(s / 60);
+    document.getElementById('timer').textContent = `${m}:${String(s % 60).padStart(2, '0')}`;
+    document.getElementById('timer').className = remaining < 30000 ? 'urgent' : '';
+    document.getElementById('mode-text').textContent = `DRIVER CONTROL — ${m}:${String(s%60).padStart(2,'0')} remaining`;
+  } else if (gamePhase === 'ended') {
+    document.getElementById('timer').textContent = '0:00';
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RENDERING
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const S = () => C.width / FIELD_PX; // scale factor
+
+function sc(v) { return v * S(); }
+
+function drawField() {
+  const s = S();
+  // Carpet
+  CTX.fillStyle = '#1a5c1a';
+  CTX.fillRect(0, 0, C.width, C.height);
+
+  // Subtle carpet texture (alternating tiles)
+  for (let row = 0; row < TILES; row++) {
+    for (let col = 0; col < TILES; col++) {
+      if ((row + col) % 2 === 0) {
+        CTX.fillStyle = 'rgba(0,0,0,0.07)';
+        CTX.fillRect(sc(col * TILE), sc(row * TILE), sc(TILE), sc(TILE));
+      }
+    }
+  }
+
+  // Alliance zones
+  CTX.fillStyle = 'rgba(220,40,40,0.18)';
+  CTX.fillRect(0, sc(FIELD_PX * 0.75), C.width, sc(FIELD_PX * 0.25));
+  CTX.fillStyle = 'rgba(40,80,220,0.18)';
+  CTX.fillRect(0, 0, C.width, sc(FIELD_PX * 0.25));
+
+  // Positive corners (gold tint)
+  corners.forEach(c => {
+    CTX.fillStyle = 'rgba(245,166,35,0.13)';
+    CTX.fillRect(sc(c.x1*TILE), sc(c.y1*TILE), sc((c.x2-c.x1)*TILE), sc((c.y2-c.y1)*TILE));
+  });
+
+  // Auto line
+  CTX.strokeStyle = 'rgba(255,255,255,0.25)';
+  CTX.lineWidth = sc(2);
+  CTX.setLineDash([sc(8), sc(8)]);
+  CTX.beginPath();
+  CTX.moveTo(0, sc(FIELD_PX * 0.25));
+  CTX.lineTo(C.width, sc(FIELD_PX * 0.25));
+  CTX.stroke();
+  CTX.moveTo(0, sc(FIELD_PX * 0.75));
+  CTX.lineTo(C.width, sc(FIELD_PX * 0.75));
+  CTX.stroke();
+  CTX.setLineDash([]);
+
+  // Center line
+  CTX.strokeStyle = 'rgba(255,255,255,0.12)';
+  CTX.lineWidth = sc(1.5);
+  CTX.beginPath();
+  CTX.moveTo(0, sc(FIELD_PX * 0.5));
+  CTX.lineTo(C.width, sc(FIELD_PX * 0.5));
+  CTX.moveTo(sc(FIELD_PX * 0.5), 0);
+  CTX.lineTo(sc(FIELD_PX * 0.5), C.height);
+  CTX.stroke();
+
+  // Tile grid
+  CTX.strokeStyle = 'rgba(255,255,255,0.08)';
+  CTX.lineWidth = sc(0.8);
+  for (let i = 1; i < TILES; i++) {
+    CTX.beginPath();
+    CTX.moveTo(sc(i * TILE), 0);
+    CTX.lineTo(sc(i * TILE), C.height);
+    CTX.stroke();
+    CTX.beginPath();
+    CTX.moveTo(0, sc(i * TILE));
+    CTX.lineTo(C.width, sc(i * TILE));
+    CTX.stroke();
+  }
+
+  // Field border
+  CTX.strokeStyle = 'rgba(255,255,255,0.3)';
+  CTX.lineWidth = sc(3);
+  CTX.strokeRect(sc(1.5), sc(1.5), C.width - sc(3), C.height - sc(3));
+
+  // Corner labels
+  CTX.font = `bold ${sc(8)}px monospace`;
+  CTX.fillStyle = 'rgba(245,166,35,0.5)';
+  CTX.fillText('★', sc(4), sc(18));
+  CTX.fillText('★', sc(FIELD_PX-18), sc(18));
+  CTX.fillText('★', sc(4), sc(FIELD_PX-8));
+  CTX.fillText('★', sc(FIELD_PX-18), sc(FIELD_PX-8));
+
+  // Alliance labels
+  CTX.font = `bold ${sc(9)}px sans-serif`;
+  CTX.fillStyle = 'rgba(255,80,80,0.4)';
+  CTX.fillText('RED ALLIANCE', sc(TILE * 3.5), sc(FIELD_PX - TILE * 0.6));
+  CTX.fillStyle = 'rgba(80,120,255,0.4)';
+  CTX.fillText('BLUE ALLIANCE', sc(TILE * 3.5), sc(TILE * 0.9));
+}
+
+function drawWallStakes() {
+  wallStakes.forEach(ws => {
+    const x = sc(ws.x), y = sc(ws.y);
+    const col = ws.alliance === 'red' ? '#cc3333' : '#3355cc';
+    CTX.fillStyle = col;
+    CTX.fillRect(x - sc(12), y - sc(4), sc(24), sc(8));
+    // Post
+    CTX.fillStyle = '#777';
+    CTX.fillRect(x - sc(3), y - sc(6), sc(6), sc(12));
+    // Label
+    CTX.font = `bold ${sc(7)}px monospace`;
+    CTX.fillStyle = '#aaa';
+    CTX.textAlign = 'center';
+    CTX.fillText('WS', x, y + sc(ws.y < FIELD_PX/2 ? 16 : -8));
+    CTX.textAlign = 'left';
+    // Disc on stake
+    if (ws.disc !== null) {
+      drawDiscAt(x, y - sc(10), true);
+    }
+  });
+}
+
+function drawNodes() {
+  nodes.forEach((n, i) => {
+    const x = sc(n.tx * TILE), y = sc(n.ty * TILE);
+    const r = sc(NODE_R);
+    const t = Date.now() / 1000;
+    const pulse = n.owner !== 'neutral' ? 0.7 + 0.3 * Math.sin(t * 3 + i) : 0.5;
+
+    // Glow
+    if (n.owner !== 'neutral') {
+      const col = n.owner === 'red' ? '255,34,68' : '34,102,255';
+      const grad = CTX.createRadialGradient(x, y, 0, x, y, r * 1.5);
+      grad.addColorStop(0, `rgba(${col},${0.25 * pulse})`);
+      grad.addColorStop(1, `rgba(${col},0)`);
+      CTX.fillStyle = grad;
+      CTX.beginPath();
+      CTX.arc(x, y, r * 1.5, 0, Math.PI * 2);
+      CTX.fill();
+    }
+
+    // Outer ring
+    CTX.beginPath();
+    CTX.arc(x, y, r, 0, Math.PI * 2);
+    CTX.strokeStyle = n.owner === 'red' ? `rgba(255,34,68,${pulse})`
+      : n.owner === 'blue' ? `rgba(34,102,255,${pulse})`
+      : 'rgba(255,255,255,0.25)';
+    CTX.lineWidth = sc(2.5);
+    CTX.stroke();
+
+    // Inner pattern
+    CTX.beginPath();
+    CTX.arc(x, y, r * 0.6, 0, Math.PI * 2);
+    CTX.fillStyle = n.owner === 'red' ? 'rgba(255,34,68,0.2)'
+      : n.owner === 'blue' ? 'rgba(34,102,255,0.2)'
+      : 'rgba(255,255,255,0.06)';
+    CTX.fill();
+    CTX.strokeStyle = n.owner === 'red' ? 'rgba(255,34,68,0.6)'
+      : n.owner === 'blue' ? 'rgba(34,102,255,0.6)'
+      : 'rgba(255,255,255,0.15)';
+    CTX.lineWidth = sc(1.5);
+    CTX.stroke();
+
+    // Node icon (⚙)
+    CTX.font = `${sc(13)}px sans-serif`;
+    CTX.textAlign = 'center';
+    CTX.textBaseline = 'middle';
+    CTX.fillStyle = n.owner === 'red' ? 'rgba(255,100,120,0.9)'
+      : n.owner === 'blue' ? 'rgba(80,130,255,0.9)'
+      : 'rgba(255,255,255,0.35)';
+    CTX.fillText('⚙', x, y);
+    CTX.textAlign = 'left';
+    CTX.textBaseline = 'alphabetic';
+
+    // Disc count
+    if (n.discs.length > 0) {
+      CTX.font = `bold ${sc(8)}px monospace`;
+      CTX.fillStyle = '#f5a623';
+      CTX.textAlign = 'center';
+      CTX.fillText(`×${n.discs.length}`, x, y + r + sc(10));
+      CTX.textAlign = 'left';
+    }
+
+    // Label
+    CTX.font = `${sc(7)}px monospace`;
+    CTX.fillStyle = 'rgba(255,255,255,0.3)';
+    CTX.textAlign = 'center';
+    CTX.fillText(n.label, x, y - r - sc(4));
+    CTX.textAlign = 'left';
+  });
+}
+
+function drawMogos() {
+  mogos.forEach(m => {
+    const x = sc(m.x), y = sc(m.y);
+    const w = sc(MOGO_W), h = sc(MOGO_H);
+    const col = m.owner === 'red' ? '#cc2222' : m.owner === 'blue' ? '#2244cc' : '#777';
+    const glow = m.owner === 'red' ? 'rgba(220,50,50,0.4)' : m.owner === 'blue' ? 'rgba(50,100,220,0.4)' : 'rgba(120,120,120,0.2)';
+
+    // Shadow/glow
+    CTX.shadowColor = glow;
+    CTX.shadowBlur = sc(10);
+
+    // Body
+    CTX.fillStyle = col;
+    roundRect(CTX, x - w/2, y - h/2, w, h, sc(4));
+    CTX.fill();
+
+    // Top highlight
+    CTX.fillStyle = 'rgba(255,255,255,0.2)';
+    roundRect(CTX, x - w/2 + sc(2), y - h/2 + sc(2), w - sc(4), sc(6), sc(2));
+    CTX.fill();
+
+    // Disc pips on mogo
+    const discCount = m.discs.length;
+    for (let i = 0; i < Math.min(discCount, 5); i++) {
+      CTX.fillStyle = '#f5a623';
+      CTX.strokeStyle = '#c8821a';
+      CTX.lineWidth = sc(1.5);
+      CTX.beginPath();
+      CTX.arc(x - sc(8) + i * sc(4), y - h/2 - sc(5), sc(4), 0, Math.PI * 2);
+      CTX.fill();
+      CTX.stroke();
+    }
+
+    CTX.shadowBlur = 0;
+    CTX.shadowColor = 'transparent';
+
+    // Corner star
+    if (m.inCorner) {
+      CTX.font = `${sc(10)}px sans-serif`;
+      CTX.textAlign = 'center';
+      CTX.fillStyle = '#f5a623';
+      CTX.fillText('★', x, y - h/2 - sc(14));
+      CTX.textAlign = 'left';
+    }
+
+    // Label
+    CTX.font = `bold ${sc(7)}px monospace`;
+    CTX.fillStyle = 'rgba(255,255,255,0.5)';
+    CTX.textAlign = 'center';
+    CTX.fillText(m.label, x, y + h/2 + sc(10));
+    CTX.textAlign = 'left';
+  });
+}
+
+function drawDiscAt(x, y, small) {
+  const r = sc(small ? DISC_R * 0.7 : DISC_R);
+  CTX.beginPath();
+  CTX.arc(x, y, r, 0, Math.PI * 2);
+  CTX.fillStyle = '#f5a623';
+  CTX.fill();
+  CTX.beginPath();
+  CTX.arc(x, y, r * 0.45, 0, Math.PI * 2);
+  CTX.fillStyle = '#c8821a';
+  CTX.fill();
+  CTX.strokeStyle = '#e09020';
+  CTX.lineWidth = sc(1.5);
+  CTX.beginPath();
+  CTX.arc(x, y, r, 0, Math.PI * 2);
+  CTX.stroke();
+}
+
+function drawDiscs() {
+  discs.forEach(d => {
+    if (!d.onField) return;
+    drawDiscAt(sc(d.x), sc(d.y), false);
+  });
+}
+
+function drawRobot() {
+  const x = sc(robot.x), y = sc(robot.y);
+  const w = sc(ROBOT_W), h = sc(ROBOT_H);
+  const a = robot.angle;
+  const alColor = alliance === 'red' ? '#cc1122' : '#1144cc';
+  const alColorLight = alliance === 'red' ? '#ff3355' : '#3366ff';
+  const alGlow = alliance === 'red' ? 'rgba(220,20,50,0.6)' : 'rgba(30,80,220,0.6)';
+
+  CTX.save();
+  CTX.translate(x, y);
+  CTX.rotate(a);
+
+  // Shadow
+  CTX.shadowColor = alGlow;
+  CTX.shadowBlur = sc(14);
+
+  // Chassis base
+  CTX.fillStyle = '#2a2a2a';
+  roundRect(CTX, -w/2 - sc(4), -h/2, w + sc(8), h, sc(5));
+  CTX.fill();
+  CTX.shadowBlur = 0;
+
+  // Wheels (6WD)
+  const wheelPositions = [
+    [-w/2 - sc(6), -h/2 + sc(4)],
+    [-w/2 - sc(6), sc(0)],
+    [-w/2 - sc(6), h/2 - sc(4)],
+    [w/2 + sc(6), -h/2 + sc(4)],
+    [w/2 + sc(6), sc(0)],
+    [w/2 + sc(6), h/2 - sc(4)],
+  ];
+  wheelPositions.forEach(([wx, wy]) => {
+    CTX.save();
+    CTX.translate(wx, wy);
+    CTX.rotate(robot.wheelSpin);
+    CTX.fillStyle = '#1a1a1a';
+    CTX.beginPath();
+    CTX.arc(0, 0, sc(8), 0, Math.PI * 2);
+    CTX.fill();
+    // Tread pattern
+    for (let t = 0; t < 6; t++) {
+      const ta = (t / 6) * Math.PI * 2;
+      CTX.fillStyle = '#333';
+      CTX.fillRect(
+        Math.cos(ta) * sc(5) - sc(2), Math.sin(ta) * sc(5) - sc(2),
+        sc(4), sc(4)
+      );
+    }
+    CTX.strokeStyle = '#444';
+    CTX.lineWidth = sc(1.5);
+    CTX.beginPath();
+    CTX.arc(0, 0, sc(8), 0, Math.PI * 2);
+    CTX.stroke();
+    CTX.restore();
+  });
+
+  // Main chassis plate (alliance color)
+  CTX.fillStyle = alColor;
+  roundRect(CTX, -w/2 + sc(2), -h/2 + sc(2), w - sc(4), h - sc(4), sc(4));
+  CTX.fill();
+
+  // Carbon fiber center plate
+  CTX.fillStyle = '#1a1a1a';
+  roundRect(CTX, -w/2 + sc(8), -h/2 + sc(8), w - sc(16), h - sc(16), sc(3));
+  CTX.fill();
+
+  // LED strips along chassis edges
+  CTX.strokeStyle = alColorLight;
+  CTX.lineWidth = sc(2);
+  CTX.shadowColor = alColorLight;
+  CTX.shadowBlur = sc(6);
+  CTX.beginPath();
+  CTX.moveTo(-w/2 + sc(4), -h/2 + sc(2));
+  CTX.lineTo(w/2 - sc(4), -h/2 + sc(2));
+  CTX.stroke();
+  CTX.beginPath();
+  CTX.moveTo(-w/2 + sc(4), h/2 - sc(2));
+  CTX.lineTo(w/2 - sc(4), h/2 - sc(2));
+  CTX.stroke();
+  CTX.shadowBlur = 0;
+
+  // VEX brain / electronics (center rectangle)
+  CTX.fillStyle = '#222';
+  CTX.fillRect(-sc(10), -sc(8), sc(20), sc(16));
+  CTX.strokeStyle = '#555';
+  CTX.lineWidth = sc(1);
+  CTX.strokeRect(-sc(10), -sc(8), sc(20), sc(16));
+  // Brain screen (small green display)
+  CTX.fillStyle = '#0a2a0a';
+  CTX.fillRect(-sc(8), -sc(6), sc(16), sc(12));
+  CTX.fillStyle = '#00aa44';
+  CTX.font = `bold ${sc(5)}px monospace`;
+  CTX.textAlign = 'center';
+  CTX.fillText('VEX', 0, sc(2));
+  CTX.textAlign = 'left';
+
+  // Front intake (top of robot = front, robot faces +x direction before rotation)
+  const intakeAnim = robot.intakeAnim;
+  const intakeX = h/2 + sc(6);
+  CTX.fillStyle = '#333';
+  CTX.fillRect(-w/2 + sc(4), intakeX, w - sc(8), sc(8));
+  // Intake rollers
+  [-1, 1].forEach(side => {
+    CTX.save();
+    CTX.translate(side * (w/2 - sc(12)), intakeX + sc(4));
+    CTX.rotate(robot.intakeState === 'on' ? intakeAnim : robot.intakeState === 'reverse' ? -intakeAnim : 0);
+    CTX.fillStyle = '#555';
+    CTX.beginPath();
+    CTX.arc(0, 0, sc(5), 0, Math.PI * 2);
+    CTX.fill();
+    // Roller fins
+    for (let f = 0; f < 4; f++) {
+      const fa = (f / 4) * Math.PI * 2;
+      CTX.fillStyle = robot.intakeState === 'on' ? '#4a4' : robot.intakeState === 'reverse' ? '#a44' : '#444';
+      CTX.fillRect(Math.cos(fa) * sc(3) - sc(1), Math.sin(fa) * sc(3) - sc(2), sc(2), sc(4));
+    }
+    CTX.restore();
+  });
+
+  // Arm / lift (extends from center toward the front at armAngle)
+  const armLen = sc(28) * (0.3 + robot.armAngle * 0.7);
+  const armWidth = sc(5);
+  const armAngleDeg = -Math.PI * 0.3 * (1 - robot.armAngle);
+  CTX.save();
+  CTX.rotate(armAngleDeg);
+  // Arm beam
+  CTX.fillStyle = '#888';
+  CTX.fillRect(-armWidth/2, -h/2 - armLen, armWidth, armLen);
+  // Arm end effector
+  CTX.fillStyle = alColor;
+  CTX.fillRect(-sc(12), -h/2 - armLen - sc(4), sc(24), sc(8));
+  // Discs on arm
+  if (robot.heldDiscs.length > 0) {
+    for (let i = 0; i < Math.min(robot.heldDiscs.length, 3); i++) {
+      CTX.save();
+      CTX.beginPath();
+      CTX.arc(-sc(8) + i * sc(8), -h/2 - armLen - sc(8), sc(7), 0, Math.PI * 2);
+      CTX.fillStyle = '#f5a623';
+      CTX.fill();
+      CTX.beginPath();
+      CTX.arc(-sc(8) + i * sc(8), -h/2 - armLen - sc(8), sc(3), 0, Math.PI * 2);
+      CTX.fillStyle = '#c8821a';
+      CTX.fill();
+      CTX.restore();
+    }
+  }
+  CTX.restore();
+
+  // Clamp indicator
+  if (robot.clampActive) {
+    CTX.shadowColor = '#22c55e';
+    CTX.shadowBlur = sc(8);
+    CTX.strokeStyle = '#22c55e';
+    CTX.lineWidth = sc(2);
+    CTX.beginPath();
+    CTX.arc(0, 0, w/2 + sc(14), -0.3, 0.3);
+    CTX.stroke();
+    CTX.shadowBlur = 0;
+  }
+
+  // Direction arrow (very subtle)
+  CTX.strokeStyle = 'rgba(255,255,255,0.2)';
+  CTX.lineWidth = sc(1.5);
+  CTX.beginPath();
+  CTX.moveTo(0, -h/2 + sc(6));
+  CTX.lineTo(0, -h/2 - sc(10));
+  CTX.lineTo(-sc(4), -h/2 - sc(6));
+  CTX.moveTo(0, -h/2 - sc(10));
+  CTX.lineTo(sc(4), -h/2 - sc(6));
+  CTX.stroke();
+
+  CTX.restore();
+}
+
+function drawAutonPath() {
+  if (!showAutonPath) return;
+  const s = S();
+  const sx = sc(robot.x), sy = sc(robot.y);
+  CTX.strokeStyle = 'rgba(167,139,250,0.6)';
+  CTX.lineWidth = sc(2);
+  CTX.setLineDash([sc(6), sc(6)]);
+  CTX.beginPath();
+  CTX.moveTo(sx, sy);
+  let cx = robot.x, cy = robot.y;
+  autonPath.forEach(step => {
+    if (step.action === 'move') {
+      cx += step.dx;
+      cy += step.dy;
+      CTX.lineTo(sc(cx), sc(cy));
+    }
+  });
+  CTX.stroke();
+  CTX.setLineDash([]);
+  // Waypoint dots
+  cx = robot.x; cy = robot.y;
+  autonPath.forEach(step => {
+    if (step.action === 'move') {
+      cx += step.dx;
+      cy += step.dy;
+      CTX.beginPath();
+      CTX.arc(sc(cx), sc(cy), sc(6), 0, Math.PI * 2);
+      CTX.fillStyle = 'rgba(167,139,250,0.8)';
+      CTX.fill();
+    }
+  });
+}
+
+function render() {
+  CTX.clearRect(0, 0, C.width, C.height);
+  drawField();
+  drawWallStakes();
+  drawNodes();
+  drawMogos();
+  drawDiscs();
+  drawAutonPath();
+  drawRobot();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// GAME LOOP
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function gameLoop(timestamp) {
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const dt = Math.min(timestamp - lastTimestamp, 50);
+  lastTimestamp = timestamp;
+
+  if (gamePhase === 'autonomous') {
+    matchTime += dt;
+    updateAutonomous(dt);
+    updatePhysics(dt);
+    updateTimer();
+    if (matchTime >= autonDuration) {
+      matchTime = 0;
+      startDriver();
+    }
+  } else if (gamePhase === 'driver') {
+    matchTime += dt;
+    processInput(dt);
+    updatePhysics(dt);
+    updateTimer();
+    if (matchTime >= driverDuration) endMatch();
+  } else if (gamePhase === 'setup' || gamePhase === 'ended') {
+    processInput(dt);
+    updatePhysics(dt);
+  }
+
+  render();
+  updateUI();
+  animFrame = requestAnimationFrame(gameLoop);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UTILITIES
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function setAlliance(a) {
+  alliance = a;
+  document.getElementById('btn-red').className = 'alliance-btn' + (a === 'red' ? ' sel-red' : '');
+  document.getElementById('btn-blue').className = 'alliance-btn' + (a === 'blue' ? ' sel-blue' : '');
+  resetRobotPos();
+  updateUI();
+}
+
+// Click field to focus
+document.getElementById('field-area').addEventListener('click', () => {
+  document.getElementById('field-area').focus();
+});
+
+// Resize handler
+window.addEventListener('resize', () => {
+  initCanvas();
+  render();
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// BOOTSTRAP
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+initCanvas();
+initDiscs();
+calculateScore();
+updateUI();
+animFrame = requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
