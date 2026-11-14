@@ -1328,7 +1328,7 @@ const crowdTotals = dn => simTotals(dn).concat(dn === TODAY ? Crowd.totals : [],
    Used by the self-hosted copy of the game. Fill in the project URL and the public "anon" key
    (Supabase: Project Settings > API). Leave both empty to play on the built-in crowd only.
    The anon key is meant to be public: the database rules in backend/schema.sql decide what it can do. */
-const BACKEND = { url: '', key: '' };
+const BACKEND = { url: 'https://xqxgluxdyorbinowzyhh.supabase.co', key: 'sb_publishable_4ELeO0XEx_o3BgDGwombHA_Mo6cC-cs' };
 const pidOf = pr => pr.pid || (pr.pid = 'q' + hash(pr.q).toString(36));
 const PID = new Map(); P.forEach((d, si) => d.forEach((pr, i) => PID.set(pidOf(pr), { si, i })));
 if (!S.player) { try { S.player = crypto.randomUUID(); } catch (e) { S.player = 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16)); } }
