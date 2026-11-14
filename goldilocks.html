@@ -374,6 +374,30 @@ button,input{font:inherit;color:inherit}
 .a-miss span{padding:3px 9px;border-radius:99px;background:rgba(255,95,162,.14);border:1px solid rgba(255,95,162,.4)}
 .a-empty{font-size:14px;font-weight:700;color:var(--ink-dim);padding:6px 0}
 #a-psel{width:100%;margin:4px 0 10px}
+/* achievements */
+#s-title .row .btn.ghost{padding:0 8px;font-size:15px}
+.tr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}
+.tr{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;border-radius:18px;border:1px solid var(--card-line);
+  background:var(--card);color:var(--ink-dim);font:inherit;cursor:pointer;min-width:0}
+.tr.have{color:var(--ink);background:rgba(255,197,49,.08);border-color:rgba(255,197,49,.35)}
+.tr canvas{width:64px;height:64px}
+.tr b{font-size:12px;font-weight:900;text-align:center;line-height:1.2}
+.tr-bar{width:80%;height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.tr-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--sun),var(--pink))}
+.tr-detail{flex:none;display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:18px;background:var(--well);border:1px solid var(--card-line)}
+.tr-detail b{font-size:16px;font-weight:900;color:var(--sun)}
+.tr-detail span{font-size:14px;font-weight:700}
+.tr-detail em{font-style:normal;font-size:13px;color:var(--ink-dim);font-weight:800}
+.ach{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));z-index:8;transform:translateX(-50%);width:min(360px,calc(100vw - 32px));
+  display:flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:22px;
+  background:linear-gradient(135deg,#2a1a66,#120d3a);border:2px solid var(--sun);box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 24px rgba(255,197,49,.35)}
+.ach canvas{width:56px;height:56px;flex:none}
+.ach div{display:flex;flex-direction:column;min-width:0}
+.ach small{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);font-weight:900}
+.ach b{font-family:var(--display);font-weight:400;font-size:21px;line-height:1.1}
+.ach span{font-size:13px;font-weight:700;color:var(--ink-dim)}
+.ach.go{animation:achin .55s cubic-bezier(.2,1.5,.4,1)}
+@keyframes achin{from{transform:translate(-50%,-120%) scale(.8);opacity:0}}
 @media (max-height:620px){
   .screen{gap:8px} #t-goldie{flex-basis:150px} #g-prompt h2{font-size:20px} .p-sub{display:none}
   .verdict #res-verdict{font-size:32px} .verdict #res-flavor{display:none}
@@ -399,6 +423,7 @@ button,input{font:inherit;color:inherit}
       <div class="row">
         <button class="btn ghost" id="t-how">How to play</button>
         <button class="btn ghost" id="t-galaxy">Galaxy</button>
+        <button class="btn ghost" id="t-trophy">Trophies</button>
       </div>
       <p class="small" id="t-note">Playing with the built-in crowd</p>
       <button class="linkbtn" id="t-admin" type="button" hidden>Admin</button>
@@ -521,6 +546,7 @@ button,input{font:inherit;color:inherit}
       <button class="icon-btn" id="m-back" aria-label="Back to title"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
       <h2>Galaxy map</h2>
       <span class="map-stars" id="m-stars">&#9733; 0</span>
+      <button class="icon-btn" id="m-trophy" type="button" aria-label="Trophies"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8v4a4 4 0 0 1-8 0z"/><path d="M6 5H3.5a2.5 2.5 0 0 0 3 3M14 5h2.5a2.5 2.5 0 0 1-3 3M10 11v3M7 17h6M8 14h4v3H8z"/></svg></button>
     </header>
     <button class="daily-card" id="m-daily" type="button">
       <span class="ds" aria-hidden="true"></span>
@@ -592,6 +618,16 @@ button,input{font:inherit;color:inherit}
     </div>
   </section>
 
+  <section id="s-trophy" class="screen" hidden>
+    <header class="hud">
+      <button class="icon-btn" id="tr-back" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+      <h2>Trophies</h2>
+      <span class="map-stars" id="tr-count">0 / 0</span>
+    </header>
+    <div class="tr-detail" id="tr-detail" hidden aria-live="polite"></div>
+    <div class="tr-grid" id="tr-grid"></div>
+  </section>
+
   <section id="s-galaxy" class="screen" hidden>
     <header class="hud">
       <button class="icon-btn" id="x-back" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
@@ -606,6 +642,7 @@ button,input{font:inherit;color:inherit}
   </section>
   <div class="flash" id="flash" aria-hidden="true"></div>
   <div class="toast" id="toast" role="status" hidden></div>
+  <div class="ach" id="ach" role="status" hidden><canvas id="ach-medal" aria-hidden="true"></canvas><div><small>Achievement unlocked!</small><b id="ach-name"></b><span id="ach-desc"></span></div></div>
 </main>
 
 <script>
@@ -1875,13 +1912,155 @@ function onLand(p) {
     tone = p.bull || chain >= 3 ? 'gold' : 'green'; big = p.bull || chain >= 2;
     if (chain >= 2) Snd.play('chain', chain);
   } else if (p.near) { txt = 'So close!'; tone = p.kind === 'hot' ? 'warm' : 'ice'; }
+  const st = S.ach.stats; if (p.bull) st.bulls++; if (p.near) st.nears++; st.bestChain = Math.max(st.bestChain, chain);
+  setTimeout(checkAch, 1300);
   if (!txt) return;
   callout(txt, tone); buzz(big ? [30, 40, 60] : 25);
   if (big) { flash(); spawn(scene.x0 + p.t * (scene.x1 - scene.x0), scene.gy, 'hab', 70); }
 }
 
+
+/* ================= ACHIEVEMENTS ================= */
+const TIERS = [
+  { name: 'Bronze', a: '#ffcf9e', b: '#d38b4f', c: '#7a4318' },
+  { name: 'Silver', a: '#ffffff', b: '#c9d1e3', c: '#6d7690' },
+  { name: 'Gold', a: '#fff6c2', b: '#ffc531', c: '#a36100' },
+];
+const SECTOR_EM = ['desert', 'lava', 'lush', 'ice', 'desert', 'tundra'];
+const ACH = [
+  { id: 'first', name: 'First Light', desc: 'Finish your first daily star.', tier: 0, em: 'goldie', goal: 1, get: s => s.dailies },
+  { id: 'green5', name: 'Green Thumb', desc: 'Land 5 of 7 planets in the green in one daily star.', tier: 1, em: 'lush', goal: 5, get: s => s.bestHab },
+  { id: 'green7', name: 'Perfect System', desc: 'Land all 7 planets in the green in one daily star.', tier: 2, em: 'ringed', goal: 7, get: s => s.bestHab },
+  { id: 'bigbang', name: 'Big Bang', desc: 'Score 1,000 life in one daily star.', tier: 2, em: 'star', goal: 1000, get: s => s.bestDaily },
+  { id: 'bull1', name: 'Bullseye', desc: 'Hit the gold ring once.', tier: 0, em: 'bull', goal: 1, get: s => s.bulls },
+  { id: 'bull10', name: 'Sharpshooter', desc: 'Hit 10 bullseyes.', tier: 1, em: 'bull', goal: 10, get: s => s.bulls },
+  { id: 'bull50', name: 'Eagle Eye', desc: 'Hit 50 bullseyes.', tier: 2, em: 'bull', goal: 50, get: s => s.bulls },
+  { id: 'streak3', name: 'Warming Up', desc: 'Play the daily star 3 days in a row.', tier: 0, em: 'flame', goal: 3, get: s => s.streak },
+  { id: 'streak7', name: 'On Fire', desc: 'Play the daily star 7 days in a row.', tier: 1, em: 'flame', goal: 7, get: s => s.streak },
+  { id: 'streak14', name: 'Fortnight', desc: 'Play the daily star 14 days in a row.', tier: 1, em: 'flame', goal: 14, get: s => s.streak },
+  { id: 'streak30', name: 'Eternal Flame', desc: 'Play the daily star 30 days in a row.', tier: 2, em: 'flame', goal: 30, get: s => s.streak },
+  { id: 'chain2', name: 'Double Take', desc: 'Land 2 planets in the green in a row.', tier: 0, em: 'chain', goal: 2, get: s => s.bestChain },
+  { id: 'chain4', name: 'Supernova', desc: 'Land 4 planets in the green in a row.', tier: 2, em: 'chain', goal: 4, get: s => s.bestChain },
+  { id: 'lv1', name: 'Liftoff', desc: 'Beat level 1 on the galaxy map.', tier: 0, em: 'tundra', goal: 1, get: s => s.levelsWon },
+  { id: 'boss', name: 'Boss Slayer', desc: 'Beat a boss level.', tier: 1, em: 'boss', goal: 1, get: s => s.bosses },
+  ...SECTORS.map((sec, k) => ({ id: 'sec' + k, name: sec.name, desc: 'Beat all 10 levels in ' + sec.name + '.', tier: k < 2 ? 0 : k < 4 ? 1 : 2,
+    em: 'sector', sector: k, goal: 10, get: s => s.sectors[k] })),
+  { id: 'stars100', name: 'Star Collector', desc: 'Earn 100 stars on the galaxy map.', tier: 1, em: 'star', goal: 100, get: s => s.stars },
+  { id: 'stars180', name: 'Galaxy Brain', desc: 'Earn all 180 stars on the galaxy map.', tier: 2, em: 'star', goal: 180, get: s => s.stars },
+  { id: 'close10', name: 'So Close', desc: 'Just miss the green zone 10 times.', tier: 0, em: 'ice', goal: 10, get: s => s.nears },
+  { id: 'comeback', name: 'Comeback', desc: 'Win a level after failing it 3 times.', tier: 1, em: 'goldie', goal: 1, get: s => s.comebacks },
+];
+const STREAK_PAY = [[3, 2], [7, 3], [14, 5], [30, 10]];
+S.ach = Object.assign({ got: {}, stats: null, streakPaid: {} }, S.ach || {});
+if (!S.ach.stats) { // first run: credit what the player has already done
+  let bulls = 0, nears = 0, bestChain = 0;
+  Object.values(S.days).forEach(d => { let c = 0; (d.planets || []).forEach(p => { if (p.bull) bulls++; if (p.near) nears++; c = p.kind === 'hab' ? c + 1 : 0; bestChain = Math.max(bestChain, c); }); });
+  S.ach.stats = { bulls, nears, bestChain, comebacks: 0, bestStreak: S.streak || 0 };
+}
+function achStats() {
+  const st = S.ach.stats, M = S.map, done = Object.values(S.days).filter(d => d && d.done);
+  const won = n => (M.stars[n] || 0) > 0;
+  return {
+    dailies: done.length,
+    bestHab: done.reduce((a, d) => Math.max(a, d.planets.filter(p => p.kind === 'hab').length), 0),
+    bestDaily: done.reduce((a, d) => Math.max(a, totalOf(d)), 0),
+    bulls: st.bulls, nears: st.nears, bestChain: st.bestChain, comebacks: st.comebacks,
+    streak: Math.max(st.bestStreak || 0, S.streak || 0),
+    levelsWon: Object.keys(M.stars).filter(n => won(n)).length,
+    bosses: Object.keys(M.stars).filter(n => n % LV_PER === 0 && won(n)).length,
+    sectors: SECTORS.map((_, k) => { let c = 0; for (let n = k * LV_PER + 1; n <= (k + 1) * LV_PER; n++) if (won(n)) c++; return c; }),
+    stars: Object.values(M.stars).reduce((a, b) => a + b, 0),
+  };
+}
+const achQueue = [];
+let achBusy = false;
+function checkAch() {
+  const s = achStats(), fresh = ACH.filter(a => !S.ach.got[a.id] && a.get(s) >= a.goal);
+  if (!fresh.length) return;
+  fresh.forEach(a => { S.ach.got[a.id] = Date.now(); });
+  save();
+  fresh.slice(0, 3).forEach(a => achQueue.push(a));
+  if (fresh.length > 3) achQueue.push({ more: fresh.length - 3 });
+  if (!achBusy) achNext();
+}
+function achNext() {
+  const a = achQueue.shift(); if (!a) { achBusy = false; return; }
+  achBusy = true;
+  if (a.more) { toast('+' + a.more + ' more achievements in Trophies'); setTimeout(achNext, 2600); return; }
+  const box = $('ach'); $('ach-name').textContent = a.name; $('ach-desc').textContent = a.desc;
+  box.hidden = false; box.classList.remove('go'); void box.offsetWidth; box.classList.add('go');
+  const c = fit($('ach-medal')); if (c) drawMedal(c, 28, 28, 26, a, false);
+  Snd.play('win'); buzz([40, 50, 80]); flash();
+  setTimeout(() => { box.hidden = true; achNext(); }, 3000);
+}
+/* A round medal in the badge's tier color with an emblem drawn by the game's own art. */
+function drawMedal(c, x, y, r, a, locked) {
+  const t = TIERS[a.tier];
+  c.save();
+  if (locked) c.globalAlpha = .38;
+  let g = c.createRadialGradient(x - r * .35, y - r * .4, r * .1, x, y, r);
+  g.addColorStop(0, t.a); g.addColorStop(.55, t.b); g.addColorStop(1, t.c);
+  c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill();
+  c.fillStyle = '#120d3a'; c.beginPath(); c.arc(x, y, r * .76, 0, TAU); c.fill();
+  c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = Math.max(1, r * .05); c.beginPath(); c.arc(x, y, r * .76, 0, TAU); c.stroke();
+  const e = r * .5, tm = 2;
+  if (locked) c.filter = 'grayscale(1)';
+  if (a.em === 'goldie') drawGoldie(c, x, y + r * .02, e * .62, 'beam', tm, .6, 0);
+  else if (a.em === 'bull') {
+    [[1, '#2fbf6a'], [.68, '#4dffa0'], [.36, '#ffc531']].forEach(([k, col]) => { c.fillStyle = col; c.beginPath(); c.arc(x, y, e * k, 0, TAU); c.fill(); });
+    c.fillStyle = '#fff'; c.beginPath(); c.arc(x, y, e * .12, 0, TAU); c.fill();
+  } else if (a.em === 'star' || a.em === 'flame') {
+    c.beginPath();
+    if (a.em === 'star') { for (let k = 0; k < 10; k++) { const ang = -PI / 2 + k * PI / 5, rr = k % 2 ? e * .45 : e; c.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr); } c.closePath(); }
+    else { c.moveTo(x, y - e); c.quadraticCurveTo(x + e * .9, y - e * .1, x + e * .55, y + e * .55); c.quadraticCurveTo(x, y + e * 1.05, x - e * .55, y + e * .55); c.quadraticCurveTo(x - e * .9, y - e * .1, x, y - e); }
+    g = c.createLinearGradient(x, y - e, x, y + e);
+    if (a.em === 'star') { g.addColorStop(0, '#fff6c2'); g.addColorStop(1, '#ffab1f'); } else { g.addColorStop(0, '#ffe066'); g.addColorStop(1, '#ff5a4d'); }
+    c.fillStyle = g; c.fill();
+  } else if (a.em === 'chain') {
+    [-1, 0, 1].forEach(k => drawPlanet(c, x + k * e * .62, y + (k ? e * .1 : -e * .12), e * .34, { kind: 'hab', biome: 'lush', seed: 7 + k }, tm));
+  } else {
+    const biome = a.em === 'sector' ? SECTOR_EM[a.sector] : a.em === 'boss' ? 'lava' : a.em === 'ringed' ? 'lush' : a.em;
+    const kind = biome === 'lava' ? 'hot' : biome === 'ice' ? 'cold' : 'hab';
+    drawPlanet(c, x, y, e * .62, { kind, biome, seed: hash(a.id), deco: a.em === 'ringed' || a.em === 'boss' ? 'ring' : null }, tm);
+  }
+  c.filter = 'none'; c.restore();
+}
+let trophyBack = 'title';
+function showTrophies(back) {
+  trophyBack = back || 'title';
+  const s = achStats(), grid = $('tr-grid'), got = Object.keys(S.ach.got).length;
+  $('tr-count').textContent = got + ' / ' + ACH.length;
+  grid.textContent = '';
+  show('trophy');
+  ACH.forEach(a => {
+    const have = !!S.ach.got[a.id], v = Math.min(a.goal, a.get(s)), b = el('button', 'tr' + (have ? ' have' : ''));
+    b.type = 'button'; b.setAttribute('aria-label', a.name + (have ? ', unlocked' : ', ' + v + ' of ' + a.goal));
+    const cv = el('canvas'); b.append(cv, el('b', '', a.name));
+    if (!have) { const bar = el('span', 'tr-bar'), f = el('i'); f.style.width = (v / a.goal * 100) + '%'; bar.appendChild(f); b.appendChild(bar); }
+    b.addEventListener('click', () => {
+      const d = $('tr-detail'); d.textContent = '';
+      d.append(el('b', '', a.name + ' · ' + TIERS[a.tier].name), el('span', '', a.desc),
+        el('em', '', have ? 'Unlocked ' + new Date(S.ach.got[a.id]).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Progress: ' + fmt(v) + ' / ' + fmt(a.goal)));
+      d.hidden = false;
+    });
+    grid.appendChild(b);
+    const c = fit(cv); if (c) drawMedal(c, cv.clientWidth / 2, cv.clientHeight / 2, Math.min(cv.clientWidth, cv.clientHeight) / 2 - 2, a, !have);
+  });
+  $('tr-detail').hidden = true;
+}
+/* Pays each daily-streak milestone once. Returns a message, or null. */
+function payStreak() {
+  const st = S.streak || 0; S.ach.stats.bestStreak = Math.max(S.ach.stats.bestStreak || 0, st);
+  let msg = null;
+  STREAK_PAY.forEach(([m, n]) => {
+    if (st >= m && !S.ach.streakPaid[m]) { S.ach.streakPaid[m] = Date.now(); for (let k = 0; k < n; k++) giveBoost(); msg = m + '-day streak! +' + n + ' boosters'; }
+  });
+  save(); return msg;
+}
+const nextStreakPay = st => { const m = STREAK_PAY.find(([d]) => d > st); return m ? m[0] - st : 0; };
+
 /* ================= SCREENS ================= */
-const SCREENS = ['title', 'how', 'game', 'end', 'galaxy', 'map', 'lvl', 'admin'];
+const SCREENS = ['title', 'how', 'game', 'end', 'galaxy', 'map', 'lvl', 'admin', 'trophy'];
 let cur = 'title', howThenPlay = false, endDn = 0, endBack = 'title';
 function show(name) {
   cur = name; SCREENS.forEach(s => { $('s-' + s).hidden = s !== name; });
@@ -2126,19 +2305,21 @@ function finishDay() {
   S.best = Math.max(S.best || 0, d.total); save();
   Live.finish(G.dn, d.total); Server.score(G.dn, d.total, d.planets.filter(p => p.kind === 'hab').length);
   const b = giveBoost(); save(); setTimeout(() => toast('Daily star bonus: +1 ' + BOOST[b].name), 900);
+  const sm = payStreak(); if (sm) setTimeout(() => toast(sm), 3800);
+  setTimeout(checkAch, 1500);
 }
 function finishLevel() {
   const lv = G.lv, n = lv.n, M = S.map, g = goalStat(lv, G.day.planets), stars = starsFor(lv, g);
   M.form = M.form.concat(g.met ? 1 : 0).slice(-6);
   let reward = null;
   if (g.met) {
-    const prev = M.stars[n] || 0;
+    const prev = M.stars[n] || 0; if ((M.fails[n] || 0) >= 3) S.ach.stats.comebacks++;
     M.stars[n] = Math.max(prev, stars); M.best[n] = Math.max(M.best[n] || 0, g.total); M.fails[n] = 0;
     M.hot3 = stars === 3 ? (M.hot3 || 0) + 1 : 0;
     if (stars === 3 && prev < 3) reward = giveBoost();
     if (n === M.unlocked && n < LV_COUNT) { M.unlocked = n + 1; M.justWon = n; }
   } else { M.fails[n] = (M.fails[n] || 0) + 1; M.hot3 = 0; }
-  save(); showLevelCard('result', lv, { g, stars, reward });
+  save(); showLevelCard('result', lv, { g, stars, reward }); setTimeout(checkAch, 1900);
 }
 let LC = null;
 function showLevelCard(kind, lv, res) {
@@ -2217,7 +2398,7 @@ function renderMapHead() {
   $('m-stars').textContent = '\u2605 ' + tot + ' / ' + LV_COUNT * 3;
   $('m-daily-t').textContent = d && d.done ? "Today's star: done \u00b7 " + fmt(totalOf(d)) + ' life' : "Today's star \u00b7 Star #" + TODAY;
   $('m-daily-s').textContent = (d && d.done ? 'See your system' : d && d.planets.length ? 'Continue: planet ' + (d.planets.length + 1) + ' of ' + CFG.ROUNDS : '7 planets, the same for everyone')
-    + (st ? ' \u00b7 ' + st + '-day streak' : '');
+    + (st ? ' \u00b7 ' + st + '-day streak' : '') + (nextStreakPay(st) ? ' \u00b7 ' + nextStreakPay(st) + ' day' + (nextStreakPay(st) > 1 ? 's' : '') + ' to a streak reward' : '');
   const bx = $('m-boosts'); bx.textContent = '';
   Object.keys(BOOST).forEach(k => { const sp = el('span'); sp.append(BOOST[k].name + ' ', el('b', '', '\u00d7' + (M.boosters[k] || 0))); bx.appendChild(sp); });
 }
@@ -2232,7 +2413,7 @@ function showMap() {
     setTimeout(() => { placeGoldie(to, true); Snd.play('hop'); }, 450);
     if (to % LV_PER === 1) setTimeout(() => { toast('New sector unlocked: ' + SECTORS[Math.floor((to - 1) / LV_PER)].name + '!'); Snd.play('win'); }, 1250);
   }
-  M.justWon = 0; save();
+  M.justWon = 0; save(); setTimeout(checkAch, 1600);
 }
 
 function shareText(dn, d) {
@@ -2380,6 +2561,9 @@ setInterval(tick, 1000);
 $('t-play').addEventListener('click', startPlay);
 $('t-how').addEventListener('click', () => { howThenPlay = false; $('h-go').textContent = 'Got it'; show('how'); });
 $('t-galaxy').addEventListener('click', showGalaxy);
+$('t-trophy').addEventListener('click', () => showTrophies('title'));
+$('m-trophy').addEventListener('click', () => showTrophies('map'));
+$('tr-back').addEventListener('click', () => { if (trophyBack === 'map') showMap(); else { renderTitle(); show('title'); } });
 $('h-back').addEventListener('click', () => { renderTitle(); show('title'); });
 $('h-go').addEventListener('click', () => { S.seenHow = true; save(); if (howThenPlay) showMap(); else { renderTitle(); show('title'); } });
 $('g-home').addEventListener('click', () => { if (G.run && G.run.mode === 'level') showMap(); else { renderTitle(); show('title'); } });
