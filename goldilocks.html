@@ -251,6 +251,84 @@ button,input{font:inherit;color:inherit}
 .sys-card .em{font-size:11px;letter-spacing:1px}
 .empty{padding:28px 18px;border-radius:22px;border:2px dashed var(--card-line);text-align:center;color:var(--ink-dim);font-weight:600}
 
+/* galaxy map */
+#s-map{gap:8px}
+.map-stars{font-weight:900;color:var(--sun);font-variant-numeric:tabular-nums;white-space:nowrap}
+.daily-card{flex:none;display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:58px;border-radius:22px;
+  border:2px solid var(--sun);background:linear-gradient(135deg,rgba(255,197,49,.2),rgba(255,95,162,.14));color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.daily-card .ds{width:38px;height:38px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fffbd0,#ffd93b 50%,#ffa51f);box-shadow:0 0 16px rgba(255,200,60,.8)}
+.daily-card .dt{flex:1;min-width:0;display:flex;flex-direction:column}
+.daily-card .dt b{font-size:16px;font-weight:900}
+.daily-card .dt span{font-size:12px;font-weight:700;color:var(--ink-dim)}
+.daily-card .dgo{color:var(--sun);font-size:16px}
+.boost-strip{flex:none;display:flex;gap:6px}
+.boost-strip span{flex:1;text-align:center;font-size:12px;font-weight:800;padding:6px 4px;border-radius:12px;background:var(--card);border:1px solid var(--card-line);white-space:nowrap}
+.boost-strip span b{color:var(--sun)}
+.map-scroll{flex:1 1 0;min-height:200px;overflow-y:auto;overflow-x:hidden;position:relative;border-radius:24px;background:rgba(8,6,40,.35);
+  border:1px solid var(--card-line);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.map-scroll::-webkit-scrollbar{display:none}
+.map-path{position:relative;width:100%}
+.map-path svg{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.mp-base{fill:none;stroke:rgba(255,255,255,.2);stroke-width:7;stroke-linecap:round;stroke-dasharray:1 15}
+.mp-done{fill:none;stroke:rgba(255,214,90,.8);stroke-width:7;stroke-linecap:round}
+.sector-band{position:absolute;left:0;right:0;pointer-events:none}
+.sector-name{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--display);font-size:17px;padding:4px 14px;border-radius:99px;
+  background:rgba(10,8,36,.78);border:1px solid var(--card-line);white-space:nowrap;pointer-events:none}
+.lv{position:absolute;width:54px;height:54px;margin:-27px 0 0 -27px;padding:0;border-radius:50%;border:3px solid rgba(255,255,255,.6);cursor:pointer;
+  font:900 18px var(--body);color:#4a2500;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#fff,#ffe066 42%,#ffab1f);box-shadow:0 4px 0 #c96a00,0 0 14px rgba(255,190,60,.45)}
+.lv.boss{width:64px;height:64px;margin:-32px 0 0 -32px;color:#fff;background:radial-gradient(circle at 35% 30%,#fff,#ff8fb8 40%,#ff3d6e);box-shadow:0 4px 0 #a3173f,0 0 18px rgba(255,80,130,.6)}
+.lv.locked{cursor:default;color:#9a96c0;border-color:rgba(255,255,255,.15);background:radial-gradient(circle at 35% 30%,#6e6a90,#3b3766);box-shadow:0 4px 0 #22204a}
+.lv.current{animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.12);box-shadow:0 4px 0 #c96a00,0 0 28px rgba(255,214,90,.95)}}
+.lv .st{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:3px;font-size:14px;letter-spacing:1px;white-space:nowrap;text-shadow:0 1px 4px #000}
+.lv .st i{font-style:normal;color:rgba(255,255,255,.28)}
+.lv .st i.on{color:var(--sun)}
+.map-goldie{position:absolute;width:40px;height:40px;margin:-66px 0 0 -20px;pointer-events:none;z-index:2;
+  transition:left .7s cubic-bezier(.3,1.4,.5,1),top .7s cubic-bezier(.3,1.4,.5,1)}
+/* level card */
+#s-lvl{justify-content:center}
+.lvl-card{display:flex;flex-direction:column;gap:12px;text-align:center;padding:22px 18px;border-radius:28px;background:rgba(10,8,36,.74);
+  border:1px solid var(--card-line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.lvl-sector{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:900}
+.lvl-title{font-family:var(--display);font-weight:400;font-size:clamp(30px,9vw,40px);line-height:1.05;text-wrap:balance}
+.lvl-stars{display:flex;justify-content:center;gap:8px}
+.lvl-stars i{font-style:normal;font-size:54px;line-height:1;color:rgba(255,255,255,.14)}
+.lvl-stars i:nth-child(2){transform:translateY(-10px)}
+.lvl-stars i.on{color:var(--sun);text-shadow:0 0 18px rgba(255,200,60,.85)}
+.lvl-stars i.drop{animation:stardrop .55s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes stardrop{from{transform:scale(2.6) rotate(-35deg);opacity:0}}
+.lvl-goal{font-size:17px;font-weight:900;text-wrap:balance}
+.lvl-sub{font-size:14px;font-weight:700;color:var(--ink-dim)}
+.lvl-sub b{color:var(--life);font-size:24px;font-variant-numeric:tabular-nums}
+.lvl-reward{font-weight:900;color:var(--pink)}
+/* in-level extras */
+.starbar{position:relative;z-index:1;flex:none;height:12px;margin:4px 14px 6px;border-radius:99px;background:rgba(255,255,255,.12)}
+#sb-fill{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--sun),var(--pink));transition:width .7s cubic-bezier(.2,1,.3,1)}
+.starbar b{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:20px;color:rgba(255,255,255,.35);text-shadow:0 1px 3px #000;transition:transform .3s,color .3s}
+.starbar b.on{color:var(--sun);transform:translate(-50%,-50%) scale(1.3);text-shadow:0 0 10px var(--sun)}
+.p-scope{margin-top:6px;font-size:13px;font-weight:800;color:var(--sun)}
+.boosts{display:flex;gap:8px}
+.boost{flex:1;position:relative;min-height:44px;border-radius:14px;border:2px solid var(--card-line);background:var(--card);color:var(--ink);font:900 14px var(--body);cursor:pointer}
+.boost em{position:absolute;top:-8px;right:-6px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--pink);font-style:normal;font-size:12px;display:grid;place-items:center}
+.boost[disabled]{opacity:.38;cursor:default}
+.boost.used{border-color:var(--sun);background:rgba(255,197,49,.18)}
+.callout{position:absolute;left:0;right:0;top:26%;z-index:2;text-align:center;pointer-events:none;opacity:0;padding:0 8px;
+  font-family:var(--display);font-size:clamp(42px,13vw,66px);line-height:1;color:transparent;-webkit-background-clip:text;background-clip:text;
+  background-image:linear-gradient(180deg,#e9fff2,#4dffa0);filter:drop-shadow(0 4px 0 rgba(0,0,0,.45)) drop-shadow(0 0 18px rgba(0,0,0,.4))}
+.callout[data-tone="gold"]{background-image:linear-gradient(180deg,#fff6c2,#ffc531 60%,#ff8a3d)}
+.callout[data-tone="warm"]{background-image:linear-gradient(180deg,#ffe0c2,#ff8a3d)}
+.callout[data-tone="ice"]{background-image:linear-gradient(180deg,#f2faff,#7cc8ff)}
+.callout.go{animation:callout 1.25s cubic-bezier(.2,1.5,.4,1) forwards}
+@keyframes callout{0%{opacity:0;transform:scale(.3) rotate(-8deg)}22%{opacity:1;transform:scale(1.18) rotate(3deg)}38%{transform:scale(1) rotate(0)}78%{opacity:1}100%{opacity:0;transform:translateY(-34px)}}
+.flash{position:fixed;inset:0;z-index:5;pointer-events:none;background:#fff;opacity:0}
+.flash.go{animation:flash .45s ease-out}
+@keyframes flash{0%{opacity:.4}100%{opacity:0}}
+.toast{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top,0px));z-index:6;transform:translateX(-50%);max-width:calc(100vw - 32px);
+  padding:11px 18px;border-radius:99px;background:linear-gradient(90deg,var(--pink),var(--violet));color:#fff;font-weight:900;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.toast.go{animation:toastin .4s cubic-bezier(.2,1.5,.4,1)}
+@keyframes toastin{from{transform:translate(-50%,-30px);opacity:0}}
 @media (max-height:620px){
   .screen{gap:8px} #t-goldie{flex-basis:150px} #g-prompt h2{font-size:20px} .p-sub{display:none}
   .verdict #res-verdict{font-size:32px} .verdict #res-flavor{display:none}
@@ -286,7 +364,7 @@ button,input{font:inherit;color:inherit}
       <button class="icon-btn" id="h-back" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
       <h2>How to play</h2>
     </header>
-    <p class="how-note">Seven prompts a day, the same for everyone, <b>25 seconds each</b>. Run out the clock with nothing typed and the planet is lost. Every answer becomes a planet, and <b>how many players gave the same answer</b> decides how far from Goldie it lands. Answers must be on the day's list; small typos get autocorrected, and anything else asks you to try again while the clock keeps running.</p>
+    <p class="how-note">Seven prompts a day, the same for everyone, <b>25 seconds each</b>. Run out the clock with nothing typed and the planet is lost. Every answer becomes a planet, and <b>how many players gave the same answer</b> decides how far from Goldie it lands. Play today's star, then climb the galaxy map: short levels, up to three stars each, and boosters you earn along the way. Answers must be on the list; small typos get autocorrected, and anything else asks you to try again while the clock keeps running.</p>
     <div class="how-list">
       <div class="how hot"><canvas id="h-hot" aria-hidden="true"></canvas><div><h3>Too hot</h3><p>8% or more said it. Too obvious: it lands close and scorches into a lava rock.</p></div></div>
       <div class="how cold"><canvas id="h-cold" aria-hidden="true"></canvas><div><h3>Too cold</h3><p>Under 2% said it. Too obscure: it drifts out and freezes into an ice ball.</p></div></div>
@@ -300,17 +378,20 @@ button,input{font:inherit;color:inherit}
   <section id="s-game" class="screen" hidden>
     <header class="ghud">
       <button class="icon-btn" id="g-home" aria-label="Back to title"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
-      <div class="panel"><small>Habitable</small><b id="g-hab">0/7</b></div>
+      <div class="panel"><small id="g-hab-l">Habitable</small><b id="g-hab">0/7</b></div>
       <div class="panel r"><small>Life</small><b id="g-score">0</b></div>
       <button class="icon-btn" id="g-snd" aria-label="Sound" aria-pressed="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor"/><path d="M13.5 7a4 4 0 0 1 0 6"/></svg></button>
     </header>
+    <div class="starbar" id="starbar" hidden aria-hidden="true"><i id="sb-fill"></i><b>&#9733;</b><b>&#9733;</b><b>&#9733;</b></div>
     <div class="prompt" id="g-prompt">
       <div class="p-top"><small id="g-round">Planet 1 of 7</small><div class="pips" id="pips" aria-hidden="true"></div></div>
       <h2 id="g-q"></h2>
       <p class="p-sub">common lands close &middot; rare drifts out &middot; aim for the green</p>
+      <p class="p-scope" id="g-scope" hidden></p>
     </div>
     <div class="scene-wrap" id="scene-wrap">
       <canvas id="scene" aria-hidden="true"></canvas>
+      <div class="callout" id="callout" aria-hidden="true"></div>
       <div class="verdict" id="verdict" hidden aria-live="polite">
         <h3 id="res-verdict"></h3>
         <p id="res-quote"></p>
@@ -325,6 +406,11 @@ button,input{font:inherit;color:inherit}
       <div class="aim-row">
         <output class="aim-chip" id="aim-chip" for="aim"><b id="aim-zone">Lush</b><span id="aim-info">~4% · ×3.0</span></output>
         <input type="range" id="aim" min="0" max="1000" step="5" value="425" aria-label="Aim: predict how far from Goldie your answer lands. Left is common, right is rare.">
+      </div>
+      <div class="boosts" id="boosts" hidden>
+        <button type="button" class="boost" data-b="flare" aria-label="Solar Flare: add 10 seconds"><b>+10s</b><em>0</em></button>
+        <button type="button" class="boost" data-b="wide" aria-label="Wide Orbit: wider green zone for this planet"><b>Wider</b><em>0</em></button>
+        <button type="button" class="boost" data-b="scope" aria-label="Telescope: see the most common answers"><b>Peek</b><em>0</em></button>
       </div>
       <form class="answer-row" id="answer-form" autocomplete="off">
         <div class="dial wait" id="g-timer" aria-hidden="true"><svg viewBox="0 0 52 52"><circle class="dt" cx="26" cy="26" r="22"/><circle class="df" id="g-tfill" cx="26" cy="26" r="22" pathLength="100"/></svg><span id="g-tnum">25</span></div>
@@ -384,6 +470,34 @@ button,input{font:inherit;color:inherit}
     </div>
   </section>
 
+  <section id="s-map" class="screen" hidden>
+    <header class="hud">
+      <button class="icon-btn" id="m-back" aria-label="Back to title"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+      <h2>Galaxy map</h2>
+      <span class="map-stars" id="m-stars">&#9733; 0</span>
+    </header>
+    <button class="daily-card" id="m-daily" type="button">
+      <span class="ds" aria-hidden="true"></span>
+      <span class="dt"><b id="m-daily-t">Today's star</b><span id="m-daily-s"></span></span>
+      <span class="dgo" aria-hidden="true">&#9654;</span>
+    </button>
+    <div class="boost-strip" id="m-boosts"></div>
+    <div class="map-scroll" id="map-scroll"><div class="map-path" id="map-path"></div></div>
+  </section>
+
+  <section id="s-lvl" class="screen" hidden>
+    <div class="lvl-card">
+      <p class="lvl-sector" id="lc-sector"></p>
+      <h2 class="lvl-title" id="lc-title"></h2>
+      <div class="lvl-stars" id="lc-stars" aria-hidden="true"><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i></div>
+      <p class="lvl-goal" id="lc-goal"></p>
+      <p class="lvl-sub" id="lc-sub"></p>
+      <p class="lvl-reward" id="lc-reward" hidden></p>
+      <button class="btn" id="lc-go">Play</button>
+      <div class="row"><button class="btn ghost" id="lc-map">Map</button><button class="btn ghost" id="lc-alt">Replay</button></div>
+    </div>
+  </section>
+
   <section id="s-galaxy" class="screen" hidden>
     <header class="hud">
       <button class="icon-btn" id="x-back" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
@@ -396,6 +510,8 @@ button,input{font:inherit;color:inherit}
     </div>
     <div class="grid" id="x-grid"></div>
   </section>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" hidden></div>
 </main>
 
 <script>
@@ -415,6 +531,7 @@ const CFG = {
   ROUNDS: 7,
   ROUND_SECONDS: 25,  // time limit per prompt
   READY_SECONDS: 3,   // countdown before the clock starts
+  WIDE_MUL: 1.25,     // Wide Orbit booster widens the zone edges by this factor
   URGENT_SECONDS: 5,  // the clock turns red and ticks
   LIFE_LUSH: 100,    // life points in the lush band
   LIFE_EDGE: 20,      // life points right at a zone edge
@@ -1365,7 +1482,7 @@ const Snd = {
     src.buffer = b; f.type = 'bandpass'; f.frequency.value = freq; g.gain.value = vol;
     src.connect(f); f.connect(g); g.connect(c.destination); src.start();
   },
-  play(name) {
+  play(name, n) {
     if (!this.on || !this.ctx) return;
     try {
       const arp = (fs, d, gap) => fs.forEach((f, i) => this.tone(f, d, 'triangle', .12, 0, i * gap));
@@ -1376,6 +1493,11 @@ const Snd = {
       else if (name === 'hab') arp([523, 659, 784, 1047], .35, .08);
       else if (name === 'perfect') arp([523, 659, 784, 1047, 1319, 1568], .4, .07);
       else if (name === 'lost') this.tone(220, .6, 'sawtooth', .08, 90);
+      else if (name === 'chain') arp([523, 659, 784, 1047, 1319].map(f => f * Math.pow(2, Math.min(n || 0, 6) / 6)), .3, .055);
+      else if (name === 'star') { this.tone(880 * Math.pow(1.26, n || 0), .55, 'triangle', .16); this.tone(1760 * Math.pow(1.26, n || 0), .4, 'sine', .06, 0, .04); }
+      else if (name === 'win') arp([523, 659, 784, 1047, 1319, 1568, 2093], .45, .075);
+      else if (name === 'hop') this.tone(420, .28, 'sine', .14, 980);
+      else if (name === 'boost') arp([784, 1175, 1568], .25, .05);
     } catch (e) {}
   },
 };
@@ -1400,7 +1522,7 @@ function drawScene(c, tm, now, dt) {
   s.gy += (gyGoal - s.gy) * (REDUCED ? 1 : Math.min(1, dt * 5));
   const gy = s.gy;
   const X = t => s.x0 + t * (s.x1 - s.x0), rad = t => X(t) - gx;
-  const day = G.day, z = day.z;
+  const day = G.day, z = curZ();
   let g = c.createRadialGradient(gx, gy, GR, gx, gy, Math.max(W, s.H * .8) * 1.05);
   g.addColorStop(0, 'rgba(255,170,70,.6)'); g.addColorStop(.16, 'rgba(255,95,130,.36)'); g.addColorStop(.42, 'rgba(150,80,230,.24)'); g.addColorStop(.75, 'rgba(60,100,230,.2)'); g.addColorStop(1, 'rgba(30,40,150,.12)');
   c.fillStyle = g; c.fillRect(0, 0, W, s.H);
@@ -1488,7 +1610,7 @@ function drawScene(c, tm, now, dt) {
       tag(c, px, py - pr * 1.2 - 20, p.kind === 'lost' ? 'out of time' : '“' + p.ans.slice(0, 24) + '”', Math.min(1, e * 3));
       if (Math.random() < .7) spawn(px, py, 'trail', 1);
       if (k >= 1) { G.phase = 'reveal'; G.a0 = now; s.mood = p.kind === 'hab' ? 'beam' : p.kind === 'hot' ? 'sweat' : 'shiver'; spawn(lx, gy, p.kind === 'lost' ? 'cold' : p.kind, 30);
-        Snd.play(p.kind === 'hab' && (p.perfect || p.bull) ? 'perfect' : p.near ? 'lost' : p.kind); if (p.kind === 'hot') { s.shake = .5; buzz([60, 40, 60]); } else buzz(30); }
+        onLand(p); Snd.play(p.kind === 'hab' && (p.perfect || p.bull) ? 'perfect' : p.near ? 'lost' : p.kind); if (p.kind === 'hot') { s.shake = .5; buzz([60, 40, 60]); } else buzz(30); }
     } else {
       const k = G.phase === 'reveal' && !REDUCED ? clamp((now - G.a0) / CFG.REVEAL_MS, 0, 1) : 1;
       const back = 1 + 2.70158 * Math.pow(k - 1, 3) + 1.70158 * Math.pow(k - 1, 2), rr2 = pr * (1.2 + .25 * back);
@@ -1515,8 +1637,108 @@ function drawScene(c, tm, now, dt) {
   c.fillStyle = g; c.fillRect(0, 0, W, s.H);
 }
 
+/* ================= LEVELS (the galaxy map) =================
+   60 short levels in 6 sectors. Prompts come from the daily pool in a fixed shuffled order.
+   Difficulty ramps by sector and quietly adapts to the player (see adapt rules in levelOf). */
+const SECTORS = [
+  { name: 'Sunrise Belt', tint: '#ffab4d', hot: 12, cold: 1.3, secs: 30 },
+  { name: 'Asteroid Run', tint: '#ff6fa8', hot: 11, cold: 1.4, secs: 28 },
+  { name: 'Candy Nebula', tint: '#b98cff', hot: 10, cold: 1.5, secs: 26 },
+  { name: 'Frost Reaches', tint: '#7cc8ff', hot: 9.2, cold: 1.6, secs: 25 },
+  { name: 'Twin Suns', tint: '#ffd65a', hot: 8.6, cold: 1.7, secs: 24 },
+  { name: 'Deep Space', tint: '#4dffa0', hot: 8, cold: 1.8, secs: 22 },
+];
+const LV_PER = 10, LV_COUNT = SECTORS.length * LV_PER;
+const LEVELS = (() => {
+  const pool = []; P.forEach((d, si) => d.forEach((_, i) => pool.push({ si, i })));
+  const R = rng(hash('goldilocks-levels'));
+  for (let k = pool.length - 1; k > 0; k--) { const j = Math.floor(R() * (k + 1)); [pool[k], pool[j]] = [pool[j], pool[k]]; }
+  const out = []; let ptr = 0;
+  for (let n = 1; n <= LV_COUNT; n++) {
+    const sec = Math.floor((n - 1) / LV_PER), boss = n % LV_PER === 0, count = boss ? 5 : sec < 2 ? 3 : 4, list = [];
+    for (let k = 0; k < count; k++) list.push(pool[ptr++ % pool.length]);
+    out.push({ n, sec, boss, list });
+  }
+  return out;
+})();
+const GOAL_CYCLE = ['hab', 'score', 'row', 'hab', 'bull', 'score', 'hab', 'row', 'bull'];
+const BOOST = { flare: { name: 'Solar Flare', label: '+10s' }, wide: { name: 'Wide Orbit', label: 'Wider' }, scope: { name: 'Telescope', label: 'Peek' } };
+S.map = Object.assign({ stars: {}, best: {}, fails: {}, form: [], hot3: 0, unlocked: 1, justWon: 0, lastGift: 0,
+  boosters: { flare: 2, wide: 2, scope: 2 } }, S.map || {});
+function levelOf(n) {
+  const L = LEVELS[n - 1], s = SECTORS[L.sec], count = L.list.length, prog = (n - 1) / (LV_COUNT - 1), M = S.map;
+  let type = L.boss ? 'score' : n <= 2 ? 'hab' : GOAL_CYCLE[(n * 4) % GOAL_CYCLE.length];
+  if (type === 'bull' && L.sec < 2) type = 'hab'; // bullseye goals start in the third sector
+  const ref = count * 125; // a strong run: every planet lush, with some evolution
+  let target = type === 'hab' ? Math.min(count, Math.ceil(count * lerp(.4, .55, prog)))
+    : type === 'score' ? Math.round(ref * lerp(.24, .42, prog) / 10) * 10
+    : type === 'row' ? 2 : 1;
+  // The Goldilocks rigging: struggle and the zone quietly widens; breeze and it tightens.
+  const fails = Math.min(M.fails[n] || 0, 3), form = M.form.slice(-6);
+  let w = 1 + .08 * fails, starMul = 1;
+  if (form.length >= 3) { const r = form.reduce((a, b) => a + b, 0) / form.length; if (r < .5) w *= 1.06; else if (r > .8) w *= .96; }
+  if (M.hot3 >= 2) { w *= .95; starMul = 1.1; }
+  if (L.boss) w *= .92;
+  if (fails >= 3) {
+    if (type === 'bull') { type = 'hab'; target = Math.ceil(count / 2); }
+    else if (type === 'score') target = Math.round(target * .8 / 10) * 10;
+    else target = Math.max(1, target - 1);
+  }
+  return { ...L, sector: s, type, target, z: { hot: s.hot * w, cold: s.cold / w }, secs: s.secs + 3 * fails,
+    stars: [0, Math.round(ref * .55 * starMul / 10) * 10, Math.round(ref * .95 * starMul / 10) * 10] };
+}
+function goalStat(lv, planets) {
+  const hab = planets.filter(p => p.kind === 'hab').length, total = planets.reduce((a, p) => a + p.pts, 0);
+  let row = 0, best = 0; planets.forEach(p => { row = p.kind === 'hab' ? row + 1 : 0; best = Math.max(best, row); });
+  const v = { hab, score: total, bull: planets.filter(p => p.bull).length, row: best }[lv.type];
+  return { v, met: v >= lv.target, total };
+}
+const goalText = lv => ({ hab: `Land ${lv.target} planet${lv.target > 1 ? 's' : ''} in the green`, score: `Score ${fmt(lv.target)} life`,
+  bull: 'Hit a bullseye on the gold ring', row: `Land ${lv.target} in a row in the green` })[lv.type];
+function missText(lv, g) {
+  const d = lv.target - g.v;
+  return { hab: `You needed ${d} more planet${d > 1 ? 's' : ''} in the green.`, score: `You were ${fmt(d)} life short.`,
+    bull: 'No bullseye this time. The gold ring sits at about 4%.', row: `Your best run was ${g.v} in a row. You needed ${lv.target}.` }[lv.type];
+}
+const starsFor = (lv, g) => !g.met ? 0 : g.total >= lv.stars[2] ? 3 : g.total >= lv.stars[1] ? 2 : 1;
+function giveBoost() {
+  const b = S.map.boosters, keys = Object.keys(BOOST), min = Math.min(...keys.map(k => b[k] || 0));
+  const pick = keys.filter(k => (b[k] || 0) === min); const k = pick[Math.floor(Math.random() * pick.length)];
+  b[k] = (b[k] || 0) + 1; return k;
+}
+let toastT = 0;
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.hidden = false; t.classList.remove('go'); void t.offsetWidth; t.classList.add('go');
+  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2800);
+}
+function roll(elx, to) {
+  const from = +(elx.dataset.v || 0); elx.dataset.v = to;
+  if (REDUCED || from === to) { elx.textContent = fmt(to); return; }
+  const t0 = performance.now();
+  const step = now => { const k = Math.min(1, (now - t0) / 700), e = 1 - Math.pow(1 - k, 3); elx.textContent = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function callout(text, tone) {
+  const c = $('callout'); c.textContent = text; c.dataset.tone = tone; c.classList.remove('go'); void c.offsetWidth; c.classList.add('go');
+}
+function flash() { const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+/* Big celebrations when a planet lands. */
+function onLand(p) {
+  const pl = G.day.planets; let chain = 0;
+  for (let j = pl.length - 1; j >= 0 && pl[j].kind === 'hab'; j--) chain++;
+  let txt = null, tone = 'green', big = false;
+  if (p.kind === 'hab') {
+    txt = chain >= 4 ? 'Supernova!' : chain === 3 ? 'Triple!' : chain === 2 ? 'Double!' : p.bull ? 'Stellar!' : p.biome === 'lush' ? 'Sweet spot!' : 'Nice!';
+    tone = p.bull || chain >= 3 ? 'gold' : 'green'; big = p.bull || chain >= 2;
+    if (chain >= 2) Snd.play('chain', chain);
+  } else if (p.near) { txt = 'So close!'; tone = p.kind === 'hot' ? 'warm' : 'ice'; }
+  if (!txt) return;
+  callout(txt, tone); buzz(big ? [30, 40, 60] : 25);
+  if (big) { flash(); spawn(scene.x0 + p.t * (scene.x1 - scene.x0), scene.gy, 'hab', 70); }
+}
+
 /* ================= SCREENS ================= */
-const SCREENS = ['title', 'how', 'game', 'end', 'galaxy'];
+const SCREENS = ['title', 'how', 'game', 'end', 'galaxy', 'map', 'lvl'];
 let cur = 'title', howThenPlay = false, endDn = 0, endBack = 'title';
 function show(name) {
   cur = name; SCREENS.forEach(s => { $('s-' + s).hidden = s !== name; });
@@ -1535,50 +1757,95 @@ function renderTitle() {
   $('t-day').textContent = 'Star #' + TODAY + ' · ' + date;
   const st = activeStreak();
   $('t-streak').textContent = st > 0 ? st + '-day streak · zone +' + Math.round(Math.min(st, CFG.STREAK_CAP) * CFG.STREAK_WIDEN * 100) + '%' : 'Start a streak today';
-  $('t-play').textContent = d && d.done ? "See today's system" : d && d.planets.length ? 'Continue · planet ' + (d.planets.length + 1) + ' of ' + CFG.ROUNDS : "Play today's star";
+  $('t-play').textContent = 'Play \u00b7 Level ' + S.map.unlocked;
   renderNote();
 }
 
 function startPlay() {
-  const d = dayOf(TODAY);
-  if (d && d.done) return showEnd(TODAY, 'title');
   if (!S.seenHow) { howThenPlay = true; $('h-go').textContent = "Let's play"; return show('how'); }
+  showMap();
+}
+function playDaily() {
+  const d = dayOf(TODAY);
+  if (d && d.done) return showEnd(TODAY, 'map');
   enterGame();
+}
+const PR = i => { const r = G.run.list[i]; return P[r.si][r.i]; };
+const curZ = () => G.wide ? { hot: G.day.z.hot * CFG.WIDE_MUL, cold: G.day.z.cold / CFG.WIDE_MUL } : G.day.z;
+function startLevel(n) {
+  const lv = levelOf(n); G.lv = lv; G.wide = false;
+  G.run = { mode: 'level', list: lv.list, n: lv.list.length, secs: lv.secs };
+  G.dn = 100000 + n; // only used to seed planet looks
+  G.day = { planets: [], z: lv.z, streak: 0 }; G.off = []; G.cur = null; scene.parts.length = 0;
+  $('g-score').dataset.v = 0; $('starbar').querySelectorAll('b').forEach(b => b.classList.remove('on'));
+  show('game'); setRound();
 }
 function enterGame() {
   G.dn = TODAY; G.si = setOf(TODAY);
   if (!S.days[G.dn]) { const st = activeStreak(); S.days[G.dn] = { v: CFG.DATA_V, planets: [], done: false, z: zoneFor(st), streak: st }; }
-  G.day = S.days[G.dn]; G.off = []; G.cur = null; scene.parts.length = 0;
-  if (G.day.planets.length >= CFG.ROUNDS) { finishDay(); return showEnd(G.dn, 'title'); }
+  G.run = { mode: 'daily', list: P[G.si].map((_, i) => ({ si: G.si, i })), n: CFG.ROUNDS, secs: CFG.ROUND_SECONDS };
+  G.lv = null; G.wide = false;
+  G.day = S.days[G.dn]; G.off = []; G.cur = null; scene.parts.length = 0; $('g-score').dataset.v = 0;
+  if (G.day.planets.length >= CFG.ROUNDS) { finishDay(); return showEnd(G.dn, 'map'); }
   const z = G.day.z; aimEl.style.setProperty('--h', pctToT(z.hot).toFixed(4)); aimEl.style.setProperty('--c', pctToT(z.cold).toFixed(4));
   show('game'); setRound();
 }
 function renderHud() {
-  const d = G.day, pips = $('pips'); pips.textContent = '';
-  for (let i = 0; i < CFG.ROUNDS; i++) {
+  const d = G.day, n = G.run.n, pips = $('pips'); pips.textContent = '';
+  for (let i = 0; i < n; i++) {
     const p = d.planets[i], e = el('i');
     if (p && p !== G.cur) e.className = p.kind === 'hab' ? (p.biome === 'lush' ? 'lush' : 'hab') : p.kind;
     else if (i === (G.cur ? d.planets.length - 1 : d.planets.length)) e.className = 'now';
     pips.appendChild(e);
   }
-  const done = d.planets.filter(p => p !== G.cur);
-  $('g-score').textContent = fmt(done.reduce((a, p) => a + p.pts, 0));
-  $('g-hab').textContent = done.filter(p => p.kind === 'hab').length + '/' + CFG.ROUNDS;
+  const done = d.planets.filter(p => p !== G.cur), total = done.reduce((a, p) => a + p.pts, 0), lv = G.run.mode === 'level' ? G.lv : null;
+  roll($('g-score'), total);
+  $('g-hab-l').textContent = lv ? 'Goal' : 'Habitable';
+  $('starbar').hidden = !lv;
+  if (!lv) { $('g-hab').textContent = done.filter(p => p.kind === 'hab').length + '/' + n; return; }
+  const g = goalStat(lv, done);
+  $('g-hab').textContent = lv.type === 'score' ? fmt(total) + '/' + fmt(lv.target) : g.v + '/' + lv.target;
+  const max = lv.stars[2] * 1.15, pos = v => clamp(v / max * 100, 0, 100), bs = $('starbar').querySelectorAll('b');
+  $('sb-fill').style.width = pos(total) + '%';
+  bs[0].style.left = '7%'; bs[1].style.left = pos(lv.stars[1]) + '%'; bs[2].style.left = pos(lv.stars[2]) + '%';
+  [g.met, g.met && total >= lv.stars[1], g.met && total >= lv.stars[2]].forEach((on, k) => {
+    if (on && !bs[k].classList.contains('on')) { bs[k].classList.add('on'); Snd.play('star', k); }
+    else if (!on) bs[k].classList.remove('on');
+  });
+}
+function renderBoosts() {
+  const box = $('boosts'), lvl = G.run.mode === 'level'; box.hidden = !lvl; if (!lvl) return;
+  box.querySelectorAll('.boost').forEach(btn => {
+    const k = btn.dataset.b, n = S.map.boosters[k] || 0, used = (k === 'wide' && G.wide) || (k === 'scope' && G.scoped);
+    btn.querySelector('em').textContent = n; btn.disabled = !n || used || G.phase !== 'aim'; btn.classList.toggle('used', used);
+  });
+}
+function useBoost(k) {
+  if (G.run.mode !== 'level' || G.phase !== 'aim' || !(S.map.boosters[k] > 0)) return;
+  if ((k === 'wide' && G.wide) || (k === 'scope' && G.scoped)) return;
+  S.map.boosters[k]--; save(); Snd.play('boost'); buzz(20);
+  if (k === 'flare') { G.left += 10; G.sec = -1; toast('Solar Flare: +10 seconds'); }
+  if (k === 'wide') { G.wide = true; toast('Wide Orbit: the green zone is wider'); }
+  if (k === 'scope') {
+    G.scoped = true; const r = G.run.list[G.day.planets.length], st = Crowd.stats(r.si, r.i, '');
+    const sc = $('g-scope'); sc.textContent = 'Most common: ' + st.top.map(t => nameOf(P[r.si][r.i], t.k)).join(' \u00b7 '); sc.hidden = false;
+  }
+  renderBoosts();
 }
 function setRound() {
-  const i = G.day.planets.length;
-  G.cur = null; G.phase = 'aim'; scene.mood = 'idle';
-  $('g-round').textContent = 'Planet ' + (i + 1) + ' of ' + CFG.ROUNDS;
-  $('g-q').textContent = P[G.si][i].q;
+  const i = G.day.planets.length, n = G.run.n, lv = G.run.mode === 'level' ? G.lv : null;
+  G.cur = null; G.phase = 'aim'; scene.mood = 'idle'; G.wide = false; G.scoped = false;
+  $('g-round').textContent = (lv ? 'Level ' + lv.n + (lv.boss ? ' boss' : '') + ' \u00b7 ' : '') + 'Planet ' + (i + 1) + ' of ' + n;
+  $('g-q').textContent = PR(i).q; $('g-scope').hidden = true;
   $('controls').hidden = false; $('result').hidden = true; $('verdict').hidden = true; $('g-prompt').hidden = false;
   $('answer').value = ''; $('launch').disabled = false;
-  const ck = G.day.clock;
-  G.left = ck && ck.i === i && ck.left > 0 ? Math.min(ck.left, CFG.ROUND_SECONDS) : CFG.ROUND_SECONDS;
+  const ck = G.run.mode === 'daily' ? G.day.clock : null;
+  G.left = ck && ck.i === i && ck.left > 0 ? Math.min(ck.left, G.run.secs) : G.run.secs;
   G.grace = CFG.READY_SECONDS; G.wait = 0; G.sec = -1;
   const dial = $('g-timer'); dial.classList.remove('urgent', 'mid'); dial.classList.add('wait');
-  $('g-tnum').textContent = Math.ceil(G.left); $('g-tfill').style.strokeDashoffset = (100 * (1 - G.left / CFG.ROUND_SECONDS)).toFixed(2);
+  $('g-tnum').textContent = Math.ceil(G.left); $('g-tfill').style.strokeDashoffset = (100 * (1 - G.left / G.run.secs)).toFixed(2);
   const pe = $('g-prompt'); pe.classList.remove('pop'); void pe.offsetWidth; pe.classList.add('pop');
-  aimEl.value = 425; onAim(); renderHud(); layoutScene();
+  aimEl.value = 425; onAim(); renderHud(); renderBoosts(); layoutScene();
   if (window.matchMedia && matchMedia('(pointer:fine)').matches) $('answer').focus({ preventScroll: true });
 }
 function setHint(t, err) { const h = $('hint'); h.textContent = t; h.classList.toggle('err', !!err); }
@@ -1596,16 +1863,16 @@ function onAim() {
 
 function launch() {
   if (G.phase !== 'aim') return;
-  const i = G.day.planets.length, pr = P[G.si][i], res = resolve(pr, $('answer').value);
+  const i = G.day.planets.length, pr = PR(i), rid = G.run.list[i], daily = G.run.mode === 'daily', res = resolve(pr, $('answer').value);
   if (!res || !/[a-z0-9]/.test(res.key)) {
     const typed = clean($('answer').value);
-    if (typed) { setHint('\u201c' + typed + '\u201d isn\u2019t on the list. Try another.', true); Live.miss(G.dn, i, typed); Snd.play('lost'); }
+    if (typed) { setHint('\u201c' + typed + '\u201d isn\u2019t on the list. Try another.', true); if (daily) Live.miss(G.dn, i, typed); Snd.play('lost'); }
     else setHint('Type an answer first.', true);
     const f = $('answer-form'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
     $('answer').focus(); $('answer').select(); return;
   }
-  Crowd.submit(G.dn, i, res.key);
-  const st = Crowd.stats(G.si, i, res.key), z = G.day.z, cls = classify(st.pct, z), t = pctToT(st.pct);
+  if (daily) Crowd.submit(G.dn, i, res.key);
+  const st = Crowd.stats(rid.si, rid.i, res.key), z = curZ(), cls = classify(st.pct, z), t = pctToT(st.pct);
   const am = CFG.AIM ? aimMult(G.aim, t, z) : { mult: 1, perfect: false }, seed = hash(res.key + ':' + G.dn + ':' + i);
   let chain = 0; for (let j = i - 1; j >= 0 && G.day.planets[j].kind === 'hab'; j--) chain++;
   const evo = cls.kind === 'hab' ? Math.min(chain + 1, 3) : 0;
@@ -1622,16 +1889,17 @@ function launch() {
 function beginFlight() {
   $('launch').disabled = true; $('answer').blur(); setHint('');
   $('controls').hidden = true; $('g-prompt').hidden = true; // clear the stage for the flight
+  if (G.scoped) $('g-scope').hidden = true;
   G.phase = 'fly'; G.a0 = performance.now(); renderHud(); Snd.play('launch');
 }
 /* Clock ran out: launch whatever is typed, otherwise the planet is lost. */
 function timeUp() {
   if (G.phase !== 'aim') return;
-  const i = G.day.planets.length, res = resolve(P[G.si][i], $('answer').value);
+  const i = G.day.planets.length, rid = G.run.list[i], res = resolve(PR(i), $('answer').value);
   if (res) return launch();
   const p = { ans: 'out of time', key: '', pct: 0, solo: false, t: 1, aim: G.aim, kind: 'lost', biome: 'rock', life: 0, mult: 1,
     perfect: false, evo: 0, deco: null, seed: hash('lost:' + G.dn + ':' + i), pts: 0 };
-  G.day.planets.push(p); G.stats = Crowd.stats(G.si, i, ''); G.cur = p; save();
+  G.day.planets.push(p); G.stats = Crowd.stats(rid.si, rid.i, ''); G.cur = p; save();
   beginFlight();
 }
 function tickTimer(dt) {
@@ -1644,21 +1912,21 @@ function tickTimer(dt) {
     dial.classList.remove('wait'); setHint(CFG.AIM ? 'Call the landing, type, launch.' : 'Type one answer and launch it.');
   }
   G.left -= dt;
-  const sec = Math.max(0, Math.ceil(G.left)), f = clamp(G.left / CFG.ROUND_SECONDS, 0, 1);
+  const sec = Math.max(0, Math.ceil(G.left)), f = clamp(G.left / G.run.secs, 0, 1);
   if (sec !== G.sec) {
     G.sec = sec; $('g-tnum').textContent = sec;
     const urgent = sec <= CFG.URGENT_SECONDS;
     dial.classList.toggle('urgent', urgent); dial.classList.toggle('mid', !urgent && f < .5);
     scene.mood = urgent ? 'sweat' : 'idle';
     if (urgent && sec > 0) Snd.play('tick');
-    G.day.clock = { i: G.day.planets.length, left: G.left }; save();
+    if (G.run.mode === 'daily') { G.day.clock = { i: G.day.planets.length, left: G.left }; save(); }
   }
   $('g-tfill').style.strokeDashoffset = (100 * (1 - f)).toFixed(2);
   if (G.left <= 0) timeUp();
 }
 
 function showResult() {
-  const p = G.cur, st = G.stats, last = G.day.planets.length >= CFG.ROUNDS;
+  const p = G.cur, st = G.stats, last = G.day.planets.length >= G.run.n;
   const v = $('res-verdict');
   v.textContent = p.bull ? 'Bullseye!' : p.near ? (p.kind === 'hot' ? 'Just too hot' : 'Just too cold') : VERDICT[p.biome];
   v.style.color = p.bull ? 'var(--sun)' : p.kind === 'lost' ? 'var(--ink-dim)' : p.kind === 'hot' ? 'var(--ember)' : p.kind === 'cold' ? 'var(--ice)' : 'var(--life)';
@@ -1668,7 +1936,7 @@ function showResult() {
     + (p.pct < .1 ? 'Under 0.1% of players said it' : pctText(p.pct) + ' of players said it');
   line.hidden = !line.textContent;
   const evoText = ['', ' Plants take root.', ' Creatures roam the land.', ' Tiny cities light up.'][p.evo];
-  const z = G.day.z, sw = sweetOf(z);
+  const z = curZ(), sw = sweetOf(z);
   $('res-flavor').textContent = p.kind === 'lost' ? 'A bare rock drifts off into the dark.'
     : p.near && p.kind === 'hot' ? 'So close. The green starts just under ' + pctText(z.hot) + '.'
     : p.near ? 'So close. The green starts at ' + pctText(z.cold) + '.'
@@ -1681,7 +1949,7 @@ function showResult() {
   st.top.forEach(t => {
     const li = el('li', t.k === p.key ? 'me' : ''), bar = el('span', 'bar'), fill = el('i');
     fill.style.width = clamp(t.pct / st.top[0].pct * 100, 4, 100) + '%'; bar.appendChild(fill);
-    li.append(el('span', 'nm', nameOf(P[G.si][G.day.planets.length - 1], t.k)), bar, el('span', 'pc', pctText(t.pct))); top.appendChild(li);
+    li.append(el('span', 'nm', nameOf(PR(G.day.planets.length - 1), t.k)), bar, el('span', 'pc', pctText(t.pct))); top.appendChild(li);
   });
   const eq = $('res-eq'); eq.textContent = '';
   const perfect = p.perfect ? 'Perfect aim! ' + (p.deco === 'ring' ? 'Rings' : 'A moon') + ' earned.' : '';
@@ -1694,17 +1962,17 @@ function showResult() {
     eq.append('No life, no points.'); if (CFG.AIM && perfect) eq.append(el('b', '', perfect));
   }
   const pts = $('res-pts'); pts.textContent = (p.pts ? '+' + fmt(p.pts) : '0') + ' life'; pts.classList.toggle('zero', !p.pts);
-  $('next').textContent = last ? 'See your system' : 'Next planet';
+  $('next').textContent = last ? (G.run.mode === 'level' ? 'See results' : 'See your system') : 'Next planet';
   $('controls').hidden = true; $('result').hidden = false; $('verdict').hidden = false;
-  $('g-score').textContent = fmt(totalOf(G.day));
   const cur2 = G.cur; G.cur = null; renderHud(); G.cur = cur2;
   $('next').focus({ preventScroll: true });
 }
 function next() {
   if (G.phase !== 'result') return;
   const idx = G.day.planets.length - 1; G.off[idx] = 0; G.cur = null;
-  if (G.day.planets.length >= CFG.ROUNDS) { finishDay(); showEnd(G.dn, 'title'); }
-  else setRound();
+  if (G.day.planets.length < G.run.n) return setRound();
+  if (G.run.mode === 'level') return finishLevel();
+  finishDay(); showEnd(G.dn, 'map');
 }
 function finishDay() {
   const d = G.day; if (d.done) return;
@@ -1712,6 +1980,114 @@ function finishDay() {
   if (S.lastDay !== G.dn) { S.streak = S.lastDay === G.dn - 1 ? S.streak + 1 : 1; S.lastDay = G.dn; }
   S.best = Math.max(S.best || 0, d.total); save();
   Live.finish(G.dn, d.total);
+  const b = giveBoost(); save(); setTimeout(() => toast('Daily star bonus: +1 ' + BOOST[b].name), 900);
+}
+function finishLevel() {
+  const lv = G.lv, n = lv.n, M = S.map, g = goalStat(lv, G.day.planets), stars = starsFor(lv, g);
+  M.form = M.form.concat(g.met ? 1 : 0).slice(-6);
+  let reward = null;
+  if (g.met) {
+    const prev = M.stars[n] || 0;
+    M.stars[n] = Math.max(prev, stars); M.best[n] = Math.max(M.best[n] || 0, g.total); M.fails[n] = 0;
+    M.hot3 = stars === 3 ? (M.hot3 || 0) + 1 : 0;
+    if (stars === 3 && prev < 3) reward = giveBoost();
+    if (n === M.unlocked && n < LV_COUNT) { M.unlocked = n + 1; M.justWon = n; }
+  } else { M.fails[n] = (M.fails[n] || 0) + 1; M.hot3 = 0; }
+  save(); showLevelCard('result', lv, { g, stars, reward });
+}
+let LC = null;
+function showLevelCard(kind, lv, res) {
+  LC = { kind, lv, res };
+  const win = kind === 'result' && res.g.met, lose = kind === 'result' && !res.g.met, best = S.map.stars[lv.n] || 0;
+  $('lc-sector').textContent = (lv.boss ? 'Boss level \u00b7 ' : '') + lv.sector.name; $('lc-sector').style.color = lv.sector.tint;
+  $('lc-title').textContent = kind === 'intro' ? 'Level ' + lv.n : win ? 'Level ' + lv.n + ' complete!' : 'So close!';
+  const st = [...$('lc-stars').children];
+  st.forEach(i => i.classList.remove('on', 'drop'));
+  $('lc-goal').textContent = lose ? missText(lv, res.g) : (win ? 'Goal met: ' : 'Goal: ') + goalText(lv);
+  const sub = $('lc-sub'); sub.textContent = '';
+  if (kind === 'intro') {
+    st.forEach((i, k) => i.classList.toggle('on', k < best));
+    sub.append(lv.list.length + ' planets \u00b7 ' + lv.secs + ' seconds each', el('br'),
+      '\u2605\u2605 ' + fmt(lv.stars[1]) + ' life \u00b7 \u2605\u2605\u2605 ' + fmt(lv.stars[2]) + ' life');
+  } else {
+    const v = el('b', '', '0'); sub.append(v, ' life'); v.dataset.v = 0; setTimeout(() => roll(v, res.g.total), 200);
+    if (S.map.best[lv.n]) sub.append(el('br'), 'Best: ' + fmt(S.map.best[lv.n]));
+    if (win) {
+      Snd.play(res.stars === 3 ? 'win' : 'hab');
+      for (let k = 0; k < res.stars; k++) setTimeout(() => { st[k].classList.add('on', 'drop'); Snd.play('star', k); buzz(30); }, 450 + k * 420);
+      if (res.stars === 3) setTimeout(flash, 450 + 2 * 420);
+    } else Snd.play('lost');
+  }
+  const rw = $('lc-reward'); rw.hidden = !(res && res.reward); if (res && res.reward) rw.textContent = '3 stars! New booster: ' + BOOST[res.reward].name;
+  $('lc-go').textContent = kind === 'intro' ? 'Play' : lose ? 'Try again' : lv.n < LV_COUNT ? 'Next level' : 'Back to map';
+  $('lc-alt').textContent = 'Replay'; $('lc-alt').hidden = !win;
+  show('lvl'); $('lc-go').focus({ preventScroll: true });
+}
+const openLevel = n => showLevelCard('intro', levelOf(n));
+
+/* ================= MAP ================= */
+const NODE_GAP = 96, SEC_GAP = 70;
+let MAPPTS = [];
+function renderMap() {
+  const box = $('map-path'), W = $('map-scroll').clientWidth || 360, M = S.map;
+  const H = LV_COUNT * NODE_GAP + SECTORS.length * SEC_GAP + 60, pts = [];
+  for (let n = 1; n <= LV_COUNT; n++) {
+    const sec = Math.floor((n - 1) / LV_PER);
+    pts.push({ x: W / 2 + Math.sin(n * .85) * Math.min(W * .3, 120), y: H - 70 - (n - 1) * NODE_GAP - sec * SEC_GAP });
+  }
+  box.textContent = ''; box.style.height = H + 'px';
+  SECTORS.forEach((s, k) => {
+    const first = pts[k * LV_PER], last = pts[k * LV_PER + LV_PER - 1];
+    const band = el('div', 'sector-band'); band.style.top = (last.y - NODE_GAP * .6) + 'px'; band.style.height = (first.y - last.y + NODE_GAP * .6 + SEC_GAP) + 'px';
+    band.style.background = `linear-gradient(180deg, transparent, ${s.tint}26 25%, ${s.tint}26 75%, transparent)`; box.appendChild(band);
+    const nm = el('div', 'sector-name', s.name); nm.style.top = (first.y + 40) + 'px'; nm.style.color = s.tint; box.appendChild(nm);
+  });
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('preserveAspectRatio', 'none');
+  const seg = (k) => { const a = pts[k - 1], b = pts[k]; return ` C ${a.x} ${a.y - NODE_GAP * .55}, ${b.x} ${b.y + NODE_GAP * .55}, ${b.x} ${b.y}`; };
+  let all = `M ${pts[0].x} ${pts[0].y}`, done = all;
+  for (let k = 1; k < pts.length; k++) { all += seg(k); if (k < M.unlocked) done += seg(k); }
+  [[all, 'mp-base'], [done, 'mp-done']].forEach(([d, c]) => { const pa = document.createElementNS(NS, 'path'); pa.setAttribute('d', d); pa.setAttribute('class', c); svg.appendChild(pa); });
+  box.appendChild(svg);
+  pts.forEach((pt, k) => {
+    const n = k + 1, L = LEVELS[k], st = M.stars[n] || 0, locked = n > M.unlocked;
+    const b = el('button', 'lv' + (L.boss ? ' boss' : '') + (locked ? ' locked' : '') + (n === M.unlocked ? ' current' : ''), String(n));
+    b.type = 'button'; b.style.left = pt.x + 'px'; b.style.top = pt.y + 'px';
+    b.setAttribute('aria-label', 'Level ' + n + (L.boss ? ', boss' : '') + (locked ? ', locked' : ', ' + st + ' of 3 stars'));
+    if (locked) b.disabled = true; else b.addEventListener('click', () => openLevel(n));
+    if (!locked) { const s = el('span', 'st'); for (let j = 0; j < 3; j++) s.appendChild(el('i', j < st ? 'on' : '', '\u2605')); b.appendChild(s); }
+    box.appendChild(b);
+  });
+  const gk = el('canvas', 'map-goldie'); gk.id = 'map-goldie'; gk.setAttribute('aria-hidden', 'true'); box.appendChild(gk);
+  MAPPTS = pts;
+}
+function placeGoldie(n, animate) {
+  const gk = $('map-goldie'), p = MAPPTS[n - 1]; if (!gk || !p) return;
+  if (!animate) gk.style.transition = 'none';
+  gk.style.left = p.x + 'px'; gk.style.top = p.y + 'px';
+  if (!animate) { void gk.offsetWidth; gk.style.transition = ''; }
+}
+function renderMapHead() {
+  const M = S.map, tot = Object.values(M.stars).reduce((a, b) => a + b, 0), d = dayOf(TODAY), st = activeStreak();
+  $('m-stars').textContent = '\u2605 ' + tot + ' / ' + LV_COUNT * 3;
+  $('m-daily-t').textContent = d && d.done ? "Today's star: done \u00b7 " + fmt(totalOf(d)) + ' life' : "Today's star \u00b7 Star #" + TODAY;
+  $('m-daily-s').textContent = (d && d.done ? 'See your system' : d && d.planets.length ? 'Continue: planet ' + (d.planets.length + 1) + ' of ' + CFG.ROUNDS : '7 planets, the same for everyone')
+    + (st ? ' \u00b7 ' + st + '-day streak' : '');
+  const bx = $('m-boosts'); bx.textContent = '';
+  Object.keys(BOOST).forEach(k => { const sp = el('span'); sp.append(BOOST[k].name + ' ', el('b', '', '\u00d7' + (M.boosters[k] || 0))); bx.appendChild(sp); });
+}
+function showMap() {
+  const M = S.map;
+  if (M.lastGift !== TODAY) { M.lastGift = TODAY; const b = giveBoost(); save(); setTimeout(() => toast('Daily gift: +1 ' + BOOST[b].name), 500); }
+  show('map'); renderMapHead(); renderMap();
+  const to = M.unlocked, from = M.justWon && M.justWon === to - 1 ? M.justWon : to, sc = $('map-scroll');
+  placeGoldie(from, false);
+  sc.scrollTop = MAPPTS[to - 1].y - sc.clientHeight * .55;
+  if (from !== to) {
+    setTimeout(() => { placeGoldie(to, true); Snd.play('hop'); }, 450);
+    if (to % LV_PER === 1) setTimeout(() => { toast('New sector unlocked: ' + SECTORS[Math.floor((to - 1) / LV_PER)].name + '!'); Snd.play('win'); }, 1250);
+  }
+  M.justWon = 0; save();
 }
 
 function shareText(dn, d) {
@@ -1859,8 +2235,8 @@ $('t-play').addEventListener('click', startPlay);
 $('t-how').addEventListener('click', () => { howThenPlay = false; $('h-go').textContent = 'Got it'; show('how'); });
 $('t-galaxy').addEventListener('click', showGalaxy);
 $('h-back').addEventListener('click', () => { renderTitle(); show('title'); });
-$('h-go').addEventListener('click', () => { S.seenHow = true; save(); if (howThenPlay) enterGame(); else { renderTitle(); show('title'); } });
-$('g-home').addEventListener('click', () => { renderTitle(); show('title'); });
+$('h-go').addEventListener('click', () => { S.seenHow = true; save(); if (howThenPlay) showMap(); else { renderTitle(); show('title'); } });
+$('g-home').addEventListener('click', () => { if (G.run && G.run.mode === 'level') showMap(); else { renderTitle(); show('title'); } });
 $('answer-form').addEventListener('submit', e => { e.preventDefault(); launch(); });
 aimEl.addEventListener('input', onAim);
 $('next').addEventListener('click', next);
@@ -1869,11 +2245,21 @@ function renderSnd() { const b = $('g-snd'); b.classList.toggle('off', !Snd.on);
 $('g-snd').addEventListener('click', () => { Snd.on = !Snd.on; S.sound = Snd.on; save(); Snd.wake(); renderSnd(); });
 renderSnd();
 $('copy').addEventListener('click', copyResult);
-$('e-back').addEventListener('click', () => { if (endBack === 'galaxy') showGalaxy(); else { renderTitle(); show('title'); } });
+$('e-back').addEventListener('click', () => { if (endBack === 'galaxy') showGalaxy(); else if (endBack === 'map') showMap(); else { renderTitle(); show('title'); } });
+$('m-back').addEventListener('click', () => { renderTitle(); show('title'); });
+$('m-daily').addEventListener('click', playDaily);
+$('lc-go').addEventListener('click', () => {
+  if (!LC) return; const n = LC.lv.n;
+  if (LC.kind === 'intro' || !LC.res.g.met) startLevel(n);
+  else if (n < LV_COUNT) openLevel(n + 1); else showMap();
+});
+$('lc-map').addEventListener('click', showMap);
+$('lc-alt').addEventListener('click', () => { if (LC) openLevel(LC.lv.n); });
+document.querySelectorAll('#boosts .boost').forEach(b => b.addEventListener('click', () => useBoost(b.dataset.b)));
 $('e-home').addEventListener('click', () => { renderTitle(); show('title'); });
 $('e-galaxy').addEventListener('click', showGalaxy);
 $('x-back').addEventListener('click', () => { renderTitle(); show('title'); });
-window.addEventListener('resize', () => { if (cur === 'game') layoutScene(); if (cur === 'galaxy') showGalaxy(); if (cur === 'end') drawEndStatic(); });
+window.addEventListener('resize', () => { if (cur === 'map') { renderMap(); placeGoldie(S.map.unlocked, false); } if (cur === 'game') layoutScene(); if (cur === 'galaxy') showGalaxy(); if (cur === 'end') drawEndStatic(); });
 
 let drag = false;
 function aimFromX(cx) {
@@ -1897,7 +2283,9 @@ function frame(now) {
     HOW.forEach(([id, p]) => { const cv = $(id), c = fit(cv); if (c) drawPlanet(c, 32, 32, 15, p, tm); });
   } else if (cur === 'game' && G.day) {
     layoutScene(); tickTimer(raw);
-    const c = fit(scene.cv); if (c) drawScene(c, tm, now, dt);  } else if (cur === 'end') {
+    const c = fit(scene.cv); if (c) drawScene(c, tm, now, dt);  } else if (cur === 'map') {
+    const cv = $('map-goldie'), c = cv && fit(cv); if (c) drawGoldie(c, 20, 20, 10, 'beam', tm, 1.1, 0);
+  } else if (cur === 'end') {
     const cv = $('system'), c = fit(cv), d = dayOf(endDn); if (c && d) drawSystem(c, cv.clientWidth, cv.clientHeight, d, tm, false);
   }
   requestAnimationFrame(frame);
