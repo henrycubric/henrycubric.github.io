@@ -329,6 +329,51 @@ button,input{font:inherit;color:inherit}
   overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 24px rgba(0,0,0,.45)}
 .toast.go{animation:toastin .4s cubic-bezier(.2,1.5,.4,1)}
 @keyframes toastin{from{transform:translate(-50%,-30px);opacity:0}}
+/* admin */
+.linkbtn{align-self:center;min-height:44px;padding:0 14px;border:0;background:none;color:var(--ink-dim);font:800 13px var(--body);text-decoration:underline;cursor:pointer}
+.a-login{display:flex;flex-direction:column;gap:8px}
+.a-login label{font-size:13px;font-weight:800;color:var(--ink-dim)}
+.a-login input,#a-psel{height:48px;padding:0 16px;border-radius:14px;border:2px solid var(--card-line);background:rgba(255,255,255,.08);color:var(--ink);font:800 16px var(--body)}
+.a-login .btn{margin-top:6px}
+.a-dash{display:flex;flex-direction:column;gap:14px}
+.a-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.a-tiles div{padding:10px 8px;border-radius:16px;background:var(--card);border:1px solid var(--card-line);text-align:center}
+.a-tiles b{display:block;font-family:var(--display);font-weight:400;font-size:24px;color:var(--sun);font-variant-numeric:tabular-nums}
+.a-tiles span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim)}
+.a-tabs{display:flex;gap:6px;padding:4px;border-radius:16px;background:var(--card)}
+.a-tab{flex:1;min-height:44px;border:0;border-radius:12px;background:none;color:var(--ink-dim);font:900 14px var(--body);cursor:pointer}
+.a-tab[aria-selected="true"]{background:var(--sun);color:var(--on-sun)}
+.a-daypick{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.a-daypick b{font-family:var(--display);font-weight:400;font-size:22px}
+.a-daypick .icon-btn{font-size:22px;font-weight:900}
+.a-daypick .icon-btn[disabled]{opacity:.35}
+.a-meta{font-size:13px;font-weight:700;color:var(--ink-dim)}
+.a-hist{display:flex;align-items:flex-end;gap:4px;height:110px;padding:8px 4px 0;border-radius:16px;background:var(--well)}
+.a-col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px;min-width:0}
+.a-col i{display:block;width:100%;min-height:2px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--ice),var(--violet))}
+.a-cn{font-size:11px;font-weight:900}
+.a-cl{font-size:9px;color:var(--ink-dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+.a-legend{font-size:12px;font-weight:700;color:var(--ink-dim);display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.a-legend i{display:inline-block;width:12px;height:12px;border-radius:4px}
+.a-card{padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--card-line);display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.a-card-h h3{font-family:var(--display);font-weight:400;font-size:19px;line-height:1.15}
+.a-card-h span{font-size:12px;font-weight:700;color:var(--ink-dim)}
+.a-bars{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.a-bars li{display:grid;grid-template-columns:minmax(0,8em) 1fr 2.6em 2.6em;gap:8px;align-items:center;font-size:14px}
+.a-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}
+.a-bar{height:12px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.a-bar i{display:block;height:100%;border-radius:99px;background:var(--zc,var(--life))}
+.a-n{text-align:right;font-weight:900;font-variant-numeric:tabular-nums}
+.a-pc{text-align:right;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.z-hot{--zc:var(--ember)} .z-hab{--zc:var(--life)} .z-bull{--zc:var(--sun)} .z-cold{--zc:var(--ice)}
+.a-legend i.z-hot{background:var(--ember)} .a-legend i.z-hab{background:var(--life)} .a-legend i.z-bull{background:var(--sun)} .a-legend i.z-cold{background:var(--ice)}
+.a-more summary{cursor:pointer;font-size:13px;font-weight:800;color:var(--ice);min-height:32px}
+.a-more .a-bars{margin-top:6px}
+.a-miss{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
+.a-miss b{font-weight:900;color:var(--pink);width:100%}
+.a-miss span{padding:3px 9px;border-radius:99px;background:rgba(255,95,162,.14);border:1px solid rgba(255,95,162,.4)}
+.a-empty{font-size:14px;font-weight:700;color:var(--ink-dim);padding:6px 0}
+#a-psel{width:100%;margin:4px 0 10px}
 @media (max-height:620px){
   .screen{gap:8px} #t-goldie{flex-basis:150px} #g-prompt h2{font-size:20px} .p-sub{display:none}
   .verdict #res-verdict{font-size:32px} .verdict #res-flavor{display:none}
@@ -356,6 +401,7 @@ button,input{font:inherit;color:inherit}
         <button class="btn ghost" id="t-galaxy">Galaxy</button>
       </div>
       <p class="small" id="t-note">Playing with the built-in crowd</p>
+      <button class="linkbtn" id="t-admin" type="button" hidden>Admin</button>
     </div>
   </section>
 
@@ -495,6 +541,54 @@ button,input{font:inherit;color:inherit}
       <p class="lvl-reward" id="lc-reward" hidden></p>
       <button class="btn" id="lc-go">Play</button>
       <div class="row"><button class="btn ghost" id="lc-map">Map</button><button class="btn ghost" id="lc-alt">Replay</button></div>
+    </div>
+  </section>
+
+  <section id="s-admin" class="screen" hidden>
+    <header class="hud">
+      <button class="icon-btn" id="a-back" aria-label="Back to title"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+      <h2>Admin</h2>
+      <button class="linkbtn" id="a-out" type="button" hidden>Sign out</button>
+    </header>
+    <p class="how-note" id="a-off" hidden>The backend is not connected yet. Add the Supabase URL and key to <b>BACKEND</b> in goldilocks.html (see backend/README.md).</p>
+    <form class="a-login" id="a-login">
+      <p class="how-note">Sign in with your GOLDILOCKS admin account to see everyone's answers.</p>
+      <label for="a-email">Email</label>
+      <input id="a-email" type="email" autocomplete="username" required>
+      <label for="a-pass">Password</label>
+      <input id="a-pass" type="password" autocomplete="current-password" required>
+      <button class="btn" type="submit" id="a-go">Sign in</button>
+      <p class="hint err" id="a-err" aria-live="polite"></p>
+    </form>
+    <div class="a-dash" id="a-dash" hidden>
+      <div class="a-tiles">
+        <div><b id="a-t-players">0</b><span>Players</span></div>
+        <div><b id="a-t-answers">0</b><span>Answers</span></div>
+        <div><b id="a-t-today">0</b><span>Played today</span></div>
+        <div><b id="a-t-avg">&ndash;</b><span>Avg score today</span></div>
+        <div><b id="a-t-misses">0</b><span>Not on list</span></div>
+      </div>
+      <div class="a-tabs" role="tablist">
+        <button class="a-tab" role="tab" data-t="daily" type="button" aria-selected="true">Daily stars</button>
+        <button class="a-tab" role="tab" data-t="any" type="button" aria-selected="false">Any prompt</button>
+      </div>
+      <div id="a-daily">
+        <div class="a-daypick">
+          <button class="icon-btn" id="a-prev" type="button" aria-label="Previous day">&lsaquo;</button>
+          <b id="a-dlabel">Star #1</b>
+          <button class="icon-btn" id="a-next" type="button" aria-label="Next day">&rsaquo;</button>
+        </div>
+        <p class="a-meta" id="a-dmeta"></p>
+        <div class="a-hist" id="a-hist" aria-label="Score spread for this day"></div>
+        <p class="a-legend"><i class="z-hot"></i>scorched <i class="z-hab"></i>in the green <i class="z-bull"></i>bullseye <i class="z-cold"></i>frozen &middot; colors show where each answer scores right now</p>
+        <div id="a-prompts"></div>
+        <button class="btn ghost" id="a-csv" type="button">Download this day as CSV</button>
+      </div>
+      <div id="a-any" hidden>
+        <label for="a-psel" class="a-meta">Prompt</label>
+        <select id="a-psel"></select>
+        <div id="a-pview"></div>
+      </div>
     </div>
   </section>
 
@@ -1126,11 +1220,12 @@ const pctText = p => p >= 10 ? Math.round(p) + '%' : Math.max(0.1, p).toFixed(1)
    Seeded counts + this player's own past answers + everyone else's answers
    from the artifact's shared database when it is reachable. */
 const Crowd = {
-  remote: new Map(), totals: [], live: false, players: 0,
+  remote: new Map(), srv: new Map(), totals: [], live: false, players: 0,
   stats(si, i, key) {
     const pr = P[si][i], id = si + ':' + i, sc = CFG.PRIOR / pr.tot, m = new Map();
     pr.seed.forEach((n, k) => m.set(k, n * sc));
     const rm = this.remote.get(id); if (rm) rm.forEach((n, k) => m.set(k, (m.get(k) || 0) + n));
+    const sv = this.srv.get(id); if (sv) sv.forEach((n, k) => m.set(k, (m.get(k) || 0) + n));
     const mine = S.mine['v' + CFG.DATA_V + ':' + id]; if (mine) Object.keys(mine).forEach(k => m.set(k, (m.get(k) || 0) + (+mine[k] || 0)));
     let total = 0; m.forEach(n => total += n);
     const top = [...m].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, n]) => ({ k, pct: n / total * 100 }));
@@ -1228,7 +1323,55 @@ function simTotals(dn) {
   }
   return (simCache[dn] = out);
 }
-const crowdTotals = dn => simTotals(dn).concat(dn === TODAY ? Crowd.totals : []);
+const crowdTotals = dn => simTotals(dn).concat(dn === TODAY ? Crowd.totals : [], Server.dayTotals[dn] || []);
+/* ================= BACKEND (Supabase) =================
+   Used by the self-hosted copy of the game. Fill in the project URL and the public "anon" key
+   (Supabase: Project Settings > API). Leave both empty to play on the built-in crowd only.
+   The anon key is meant to be public: the database rules in backend/schema.sql decide what it can do. */
+const BACKEND = { url: '', key: '' };
+const pidOf = pr => pr.pid || (pr.pid = 'q' + hash(pr.q).toString(36));
+const PID = new Map(); P.forEach((d, si) => d.forEach((pr, i) => PID.set(pidOf(pr), { si, i })));
+if (!S.player) { try { S.player = crypto.randomUUID(); } catch (e) { S.player = 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16)); } }
+const Server = {
+  on: !!(BACKEND.url && BACKEND.key), ok: false, dayTotals: {},
+  hdr(token) { return { apikey: BACKEND.key, Authorization: 'Bearer ' + (token || BACKEND.key), 'Content-Type': 'application/json' }; },
+  async req(path, opt = {}, token) {
+    const r = await fetch(BACKEND.url.replace(/\/+$/, '') + path, { ...opt, headers: { ...this.hdr(token), ...(opt.headers || {}) } });
+    const text = await r.text(); let body = null; try { body = text ? JSON.parse(text) : null; } catch (e) { body = text; }
+    if (!r.ok) { const e = new Error((body && (body.message || body.error_description || body.msg)) || ('HTTP ' + r.status)); e.status = r.status; throw e; }
+    return body;
+  },
+  rpc(fn, args, token) { return this.req('/rest/v1/rpc/' + fn, { method: 'POST', body: JSON.stringify(args || {}) }, token); },
+  add(table, row) {
+    if (!this.on) return;
+    this.req('/rest/v1/' + table, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(row) }).catch(() => {});
+  },
+  /* Real answer counts for a set of prompts; they blend into rarity through Crowd.stats. */
+  async counts(list) {
+    if (!this.on || !list || !list.length) return;
+    try {
+      const ids = [...new Set(list.map(r => pidOf(P[r.si][r.i])))];
+      const rows = await this.rpc('answer_counts', { p_prompts: ids }), fresh = new Map();
+      ids.forEach(id => { const r = PID.get(id); fresh.set(r.si + ':' + r.i, new Map()); });
+      (rows || []).forEach(row => {
+        const r = PID.get(row.prompt_id); if (!r) return;
+        const key = canon(P[r.si][r.i], row.answer); if (!key) return;
+        const m = fresh.get(r.si + ':' + r.i); m.set(key, (m.get(key) || 0) + Number(row.n || 0));
+      });
+      fresh.forEach((m, id) => Crowd.srv.set(id, m));
+      this.ok = true; renderNote();
+    } catch (e) { /* offline or not set up: keep playing on the built-in crowd */ }
+  },
+  async scores(day) {
+    if (!this.on) return [];
+    try { const rows = await this.rpc('day_scores', { p_day: day }); this.dayTotals[day] = (rows || []).map(r => +r.total).filter(Number.isFinite); }
+    catch (e) { this.dayTotals[day] = this.dayTotals[day] || []; }
+    return this.dayTotals[day];
+  },
+  play(day, rid, key) { this.add('plays', { day, prompt_id: pidOf(P[rid.si][rid.i]), answer: key.slice(0, 60), player: S.player }); },
+  miss(day, rid, typed) { this.add('misses', { day, prompt_id: pidOf(P[rid.si][rid.i]), typed: typed.slice(0, 40), player: S.player }); },
+  score(day, total, hab) { this.add('scores', { day, player: S.player, total: Math.round(total), habitable: hab }); },
+};
 
 /* ================= DRAWING ================= */
 function fit(cv) {
@@ -1738,7 +1881,7 @@ function onLand(p) {
 }
 
 /* ================= SCREENS ================= */
-const SCREENS = ['title', 'how', 'game', 'end', 'galaxy', 'map', 'lvl'];
+const SCREENS = ['title', 'how', 'game', 'end', 'galaxy', 'map', 'lvl', 'admin'];
 let cur = 'title', howThenPlay = false, endDn = 0, endBack = 'title';
 function show(name) {
   cur = name; SCREENS.forEach(s => { $('s-' + s).hidden = s !== name; });
@@ -1748,6 +1891,7 @@ const dayOf = dn => S.days[dn];
 const totalOf = d => d.planets.reduce((a, p) => a + p.pts, 0);
 
 function renderNote() {
+  if (Server.ok && !Crowd.live) { $('t-note').textContent = 'Live crowd on \u00b7 everyone\u2019s answers count'; return; }
   $('t-note').textContent = Crowd.live
     ? 'Live crowd on' + (Crowd.players ? ' · ' + Crowd.players + ' other player' + (Crowd.players === 1 ? '' : 's') + ' today' : '')
     : 'Playing with the built-in crowd';
@@ -1778,7 +1922,7 @@ function startLevel(n) {
   G.dn = 100000 + n; // only used to seed planet looks
   G.day = { planets: [], z: lv.z, streak: 0 }; G.off = []; G.cur = null; scene.parts.length = 0;
   $('g-score').dataset.v = 0; $('starbar').querySelectorAll('b').forEach(b => b.classList.remove('on'));
-  show('game'); setRound();
+  Server.counts(lv.list); show('game'); setRound();
 }
 function enterGame() {
   G.dn = TODAY; G.si = setOf(TODAY);
@@ -1788,7 +1932,7 @@ function enterGame() {
   G.day = S.days[G.dn]; G.off = []; G.cur = null; scene.parts.length = 0; $('g-score').dataset.v = 0;
   if (G.day.planets.length >= CFG.ROUNDS) { finishDay(); return showEnd(G.dn, 'map'); }
   const z = G.day.z; aimEl.style.setProperty('--h', pctToT(z.hot).toFixed(4)); aimEl.style.setProperty('--c', pctToT(z.cold).toFixed(4));
-  show('game'); setRound();
+  Server.counts(G.run.list); show('game'); setRound();
 }
 function renderHud() {
   const d = G.day, n = G.run.n, pips = $('pips'); pips.textContent = '';
@@ -1866,12 +2010,13 @@ function launch() {
   const i = G.day.planets.length, pr = PR(i), rid = G.run.list[i], daily = G.run.mode === 'daily', res = resolve(pr, $('answer').value);
   if (!res || !/[a-z0-9]/.test(res.key)) {
     const typed = clean($('answer').value);
-    if (typed) { setHint('\u201c' + typed + '\u201d isn\u2019t on the list. Try another.', true); if (daily) Live.miss(G.dn, i, typed); Snd.play('lost'); }
+    if (typed) { setHint('\u201c' + typed + '\u201d isn\u2019t on the list. Try another.', true); if (daily) Live.miss(G.dn, i, typed); Server.miss(daily ? G.dn : 0, rid, typed); Snd.play('lost'); }
     else setHint('Type an answer first.', true);
     const f = $('answer-form'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
     $('answer').focus(); $('answer').select(); return;
   }
   if (daily) Crowd.submit(G.dn, i, res.key);
+  Server.play(daily ? G.dn : 0, rid, res.key);
   const st = Crowd.stats(rid.si, rid.i, res.key), z = curZ(), cls = classify(st.pct, z), t = pctToT(st.pct);
   const am = CFG.AIM ? aimMult(G.aim, t, z) : { mult: 1, perfect: false }, seed = hash(res.key + ':' + G.dn + ':' + i);
   let chain = 0; for (let j = i - 1; j >= 0 && G.day.planets[j].kind === 'hab'; j--) chain++;
@@ -1979,7 +2124,7 @@ function finishDay() {
   d.done = true; d.total = totalOf(d);
   if (S.lastDay !== G.dn) { S.streak = S.lastDay === G.dn - 1 ? S.streak + 1 : 1; S.lastDay = G.dn; }
   S.best = Math.max(S.best || 0, d.total); save();
-  Live.finish(G.dn, d.total);
+  Live.finish(G.dn, d.total); Server.score(G.dn, d.total, d.planets.filter(p => p.kind === 'hab').length);
   const b = giveBoost(); save(); setTimeout(() => toast('Daily star bonus: +1 ' + BOOST[b].name), 900);
 }
 function finishLevel() {
@@ -2109,6 +2254,7 @@ function showEnd(dn, back) {
   $('e-title').textContent = 'Star #' + dn + (d.done ? ' complete' : ' (in progress)');
   $('e-rankblock').hidden = !d.done;
   show('end'); tick(); drawEndStatic(); $('s-end').scrollTop = 0;
+  if (Server.on && d.done) Server.scores(dn).then(() => { if (cur === 'end' && endDn === dn) drawEndStatic(); });
 }
 /* A strip from very common (left) to very rare (right), zones colored, with where this answer landed. */
 function drawMeter(p, z) {
@@ -2247,6 +2393,22 @@ renderSnd();
 $('copy').addEventListener('click', copyResult);
 $('e-back').addEventListener('click', () => { if (endBack === 'galaxy') showGalaxy(); else if (endBack === 'map') showMap(); else { renderTitle(); show('title'); } });
 $('m-back').addEventListener('click', () => { renderTitle(); show('title'); });
+$('t-admin').addEventListener('click', adminShow);
+$('a-back').addEventListener('click', () => { renderTitle(); show('title'); });
+$('a-out').addEventListener('click', () => { Admin.forget(); adminShow(); });
+$('a-login').addEventListener('submit', async e => {
+  e.preventDefault(); const btn = $('a-go'); btn.disabled = true; $('a-err').textContent = '';
+  try { await Admin.signIn($('a-email').value.trim(), $('a-pass').value); $('a-pass').value = ''; adminShow(); }
+  catch (err) { $('a-err').textContent = /invalid/i.test(err.message) ? 'Wrong email or password.' : 'Could not sign in: ' + err.message; }
+  btn.disabled = false;
+});
+document.querySelectorAll('.a-tab').forEach(b => b.addEventListener('click', () => adminTab(b.dataset.t)));
+$('a-prev').addEventListener('click', () => adminDay(Math.max(1, Admin.day - 1)));
+$('a-next').addEventListener('click', () => adminDay(Math.min(TODAY, Admin.day + 1)));
+$('a-psel').addEventListener('change', () => adminPrompt($('a-psel').value));
+$('a-csv').addEventListener('click', adminCsv);
+P.forEach((d, si) => { const g = document.createElement('optgroup'); g.label = 'Prompt set ' + (si + 1);
+  d.forEach(pr => { const o = el('option', '', pr.q); o.value = pidOf(pr); g.appendChild(o); }); $('a-psel').appendChild(g); });
 $('m-daily').addEventListener('click', playDaily);
 $('lc-go').addEventListener('click', () => {
   if (!LC) return; const n = LC.lv.n;
@@ -2311,7 +2473,129 @@ if (!CFG.AIM) {
   if (S.lastDay === TODAY) { S.streak = Math.max(0, S.streak - 1); S.lastDay = S.streak ? TODAY - 1 : 0; }
   save();
 })();
+
+/* ================= ADMIN DASHBOARD =================
+   Signs in with a Supabase account listed in the admins table, then reads everything
+   through the admin_* database functions. Nothing here works without that login. */
+const Admin = {
+  token: null, exp: 0, day: 0, tab: 'daily', days: [],
+  load() { try { const t = JSON.parse(sessionStorage.getItem('gl.admin') || 'null'); if (t && t.exp > Date.now()) { this.token = t.token; this.exp = t.exp; } } catch (e) {} },
+  keep() { try { sessionStorage.setItem('gl.admin', JSON.stringify({ token: this.token, exp: this.exp })); } catch (e) {} },
+  forget() { this.token = null; this.exp = 0; try { sessionStorage.removeItem('gl.admin'); } catch (e) {} },
+  async signIn(email, password) {
+    const r = await Server.req('/auth/v1/token?grant_type=password', { method: 'POST', body: JSON.stringify({ email, password }) });
+    this.token = r.access_token; this.exp = Date.now() + (Number(r.expires_in) || 3600) * 1000 - 60000; this.keep();
+  },
+  async call(fn, args) {
+    try { return await Server.rpc(fn, args, this.token); }
+    catch (e) { if (e.status === 401 || /jwt|expired/i.test(e.message)) { this.forget(); adminShow(); } throw e; }
+  },
+};
+function adminShow() {
+  show('admin'); Admin.load();
+  const signed = !!Admin.token; $('a-login').hidden = signed; $('a-dash').hidden = !signed; $('a-out').hidden = !signed;
+  if (!Server.on) { $('a-login').hidden = true; $('a-dash').hidden = true; $('a-off').hidden = false; return; }
+  $('a-off').hidden = true;
+  if (signed) adminOverview(); else setTimeout(() => $('a-email').focus(), 50);
+}
+async function adminOverview() {
+  try {
+    const o = await Admin.call('admin_overview');
+    Admin.days = (o.days || []).map(d => d.day);
+    const today = (o.days || []).find(d => d.day === TODAY) || { players: 0, avg_score: null };
+    $('a-t-players').textContent = fmt(o.players || 0); $('a-t-answers').textContent = fmt(o.answers || 0);
+    $('a-t-today').textContent = fmt(today.players || 0); $('a-t-avg').textContent = today.avg_score == null ? '–' : fmt(today.avg_score);
+    $('a-t-misses').textContent = fmt(o.misses || 0);
+    if (!Admin.day) Admin.day = TODAY;
+    adminTab(Admin.tab);
+  } catch (e) { $('a-err').textContent = e.message === 'not an admin' ? 'This account is not on the admin list.' : 'Could not load the dashboard: ' + e.message; Admin.forget(); $('a-login').hidden = false; $('a-dash').hidden = true; $('a-out').hidden = true; }
+}
+function adminTab(t) {
+  Admin.tab = t; $('a-daily').hidden = t !== 'daily'; $('a-any').hidden = t !== 'any';
+  document.querySelectorAll('.a-tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.t === t)));
+  if (t === 'daily') adminDay(Admin.day); else adminPrompt($('a-psel').value);
+}
+/* Where an answer would land for players right now (built-in crowd blended with real counts). */
+function zoneClass(si, i, key, realMap) {
+  const pr = P[si][i], sc = CFG.PRIOR / pr.tot; let tot = 0, mine = 0;
+  pr.seed.forEach((n, k) => { tot += n * sc; if (k === key) mine += n * sc; });
+  realMap.forEach((n, k) => { tot += n; if (k === key) mine += n; });
+  const c = classify(mine / tot * 100, zoneFor(0));
+  return c.kind === 'hot' ? 'hot' : c.kind === 'cold' ? 'cold' : c.bull ? 'bull' : 'hab';
+}
+function promptCard(si, i, answers, misses, label) {
+  const pr = P[si][i], card = el('article', 'a-card'), total = answers.reduce((a, r) => a + r.n, 0);
+  const real = new Map(); answers.forEach(r => { const k = canon(pr, r.answer) || r.answer; real.set(k, (real.get(k) || 0) + r.n); });
+  const rows = [...real].sort((a, b) => b[1] - a[1]);
+  const head = el('div', 'a-card-h'); head.append(el('h3', '', pr.q), el('span', '', fmt(total) + ' answer' + (total === 1 ? '' : 's') + (label ? ' · ' + label : '')));
+  card.appendChild(head);
+  if (!rows.length) { card.appendChild(el('p', 'a-empty', 'No answers yet.')); }
+  const list = (items) => { const ul = el('ul', 'a-bars'); const max = rows.length ? rows[0][1] : 1;
+    items.forEach(([k, n]) => { const li = el('li', 'z-' + zoneClass(si, i, k, real)), bar = el('span', 'a-bar'), f = el('i');
+      f.style.width = Math.max(3, n / max * 100) + '%'; bar.appendChild(f);
+      li.append(el('span', 'a-nm', nameOf(pr, k)), bar, el('span', 'a-n', fmt(n)), el('span', 'a-pc', Math.round(n / total * 100) + '%')); ul.appendChild(li); });
+    return ul; };
+  card.appendChild(list(rows.slice(0, 12)));
+  if (rows.length > 12) { const d = el('details', 'a-more'); d.appendChild(el('summary', '', 'Show all ' + rows.length + ' answers')); d.appendChild(list(rows.slice(12))); card.appendChild(d); }
+  if (misses && misses.length) {
+    const m = el('div', 'a-miss'); m.appendChild(el('b', '', 'Not on the list: '));
+    misses.slice(0, 30).forEach(r => m.appendChild(el('span', '', r.typed + (r.n > 1 ? ' ×' + r.n : ''))));
+    card.appendChild(m);
+  }
+  return card;
+}
+async function adminDay(day) {
+  Admin.day = day; const si = setOf(day);
+  $('a-dlabel').textContent = 'Star #' + day + (day === TODAY ? ' (today)' : '');
+  $('a-next').disabled = day >= TODAY; $('a-prev').disabled = day <= 1;
+  const box = $('a-prompts'); box.textContent = ''; box.appendChild(el('p', 'a-empty', 'Loading…'));
+  try {
+    const d = await Admin.call('admin_day', { p_day: day });
+    box.textContent = '';
+    const scores = (d.scores || []).map(Number);
+    $('a-dmeta').textContent = fmt(d.players || 0) + ' player' + (d.players === 1 ? '' : 's') + ' · ' + fmt(scores.length) + ' finished'
+      + (scores.length ? ' · average ' + fmt(scores.reduce((a, b) => a + b, 0) / scores.length) + ' life · best ' + fmt(Math.max(...scores)) : '');
+    adminHist(scores);
+    P[si].forEach((pr, i) => {
+      const id = pidOf(pr);
+      box.appendChild(promptCard(si, i, (d.answers || []).filter(r => r.prompt_id === id).map(r => ({ answer: r.answer, n: +r.n })),
+        (d.misses || []).filter(r => r.prompt_id === id).map(r => ({ typed: r.typed, n: +r.n })), 'planet ' + (i + 1)));
+    });
+  } catch (e) { box.textContent = ''; box.appendChild(el('p', 'a-empty', 'Could not load this day: ' + e.message)); }
+}
+function adminHist(scores) {
+  const h = $('a-hist'); h.textContent = '';
+  if (!scores.length) { h.appendChild(el('p', 'a-empty', 'No finished games yet.')); return; }
+  const max = Math.max(...scores, 1), bins = new Array(10).fill(0), w = Math.ceil((max + 1) / 10 / 50) * 50 || 50;
+  scores.forEach(s => bins[Math.min(9, Math.floor(s / w))]++);
+  const top = Math.max(...bins);
+  bins.forEach((n, k) => { const col = el('div', 'a-col'), b = el('i'); b.style.height = (n / top * 100) + '%'; col.title = fmt(k * w) + '–' + fmt((k + 1) * w - 1) + ' life: ' + n;
+    col.append(el('span', 'a-cn', n ? String(n) : ''), b, el('span', 'a-cl', fmt(k * w))); h.appendChild(col); });
+}
+async function adminPrompt(id) {
+  const box = $('a-pview'), r = PID.get(id); if (!r) return; box.textContent = ''; box.appendChild(el('p', 'a-empty', 'Loading…'));
+  try {
+    const d = await Admin.call('admin_prompt', { p_prompt: id });
+    box.textContent = '';
+    box.appendChild(promptCard(r.si, r.i, (d.answers || []).map(x => ({ answer: x.answer, n: +x.n })), (d.misses || []).map(x => ({ typed: x.typed, n: +x.n })), 'all time, daily and levels'));
+  } catch (e) { box.textContent = ''; box.appendChild(el('p', 'a-empty', 'Could not load: ' + e.message)); }
+}
+async function adminCsv() {
+  const btn = $('a-csv'), day = Admin.day; btn.disabled = true; btn.textContent = 'Preparing…';
+  try {
+    const rows = await Server.req('/rest/v1/plays?day=eq.' + day + '&select=created_at,prompt_id,answer,player&order=created_at.asc&limit=100000', {}, Admin.token);
+    const q = s => '"' + String(s).replace(/"/g, '""') + '"';
+    const lines = ['time,question,answer,player'].concat(rows.map(r => { const p = PID.get(r.prompt_id); return [r.created_at, p ? P[p.si][p.i].q : r.prompt_id, r.answer, r.player].map(q).join(','); }));
+    const a = el('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'goldilocks-star-' + day + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    btn.textContent = 'Downloaded ' + rows.length + ' answers';
+  } catch (e) { btn.textContent = 'Download failed: ' + e.message; }
+  setTimeout(() => { btn.disabled = false; btn.textContent = 'Download this day as CSV'; }, 2500);
+}
+$('t-admin').hidden = !Server.on;
 renderTitle(); show('title'); requestAnimationFrame(frame); Live.init();
+if (Server.on && location.hash === '#admin') adminShow();
+window.addEventListener('hashchange', () => { if (Server.on && location.hash === '#admin') adminShow(); });
 })();
 </script>
 </body>
