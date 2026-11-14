@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="GOLDILOCKS: a daily word game. Give answers that are not too common, not too rare, just right.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Goldilocks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800;900&display=swap">
+<style>
+/* Layout: one phone-height column. Goldie sits at the left of the scene and the
+   orbit axis runs left to right, lined up exactly with the aim slider below it. */
+:root{
+  color-scheme:dark;
+  --space-0:#0a0824; --space-1:#17124d; --space-2:#2a1a66;
+  --ink:#fff7e8; --ink-dim:#bdb7ea;
+  --sun:#ffc531; --sun-deep:#c96a00; --ember:#ff8a3d; --hot:#ff5a4d; --pink:#ff5fa2;
+  --life:#4dffa0; --life-deep:#12b56b; --ice:#7cc8ff; --violet:#8b6cff;
+  --card:rgba(255,255,255,.08); --card-line:rgba(255,255,255,.16); --well:rgba(8,6,40,.55);
+  --on-sun:#4a2500;
+  --display:'Bagel Fat One','Nunito',ui-rounded,system-ui,sans-serif;
+  --body:'Nunito',ui-rounded,'Segoe UI',system-ui,sans-serif;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;color:var(--ink);font:800 16px/1.35 var(--body);
+  background:var(--space-0) radial-gradient(130% 75% at 50% -10%,#4a1d6b 0%,var(--space-2) 28%,var(--space-1) 55%,var(--space-0) 100%);
+  -webkit-tap-highlight-color:transparent}
+#sky{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+#sky i{position:absolute;border-radius:50%;background:#fff;animation:tw 3s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
+#app{position:relative;height:100%;max-width:480px;margin:0 auto;padding-block:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.screen{height:100%;display:flex;flex-direction:column;gap:12px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+h1,h2,h3,h4,p{margin:0}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ice);outline-offset:3px}
+
+/* buttons */
+.btn{min-height:52px;padding:0 24px;border:0;border-radius:999px;cursor:pointer;font-weight:900;font-size:18px;
+  color:var(--on-sun);background:linear-gradient(#ffe066,#ffab1f);box-shadow:0 5px 0 var(--sun-deep),0 10px 24px rgba(255,170,40,.3);
+  transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--sun-deep)}
+.btn.ghost{color:var(--ink);background:var(--card);border:2px solid var(--card-line);box-shadow:none;font-size:16px;min-height:48px}
+.btn.ghost:active{transform:scale(.97)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.icon-btn{width:44px;height:44px;border-radius:50%;border:2px solid var(--card-line);background:var(--card);cursor:pointer;
+  display:grid;place-items:center;flex:none}
+.icon-btn svg{width:20px;height:20px}
+.row{display:flex;gap:10px}
+.row>*{flex:1;min-width:0}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--card);
+  border:1px solid var(--card-line);font-size:14px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--ember);box-shadow:0 0 10px var(--ember)}
+
+/* title */
+#s-title{align-items:center;text-align:center;justify-content:space-between;padding-block:6px}
+.t-top{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;justify-content:center;min-height:0}
+#t-goldie{width:260px;height:260px;max-width:100%;flex:0 1 260px;min-height:130px;margin-block:-14px}
+.logo{font-family:var(--display);font-weight:400;font-size:min(13.2vw,60px);line-height:1;letter-spacing:.01em;
+  background:linear-gradient(90deg,var(--ember),var(--pink) 26%,var(--life) 50%,var(--life) 62%,var(--ice) 82%,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+.tag{color:var(--ink-dim);font-size:16px}
+.t-actions{display:flex;flex-direction:column;gap:12px;width:100%}
+.t-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.small{font-size:13px;color:var(--ink-dim);font-weight:600}
+
+/* how to play */
+.hud{display:flex;align-items:center;gap:10px;flex:none}
+.hud h2{font-family:var(--display);font-weight:400;font-size:26px;flex:1;text-wrap:balance}
+.how-list{display:flex;flex-direction:column;gap:10px}
+.how{display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:22px;background:var(--card);border:1px solid var(--card-line)}
+.how canvas{width:64px;height:64px;flex:none}
+.how h3{font-family:var(--display);font-weight:400;font-size:20px}
+.how p{font-size:14px;font-weight:600;color:var(--ink-dim)}
+.how.hot h3{color:var(--ember)} .how.cold h3{color:var(--ice)} .how.ok h3{color:var(--life)}
+.how-note{font-size:14px;font-weight:600;color:var(--ink-dim);padding:0 4px}
+.how-note b{color:var(--ink)}
+.spacer{flex:1}
+
+/* game */
+.pips{display:flex;gap:6px;flex:1;justify-content:center}
+.pips i{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.14);border:2px solid transparent}
+.pips i.now{border-color:var(--ink);background:transparent}
+.pips i.hot{background:var(--ember)} .pips i.cold{background:var(--ice)}
+.pips i.hab{background:var(--life-deep)} .pips i.lush{background:var(--life);box-shadow:0 0 10px var(--life)}
+.score{min-width:60px;text-align:right;line-height:1.05;font-variant-numeric:tabular-nums}
+.score b{font-size:22px;font-weight:900;display:block;color:var(--life)}
+.score small{font-size:11px;color:var(--ink-dim);letter-spacing:.08em;text-transform:uppercase}
+.prompt{text-align:center;flex:none}
+.prompt small{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.prompt h2{font-family:var(--display);font-weight:400;font-size:clamp(21px,6.2vw,27px);line-height:1.12;text-wrap:balance}
+.scene-wrap{flex:1 1 0;min-height:150px;pointer-events:none;position:relative}
+#scene{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:auto;touch-action:pan-y;cursor:ew-resize}
+#s-game>.ghud,#s-game>.prompt{position:relative;z-index:1}
+/* game HUD: two readout panels between the back and sound buttons */
+.ghud{display:flex;align-items:stretch;gap:8px;flex:none}
+.ghud .panel{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:3px 12px;border-radius:16px;
+  background:rgba(10,8,36,.55);border:1px solid var(--card-line);line-height:1.05}
+.ghud .panel small{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+.ghud .panel b{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
+.ghud .panel.r{text-align:right}
+#g-hab{color:var(--sun)} #g-score{color:var(--life)}
+/* prompt card */
+#g-prompt{flex:none;text-align:left;padding:10px 16px 12px;border-radius:22px;background:rgba(10,8,36,.62);border:1px solid var(--card-line);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.p-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.p-top small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);font-weight:900}
+#g-prompt .pips{flex:none;gap:5px}
+#g-prompt .pips i{width:12px;height:12px}
+#g-prompt h2{margin-top:4px;font-size:clamp(22px,6.6vw,28px);line-height:1.1;text-shadow:none}
+.p-sub{margin-top:4px;font-size:12px;font-weight:700;color:var(--ink-dim)}
+#g-prompt.pop{animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+/* round clock dial */
+.dial{position:relative;width:52px;height:52px;flex:none;display:grid;place-items:center}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.dial circle{fill:none;stroke-width:5}
+.dial .dt{stroke:rgba(255,255,255,.14)}
+.dial .df{stroke:var(--life);stroke-linecap:round;stroke-dasharray:100;transition:stroke .3s}
+.dial.mid .df{stroke:var(--sun)}
+.dial.urgent .df{stroke:var(--hot)}
+.dial.urgent #g-tnum{color:var(--hot);animation:tw .5s infinite}
+.dial.wait #g-tnum{color:var(--ink-dim)}
+#g-tnum{font-weight:900;font-size:19px;font-variant-numeric:tabular-nums}
+/* landing verdict, written over the scene */
+.verdict{position:absolute;left:0;right:0;top:2%;z-index:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  text-align:center;padding:0 8px;text-shadow:0 2px 16px rgba(5,3,25,.95),0 0 4px rgba(5,3,25,.8);animation:drop .45s cubic-bezier(.2,1.3,.4,1)}
+@keyframes drop{from{transform:translateY(-24px) scale(.9);opacity:0}}
+.verdict #res-verdict{font-family:var(--display);font-weight:400;font-size:clamp(34px,11vw,48px);line-height:1;letter-spacing:.02em}
+#res-quote{font-size:18px;font-weight:900;overflow-wrap:anywhere;max-width:100%}
+#res-pts{font-size:17px;font-weight:900;color:var(--life);font-variant-numeric:tabular-nums}
+#res-pts.zero{color:var(--ink-dim)}
+.verdict #res-line{font-size:14px;font-weight:800}
+.verdict #res-flavor{font-size:13px;font-weight:600;color:var(--ink-dim);max-width:32ch}
+.meter{position:relative;width:min(280px,82%);height:10px;border-radius:99px;margin-top:8px;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.meter b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#ffd65a;box-shadow:0 0 6px #ffd65a}
+.meter i{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#fff;border:4px solid #0a0824;
+  box-shadow:0 0 0 2px #fff,0 0 12px rgba(255,255,255,.9);transform:translate(-50%,-50%);transition:left .9s cubic-bezier(.2,1.2,.4,1)}
+#res-eq{font-size:13px;font-weight:600;color:var(--ink-dim);text-align:center}
+#res-eq b{color:var(--sun);font-weight:900;margin-left:6px}
+/* end screen */
+#s-end{gap:16px}
+.e-hero{display:flex;align-items:center;gap:8px;flex:none}
+.e-hero>div{flex:1;min-width:0}
+.e-hero b{display:block;font-family:var(--display);font-weight:400;font-size:clamp(50px,15vw,72px);line-height:1;color:var(--life);font-variant-numeric:tabular-nums}
+.e-hero span{font-size:13px;color:var(--ink-dim);font-weight:700}
+.e-hero canvas{width:min(46%,200px);aspect-ratio:1;flex:none;max-width:100%}
+.e-block{display:flex;flex-direction:column;gap:8px;flex:none}
+.e-h{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:900;display:flex;justify-content:space-between;gap:8px}
+.e-h span{color:var(--ink-dim);letter-spacing:.08em}
+#curve{width:100%;height:100px;display:block}
+#log{width:100%;height:160px;display:block}
+.e-rank{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--ice)}
+.legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.legend li{display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--card-line);font-size:14px}
+.legend canvas{width:30px;height:30px}
+.legend b{display:block;font-weight:900}
+.legend span{font-size:12px;color:var(--ink-dim);font-weight:600}
+.legend em{font-style:normal;font-weight:900;color:var(--life);font-variant-numeric:tabular-nums;font-size:13px}
+#controls,#result{flex:none;display:flex;flex-direction:column;gap:10px;position:relative;z-index:1;padding:12px;border-radius:24px;
+  background:rgba(10,8,36,.62);border:1px solid var(--card-line);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+.timer{display:flex;align-items:center;gap:8px;margin-top:6px}
+.tbar{flex:1;height:10px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden}
+.tbar i{display:block;height:100%;width:100%;border-radius:99px;background:var(--life);transform-origin:left center}
+#g-tnum{min-width:1.6em;text-align:right;font-weight:900;font-size:20px;line-height:1;font-variant-numeric:tabular-nums}
+.timer.urgent .tbar i{background:var(--hot)}
+.timer.urgent #g-tnum{color:var(--hot);animation:tw .5s infinite}
+.timer.off{visibility:hidden}
+.pips i.lost{background:#8f88a8}
+.icon-btn.off{opacity:.45}
+.aim-row{display:flex;align-items:center;gap:10px}
+.aim-chip{flex:none;width:92px;height:44px;border-radius:14px;background:var(--card);border:2px solid var(--chip,var(--life));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;text-align:center}
+.aim-chip b{font-size:13px;font-weight:900;color:var(--chip,var(--life));white-space:nowrap}
+.aim-chip span{font-size:11px;color:var(--ink-dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+#aim{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:44px;margin:0;background:transparent;cursor:ew-resize;--h:.25;--c:.67}
+#aim::-webkit-slider-runnable-track{height:14px;border-radius:99px;border:2px solid rgba(255,255,255,.3);
+  background:linear-gradient(90deg,var(--hot) 0,var(--ember) calc(14px + (100% - 28px)*var(--h) - 1px),var(--life) calc(14px + (100% - 28px)*var(--h)),var(--life) calc(14px + (100% - 28px)*var(--c)),var(--ice) calc(14px + (100% - 28px)*var(--c) + 1px),var(--violet) 100%)}
+#aim::-moz-range-track{height:10px;border-radius:99px;border:2px solid rgba(255,255,255,.3);
+  background:linear-gradient(90deg,var(--hot) 0,var(--ember) calc(14px + (100% - 28px)*var(--h) - 1px),var(--life) calc(14px + (100% - 28px)*var(--h)),var(--life) calc(14px + (100% - 28px)*var(--c)),var(--ice) calc(14px + (100% - 28px)*var(--c) + 1px),var(--violet) 100%)}
+#aim::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-9px;border-radius:50%;background:#fff;
+  border:5px solid var(--sun);box-shadow:0 3px 0 var(--sun-deep),0 0 14px rgba(255,200,60,.7)}
+#aim::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:5px solid var(--sun);box-shadow:0 3px 0 var(--sun-deep)}
+.answer-row{display:flex;gap:10px}
+#answer{flex:1;min-width:0;height:52px;padding:0 20px;border-radius:999px;background:rgba(255,255,255,.1);
+  border:2px solid rgba(255,255,255,.28);font-size:17px;font-weight:800;color:var(--ink)}
+#answer::placeholder{color:var(--ink-dim);opacity:.8}
+#answer:focus{outline:none;border-color:var(--sun);background:rgba(255,255,255,.16)}
+.hint{font-size:13px;font-weight:600;color:var(--ink-dim);text-align:center;min-height:18px}
+.hint.err{color:var(--sun)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+
+/* result */
+#result{animation:rise .35s ease-out}
+@keyframes rise{from{transform:translateY(16px);opacity:0}}
+.res-head{display:flex;gap:12px;align-items:center}
+.res-head canvas{width:76px;height:76px;flex:none}
+.res-head>div{min-width:0}
+#res-verdict{font-family:var(--display);font-weight:400;font-size:26px;line-height:1.05}
+#res-line{font-size:15px;font-weight:600;overflow-wrap:anywhere}
+#res-line b{font-weight:900}
+#res-flavor{font-size:13px;font-weight:600;color:var(--ink-dim)}
+.top3{list-style:none;margin:0;padding:10px 12px;border-radius:18px;background:var(--card);border:1px solid var(--card-line);
+  display:flex;flex-direction:column;gap:5px}
+.top3 li{display:grid;grid-template-columns:minmax(0,7.5em) 1fr 3.2em;gap:8px;align-items:center;font-size:14px}
+.top3 .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top3 .bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.top3 .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ember),var(--pink))}
+.top3 .pc{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-dim)}
+.top3 li.me .nm{color:var(--sun)}
+.top3-h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.pts-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pts-row .eq{font-size:13px;font-weight:600;color:var(--ink-dim);min-width:0}
+.pts-row .eq b{display:block;color:var(--sun);font-size:13px;font-weight:900}
+.pts-row .pts{font-family:var(--display);font-size:32px;line-height:1;color:var(--life);white-space:nowrap}
+.pts-row .pts.zero{color:var(--ink-dim)}
+
+/* end */
+.sys-wrap{flex:1 1 0;min-height:200px;position:relative}
+.sys-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.end-total{text-align:center;line-height:1}
+.end-total b{font-family:var(--display);font-weight:400;font-size:44px;color:var(--life);font-variant-numeric:tabular-nums}
+.end-total span{display:block;font-size:13px;color:var(--ink-dim);margin-top:2px}
+.answers{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;list-style:none;margin:0;padding:0}
+.answers li{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--card);border:1px solid var(--card-line);
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#share{margin:0;padding:10px 14px;border-radius:16px;background:var(--well);border:1px dashed var(--card-line);
+  font:800 14px/1.45 var(--body);text-align:center;white-space:pre-wrap;user-select:all;-webkit-user-select:all}
+.end-foot{text-align:center;font-size:14px;font-weight:600;color:var(--ink-dim);min-height:20px}
+.end-foot b{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:900}
+
+/* galaxy */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}
+.stats div{padding:10px 6px;border-radius:18px;background:var(--card);border:1px solid var(--card-line);text-align:center}
+.stats b{display:block;font-family:var(--display);font-weight:400;font-size:24px;color:var(--sun);font-variant-numeric:tabular-nums}
+.stats span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.sys-card{padding:8px 8px 10px;border-radius:22px;background:var(--well);border:1px solid var(--card-line);cursor:pointer;
+  text-align:center;display:flex;flex-direction:column;gap:2px;min-width:0}
+.sys-card canvas{width:100%;aspect-ratio:1;display:block}
+.sys-card b{font-size:15px}
+.sys-card span{font-size:12px;color:var(--ink-dim);font-weight:600}
+.sys-card .em{font-size:11px;letter-spacing:1px}
+.empty{padding:28px 18px;border-radius:22px;border:2px dashed var(--card-line);text-align:center;color:var(--ink-dim);font-weight:600}
+
+@media (max-height:620px){
+  .screen{gap:8px} #t-goldie{flex-basis:150px} #g-prompt h2{font-size:20px} .p-sub{display:none}
+  .verdict #res-verdict{font-size:32px} .verdict #res-flavor{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="sky" aria-hidden="true"></div>
+<main id="app">
+
+  <section id="s-title" class="screen">
+    <div class="t-top">
+      <canvas id="t-goldie" role="img" aria-label="Goldie, a chubby smiling sun"></canvas>
+      <h1 class="logo">GOLDILOCKS</h1>
+      <p class="tag">Not too hot. Not too cold. Just right.</p>
+    </div>
+    <div class="t-actions">
+      <div class="t-meta">
+        <span class="chip" id="t-day">Star #1</span>
+        <span class="chip"><i class="dot"></i><span id="t-streak">Start a streak today</span></span>
+      </div>
+      <button class="btn" id="t-play">Play today's star</button>
+      <div class="row">
+        <button class="btn ghost" id="t-how">How to play</button>
+        <button class="btn ghost" id="t-galaxy">Galaxy</button>
+      </div>
+      <p class="small" id="t-note">Playing with the built-in crowd</p>
+    </div>
+  </section>
+
+  <section id="s-how" class="screen" hidden>
+    <header class="hud">
+      <button class="icon-btn" id="h-back" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+      <h2>How to play</h2>
+    </header>
+    <p class="how-note">Seven prompts a day, the same for everyone, <b>25 seconds each</b>. Run out the clock with nothing typed and the planet is lost. Every answer becomes a planet, and <b>how many players gave the same answer</b> decides how far from Goldie it lands. Answers must be on the day's list; small typos get autocorrected, and anything else asks you to try again while the clock keeps running.</p>
+    <div class="how-list">
+      <div class="how hot"><canvas id="h-hot" aria-hidden="true"></canvas><div><h3>Too hot</h3><p>8% or more said it. Too obvious: it lands close and scorches into a lava rock.</p></div></div>
+      <div class="how cold"><canvas id="h-cold" aria-hidden="true"></canvas><div><h3>Too cold</h3><p>Under 2% said it. Too obscure: it drifts out and freezes into an ice ball.</p></div></div>
+      <div class="how ok"><canvas id="h-ok" aria-hidden="true"></canvas><div><h3>Just right</h3><p>2 to 8% said it. It lands in the Goldilocks zone and grows life. Hit the gold ring at the center (about 4%) for a bullseye worth double.</p></div></div>
+    </div>
+    <p class="how-note" data-aim><b>Call your shot.</b> Drag the aim marker to where you think your answer will land. The closer you call it, the bigger your multiplier, and a perfect call earns rings or a moon. Habitable planets in a row evolve: plants, creatures, then tiny cities.</p>
+    <div class="spacer"></div>
+    <button class="btn" id="h-go">Got it</button>
+  </section>
+
+  <section id="s-game" class="screen" hidden>
+    <header class="ghud">
+      <button class="icon-btn" id="g-home" aria-label="Back to title"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+      <div class="panel"><small>Habitable</small><b id="g-hab">0/7</b></div>
+      <div class="panel r"><small>Life</small><b id="g-score">0</b></div>
+      <button class="icon-btn" id="g-snd" aria-label="Sound" aria-pressed="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor"/><path d="M13.5 7a4 4 0 0 1 0 6"/></svg></button>
+    </header>
+    <div class="prompt" id="g-prompt">
+      <div class="p-top"><small id="g-round">Planet 1 of 7</small><div class="pips" id="pips" aria-hidden="true"></div></div>
+      <h2 id="g-q"></h2>
+      <p class="p-sub">common lands close &middot; rare drifts out &middot; aim for the green</p>
+    </div>
+    <div class="scene-wrap" id="scene-wrap">
+      <canvas id="scene" aria-hidden="true"></canvas>
+      <div class="verdict" id="verdict" hidden aria-live="polite">
+        <h3 id="res-verdict"></h3>
+        <p id="res-quote"></p>
+        <p id="res-pts"></p>
+        <p id="res-line"></p>
+        <p id="res-flavor"></p>
+        <div class="meter" id="res-meter" aria-hidden="true"><b></b><i></i></div>
+      </div>
+    </div>
+
+    <div id="controls">
+      <div class="aim-row">
+        <output class="aim-chip" id="aim-chip" for="aim"><b id="aim-zone">Lush</b><span id="aim-info">~4% · ×3.0</span></output>
+        <input type="range" id="aim" min="0" max="1000" step="5" value="425" aria-label="Aim: predict how far from Goldie your answer lands. Left is common, right is rare.">
+      </div>
+      <form class="answer-row" id="answer-form" autocomplete="off">
+        <div class="dial wait" id="g-timer" aria-hidden="true"><svg viewBox="0 0 52 52"><circle class="dt" cx="26" cy="26" r="22"/><circle class="df" id="g-tfill" cx="26" cy="26" r="22" pathLength="100"/></svg><span id="g-tnum">25</span></div>
+        <input id="answer" type="text" maxlength="40" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Type one answer" aria-label="Your answer">
+        <button class="btn" id="launch" type="submit">Launch</button>
+      </form>
+      <p class="hint" id="hint" aria-live="polite">Drag the marker to call where your answer lands.</p>
+    </div>
+
+    <div id="result" hidden>
+      <div>
+        <p class="top3-h">Most common answers</p>
+        <ol class="top3" id="res-top"></ol>
+      </div>
+      <p id="res-eq"></p>
+      <button class="btn" id="next">Next planet</button>
+    </div>
+  </section>
+
+  <section id="s-end" class="screen" hidden>
+    <header class="hud">
+      <button class="icon-btn" id="e-back" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+      <h2 id="e-title">Star #1</h2>
+    </header>
+    <div class="e-hero">
+      <div><b id="e-total">0</b><span id="e-sub">life</span></div>
+      <canvas id="system" role="img" aria-label="Your solar system with seven planets orbiting Goldie"></canvas>
+    </div>
+    <div class="e-block" id="e-rankblock">
+      <canvas id="curve" role="img" aria-label="Score spread for today's crowd with your score marked"></canvas>
+      <p class="e-rank" id="e-rank"></p>
+    </div>
+    <pre id="share"></pre>
+    <button class="btn" id="copy">Copy result</button>
+    <p class="end-foot" id="e-foot" aria-live="polite"></p>
+    <div class="e-block">
+      <h3 class="e-h">Flight log <span>farther = rarer</span></h3>
+      <canvas id="log" role="img" aria-label="How far each of your seven planets landed from Goldie"></canvas>
+      <ul class="answers" id="e-answers"></ul>
+    </div>
+    <div class="e-block">
+      <h3 class="e-h">The zones <span>life per planet</span></h3>
+      <ul class="legend">
+        <li><canvas data-lg="hot"></canvas><div><b>Scorched</b><span>8% or more said it</span></div><em>0</em></li>
+        <li><canvas data-lg="desert"></canvas><div><b>Desert edge</b><span>5 to 8%</span></div><em>20&ndash;60</em></li>
+        <li><canvas data-lg="lush"></canvas><div><b>Just right</b><span>3 to 5%</span></div><em>60&ndash;100</em></li>
+        <li><canvas data-lg="bull"></canvas><div><b>Bullseye</b><span>dead center, about 4%</span></div><em>&times;2</em></li>
+        <li><canvas data-lg="tundra"></canvas><div><b>Tundra edge</b><span>2 to 3%</span></div><em>20&ndash;60</em></li>
+        <li><canvas data-lg="ice"></canvas><div><b>Frozen</b><span>under 2%</span></div><em>0</em></li>
+        <li><canvas data-lg="rock"></canvas><div><b>Lost</b><span>clock ran out</span></div><em>0</em></li>
+      </ul>
+      <p class="small">Habitable planets in a row evolve, multiplying life by up to &times;1.5.</p>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="e-galaxy">Galaxy</button>
+      <button class="btn ghost" id="e-home">Home</button>
+    </div>
+  </section>
+
+  <section id="s-galaxy" class="screen" hidden>
+    <header class="hud">
+      <button class="icon-btn" id="x-back" aria-label="Back"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+      <h2>Galaxy</h2>
+    </header>
+    <div class="stats">
+      <div><b id="x-streak">0</b><span>Streak</span></div>
+      <div><b id="x-best">0</b><span>Best day</span></div>
+      <div><b id="x-count">0</b><span>Stars</span></div>
+    </div>
+    <div class="grid" id="x-grid"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= TUNING ================= */
+const CFG = {
+  HOT_PCT: 8,         // >= this % of players gave the answer: too hot
+  COLD_PCT: 2,        // <  this %: too cold (the sweet spot sits midway on a log scale, ~4%)
+  LUSH_SPREAD: 1.3,   // lush band = sweet spot divided/multiplied by this
+  BULL_SPREAD: 1.1,   // bullseye band = sweet spot divided/multiplied by this
+  BULL_BONUS: 2,      // bullseye multiplies life
+  NEAR_MISS: 1.3,     // landing this close outside the zone counts as a near miss
+  NEAR_PCT: 30,       // % mapped to the innermost orbit (log scale)
+  FAR_PCT: 0.4,       // % mapped to the outermost orbit
+  ROUNDS: 7,
+  ROUND_SECONDS: 25,  // time limit per prompt
+  READY_SECONDS: 3,   // countdown before the clock starts
+  URGENT_SECONDS: 5,  // the clock turns red and ticks
+  LIFE_LUSH: 100,    // life points in the lush band
+  LIFE_EDGE: 20,      // life points right at a zone edge
+  AIM_PERFECT: 0.045, // landing within this orbit fraction of the aim = perfect
+  AIM_RANGE: 0.32,    // beyond this distance the aim adds nothing
+  AIM: false,         // the aim wager (predict the landing for a multiplier); off for now
+  AIM_BONUS: 2,       // perfect aim multiplier = 1 + AIM_BONUS (x3)
+  EDGE_RISK: 0.6,     // extra aim bonus when the aim sits on a zone edge (up to x4.2)
+  EVO_BONUS: [1, 1, 1.25, 1.5], // by evolution level: none, plants, creatures, cities
+  STREAK_WIDEN: 0.02, // each streak day widens both zone edges by 2%
+  STREAK_CAP: 7,
+  EPOCH: [2026, 10, 14], // year, month (0-based), day of Star #1
+  FLY_MS: 1100, REVEAL_MS: 900,
+  SAVE_KEY: 'goldilocks.v1',
+  DATA_V: 2,          // answer-list version; shared answers from other versions are ignored
+  PRIOR: 500,         // the built-in crowd counts as this many players; real answers outweigh it as they pile up
+};
+
+/* ================= PROMPT DATA =================
+   Three days of prompts. `a` is the seeded crowd ("answer:count"), `v` lists
+   variants that merge into an answer. A backend can replace Crowd below. */
+const DAYS = [
+ [
+  {q:'Name a breakfast food',
+   a:'Egg:168,Pancake:140,Cereal:118,Toast:92,Bacon:80,Waffle:62,Oatmeal:50,Bagel:44,Yogurt:38,Sausage:33,French Toast:29,Omelette:26,Croissant:23,Muffin:20,Hash Brown:18,Fruit:16,Granola:14,Avocado Toast:13,Donut:12,Porridge:11,Smoothie:10,Biscuit:9,Breakfast Burrito:8,Banana:7,Crepe:6,Grits:6,Scone:5,Cinnamon Roll:5,Pop-Tart:4,English Muffin:4,Quiche:3,Coffee:3,Baked Beans:2,Congee:2,Danish:2,Frittata:2,Kipper:1,Shakshuka:1,Cold Pizza:1,Churro:1,Natto:1,Chilaquiles:1',
+   t:'Eggs Benedict,Biscuits and Gravy,Huevos Rancheros,Breakfast Sandwich,Egg McMuffin,Steak and Eggs,Chicken and Waffles,Corned Beef Hash,Home Fries,Belgian Waffle,Blueberry Muffin,Frosted Flakes,Cheerios,Lucky Charms,Froot Loops,Rice Krispies,Raisin Bran,Cornflakes,Cream of Wheat,Muesli,Overnight Oats,Acai Bowl,Orange Juice,Fruit Salad,Grapefruit,Cottage Cheese,Parfait,Full English,Black Pudding,Crumpet,Pain au Chocolat,Brioche,Coffee Cake,Sticky Bun,Toaster Strudel,Eggo,Breakfast Taco,Migas,Tamale,Arepa,Dosa,Idli,Poha,Upma,Paratha,Roti Canai,Nasi Lemak,Dim Sum,Bao,Youtiao,Miso Soup,Rice,Tamagoyaki,Onigiri,Kaya Toast,Pho,Banh Mi,Menemen,Simit,Borek,Labneh,Hummus,Ful Medames,Halloumi,Lox,Smoked Salmon,Ham,Canadian Bacon,Turkey Bacon,Pork Roll,Scrapple,Spam,Chorizo,Tofu Scramble,Breakfast Casserole,Dutch Baby,Blintz,Latke,Kolache,Johnnycake,Scotch Egg,Egg in a Hole,Oatcake,Soda Bread,Tattie Scone,Granola Bar,Protein Shake,Peanut Butter Toast,Cinnamon Toast,Hot Chocolate,Tea,Milk,Leftovers,Strawberry,Blueberry,Apple,Bread,Jam,Peanut Butter,Nutella,Honey,Maple Syrup,Cheese,Tomato,Mushroom,Beans on Toast',
+   v:'Egg=scrambled egg|fried egg|boiled egg|poached egg|hard boiled egg|soft boiled egg|sunny side up|eggs and bacon|bacon and eggs;Pancake=hotcake|flapjack|pancakes;Oatmeal=oat|oats;Donut=doughnut;Omelette=omelet;Yogurt=yoghurt|greek yogurt;Breakfast Burrito=burrito;Baked Beans=bean|beans;Pop-Tart=pop tart|poptart;Hash Brown=hashbrown|hash browns|hash;French Toast=eggy bread;Bacon=bacon strip;Cereal=bowl of cereal;Toast=buttered toast|piece of toast;Kipper=kippers;Lox=bagel and lox;Full English=english breakfast|fry up|full breakfast;Froot Loops=fruit loops;Egg McMuffin=mcmuffin;Cornflakes=corn flakes'},
+  {q:'Name an animal you\'d see at a zoo',
+   a:'Lion:170,Elephant:150,Giraffe:125,Monkey:95,Tiger:82,Zebra:60,Penguin:50,Bear:42,Gorilla:36,Hippo:30,Panda:27,Rhino:24,Flamingo:20,Kangaroo:18,Snake:16,Crocodile:14,Polar Bear:13,Meerkat:12,Otter:11,Parrot:10,Seal:9,Koala:9,Cheetah:8,Lemur:7,Camel:7,Sloth:6,Wolf:6,Leopard:5,Chimpanzee:5,Red Panda:5,Tortoise:4,Peacock:4,Orangutan:3,Ostrich:3,Alligator:3,Capybara:3,Emu:2,Tapir:2,Anteater:2,Okapi:1,Komodo Dragon:1,Axolotl:1,Binturong:1,Warthog:1',
+   t:'Jaguar,Puma,Lynx,Ocelot,Serval,Snow Leopard,Clouded Leopard,Hyena,Jackal,Fennec Fox,Red Fox,Arctic Fox,African Wild Dog,Dingo,Coyote,Grizzly Bear,Brown Bear,Black Bear,Sun Bear,Sloth Bear,Spectacled Bear,Bison,Buffalo,Yak,Wildebeest,Gazelle,Antelope,Impala,Kudu,Oryx,Springbok,Ibex,Mountain Goat,Goat,Sheep,Llama,Alpaca,Deer,Reindeer,Elk,Moose,Wallaby,Wombat,Platypus,Echidna,Tasmanian Devil,Armadillo,Aardvark,Pangolin,Porcupine,Hedgehog,Beaver,Raccoon,Skunk,Badger,Wolverine,Mongoose,Bat,Gibbon,Baboon,Mandrill,Macaque,Tamarin,Marmoset,Howler Monkey,Spider Monkey,Squirrel Monkey,Capuchin,Bonobo,Aye-Aye,Slow Loris,Bush Baby,Iguana,Chameleon,Gecko,Gila Monster,Monitor Lizard,Python,Boa,Cobra,Rattlesnake,Anaconda,Turtle,Frog,Poison Dart Frog,Salamander,Toucan,Macaw,Cockatoo,Eagle,Owl,Vulture,Condor,Hornbill,Pelican,Swan,Crane,Stork,Cassowary,Rhea,Kiwi,Puffin,Shark,Stingray,Jellyfish,Octopus,Sea Turtle,Walrus,Manatee,Dolphin,Beluga,Orca,Pygmy Hippo,Dromedary,White Tiger,Bengal Tiger,Siberian Tiger,Gorilla,Fossa,Quokka,Numbat,Kinkajou,Coati,Ring-tailed Lemur,Wild Boar,Pig,Cow,Horse,Donkey,Pony,Rabbit,Guinea Pig',
+   v:'Hippo=hippopotamus;Rhino=rhinoceros;Chimpanzee=chimp;Crocodile=croc;Panda=panda bear|giant panda;Seal=sea lion;Monkey=monkeys;Bear=bears;Lion=lions|lioness;Tiger=tigers;Koala=koala bear;Komodo Dragon=komodo;Snake=snakes;Parrot=parrots;Orangutan=orangutang|orang utan;Ring-tailed Lemur=ring tailed lemur;Bush Baby=galago'},
+  {q:'Name a pizza topping',
+   a:'Pepperoni:190,Cheese:120,Mushroom:110,Sausage:78,Pineapple:64,Olive:50,Onion:44,Bacon:40,Pepper:36,Ham:32,Chicken:26,Basil:22,Tomato:20,Extra Cheese:17,Jalapeno:15,Spinach:13,Anchovy:12,Garlic:10,Salami:9,Beef:8,Artichoke:7,Mozzarella:7,Feta:5,Corn:5,BBQ Sauce:4,Arugula:4,Prosciutto:4,Egg:3,Tuna:3,Pesto:3,Hot Honey:3,Ricotta:2,Shrimp:2,Broccoli:2,Potato:1,Truffle:1,Kimchi:1,Banana:1,Clam:1,Pickle:1',
+   t:'Sun-dried Tomato,Roasted Red Pepper,Green Olive,Kalamata Olive,Red Onion,Caramelized Onion,Banana Pepper,Pepperoncini,Chili Flakes,Hot Sauce,Buffalo Chicken,BBQ Chicken,Meatball,Italian Sausage,Chorizo,Pancetta,Capicola,Soppressata,Nduja,Canadian Bacon,Philly Steak,Gyro,Lamb,Duck,Salmon,Smoked Salmon,Crab,Lobster,Mussel,Calamari,Scallop,Eggplant,Zucchini,Butternut Squash,Sweet Potato,Kale,Cauliflower,Asparagus,Brussels Sprout,Pea,Carrot,Beet,Fig,Pear,Apple,Peach,Grape,Cranberry,Date,Walnut,Pine Nut,Pistachio,Gorgonzola,Blue Cheese,Goat Cheese,Parmesan,Provolone,Cheddar,Gouda,Brie,Burrata,Fontina,Pecorino,Vegan Cheese,Tofu,Mac and Cheese,French Fries,Hot Dog,Taco Meat,Chili,Sauerkraut,Pickled Onion,Capers,Honey,Ranch,Alfredo,Garlic Butter,Olive Oil,Oregano,Rosemary,Thyme,Cilantro,Parsley,Chives,Sesame,Fried Egg,Marshmallow,Chocolate,Nutella,Sprinkles,Doritos,Hot Cheetos,Popcorn,Avocado,Sriracha,Habanero,Ghost Pepper,Bell Pepper,Green Pepper',
+   v:'Pepper=capsicum|red pepper|peppers;Olive=black olive|olives;Arugula=rocket;Corn=sweetcorn;Beef=ground beef|mince;Shrimp=prawn;Anchovy=anchovie|anchovies;Jalapeno=jalapenos|jalapeño;Mushroom=mushrooms|shroom;Extra Cheese=double cheese;BBQ Sauce=barbecue sauce|bbq;Pepperoni=peperoni|pepperonis;Sausage=sausages;Sun-dried Tomato=sundried tomato|sun dried tomato;Nduja=n duja;French Fries=fries|chips'},
+  {q:'Name a vegetable',
+   a:'Carrot:170,Broccoli:150,Potato:95,Lettuce:70,Tomato:62,Spinach:55,Onion:50,Corn:46,Pea:42,Cucumber:38,Celery:34,Green Bean:30,Cauliflower:28,Cabbage:25,Pepper:23,Zucchini:20,Asparagus:18,Kale:16,Brussels Sprout:15,Sweet Potato:14,Eggplant:13,Mushroom:12,Beet:11,Garlic:10,Radish:9,Squash:8,Pumpkin:7,Artichoke:6,Leek:5,Turnip:5,Okra:4,Parsnip:4,Bok Choy:3,Avocado:3,Arugula:3,Yam:3,Chard:2,Rutabaga:2,Kohlrabi:2,Fennel:2,Jicama:1,Daikon:1,Collard Greens:1',
+   t:'Shallot,Scallion,Watercress,Endive,Radicchio,Butternut Squash,Acorn Squash,Spaghetti Squash,Celeriac,Horseradish,Ginger,Taro,Cassava,Lotus Root,Bamboo Shoot,Bean Sprout,Edamame,Lima Bean,Chickpea,Lentil,Soybean,Snap Pea,Snow Pea,Fava Bean,Kidney Bean,Black Bean,Mustard Greens,Dandelion Greens,Sorrel,Nettle,Fiddlehead,Ramp,Chayote,Bitter Melon,Tomatillo,Jalapeno,Habanero,Chili Pepper,Banana Pepper,Poblano,Romanesco,Broccolini,Broccoli Rabe,Gai Lan,Napa Cabbage,Red Cabbage,Savoy Cabbage,Microgreens,Alfalfa,Water Chestnut,Sunchoke,Salsify,Burdock,Wasabi,Olive,Pickle,Gherkin,Seaweed,Kelp,Samphire,Cress,Frisee,Escarole,Chive,Lemongrass,Pea Shoot,Gourd,Red Potato,Russet Potato,Purple Potato,Yellow Squash,Delicata Squash,Kabocha,Iceberg Lettuce,Romaine,Butter Lettuce,Mache,Rapini,Chinese Cabbage,Bell Pepper,Sugar Snap Pea,Runner Bean,Broad Bean,Pinto Bean,Navy Bean,Mung Bean,Black-eyed Pea,Swiss Chard,Beet Greens,Turnip Greens,Wax Bean,Plantain,Breadfruit,Cardoon,Celtuce,Ong Choy,Malabar Spinach,Moringa,Purslane',
+   v:'Pepper=capsicum|green pepper|red pepper|peppers;Zucchini=courgette;Eggplant=aubergine;Corn=sweetcorn|maize|corn on the cob;Scallion=green onion|spring onion;Lettuce=lettuces;Arugula=rocket;Chickpea=garbanzo|garbanzo bean;Rutabaga=swede;Green Bean=string bean|french bean;Cassava=yuca|manioc;Beet=beetroot;Brussels Sprout=brussel sprout|brussels|sprout;Collard Greens=collards|collard;Bok Choy=pak choi|bok choi;Potato=potatoe|spud;Tomato=tomatoe;Daikon=mooli;Pea=peas|green pea;Carrot=carrots;Sweet Potato=sweet potatoe;Sunchoke=jerusalem artichoke;Swiss Chard=rainbow chard;Edamame=soy bean pod'},
+  {q:'Name a country',
+   a:'United States:190,Canada:150,France:95,Mexico:80,China:70,Japan:62,Italy:58,Germany:52,Brazil:46,Australia:42,Spain:38,Russia:34,India:32,England:30,United Kingdom:26,Egypt:22,Ireland:18,Greece:16,Argentina:15,Sweden:13,Norway:12,South Africa:11,Peru:10,Chile:9,Colombia:9,Portugal:8,Switzerland:8,Netherlands:7,South Korea:7,Thailand:6,New Zealand:6,Poland:5,Turkey:5,Nigeria:5,Kenya:4,Iceland:4,Vietnam:4,Cuba:3,Jamaica:3,Finland:3,Denmark:3,Belgium:3,Austria:3,Ukraine:3,Morocco:2,Philippines:2,Indonesia:2,Israel:2,Iran:2,Iraq:2,Pakistan:2,Scotland:2,Madagascar:1,Mongolia:1,Nepal:1,Bhutan:1,Fiji:1,North Korea:1,Wales:1',
+   t:'Afghanistan,Albania,Algeria,Andorra,Angola,Antigua and Barbuda,Armenia,Azerbaijan,Bahamas,Bahrain,Bangladesh,Barbados,Belarus,Belize,Benin,Bolivia,Bosnia and Herzegovina,Botswana,Brunei,Bulgaria,Burkina Faso,Burundi,Cambodia,Cameroon,Cape Verde,Central African Republic,Chad,Comoros,Costa Rica,Croatia,Cyprus,Czechia,Democratic Republic of the Congo,Republic of the Congo,Djibouti,Dominica,Dominican Republic,East Timor,Ecuador,El Salvador,Equatorial Guinea,Eritrea,Estonia,Eswatini,Ethiopia,Gabon,Gambia,Georgia,Ghana,Grenada,Guatemala,Guinea,Guinea-Bissau,Guyana,Haiti,Honduras,Hungary,Ivory Coast,Jordan,Kazakhstan,Kiribati,Kosovo,Kuwait,Kyrgyzstan,Laos,Latvia,Lebanon,Lesotho,Liberia,Libya,Liechtenstein,Lithuania,Luxembourg,Malawi,Malaysia,Maldives,Mali,Malta,Marshall Islands,Mauritania,Mauritius,Micronesia,Moldova,Monaco,Montenegro,Mozambique,Myanmar,Namibia,Nauru,Nicaragua,Niger,North Macedonia,Oman,Palau,Palestine,Panama,Papua New Guinea,Paraguay,Qatar,Romania,Rwanda,Saint Kitts and Nevis,Saint Lucia,Saint Vincent and the Grenadines,Samoa,San Marino,Sao Tome and Principe,Saudi Arabia,Senegal,Serbia,Seychelles,Sierra Leone,Singapore,Slovakia,Slovenia,Solomon Islands,Somalia,South Sudan,Sri Lanka,Sudan,Suriname,Syria,Taiwan,Tajikistan,Tanzania,Togo,Tonga,Trinidad and Tobago,Tunisia,Turkmenistan,Tuvalu,Uganda,United Arab Emirates,Uruguay,Uzbekistan,Vanuatu,Vatican City,Venezuela,Yemen,Zambia,Zimbabwe,Northern Ireland,Greenland,Puerto Rico',
+   v:'United States=usa|us|america|united states of america|the us|the usa|the states|u s|u s a;United Kingdom=uk|great britain|britain|gb|the uk;South Korea=korea|republic of korea;North Korea=dprk;Netherlands=holland|the netherlands;Czechia=czech republic;Ivory Coast=cote divoire;Myanmar=burma;Eswatini=swaziland;Russia=russian federation;Turkey=turkiye;Democratic Republic of the Congo=drc|dr congo;Republic of the Congo=congo;United Arab Emirates=uae|emirates;Vatican City=vatican|holy see;East Timor=timor leste;Bosnia and Herzegovina=bosnia;Philippines=phillipines|phillippines;Colombia=columbia'},
+  {q:'Name a bird',
+   a:'Eagle:150,Robin:110,Cardinal:85,Blue Jay:80,Crow:66,Pigeon:60,Owl:58,Parrot:52,Penguin:45,Hawk:40,Sparrow:38,Flamingo:33,Hummingbird:30,Duck:28,Seagull:25,Ostrich:22,Chicken:20,Swan:18,Pelican:15,Peacock:14,Falcon:13,Woodpecker:12,Toucan:11,Raven:10,Goose:9,Vulture:8,Crane:7,Heron:7,Stork:6,Emu:6,Canary:6,Finch:5,Kiwi:5,Magpie:5,Turkey:5,Macaw:4,Cockatoo:4,Dove:4,Blackbird:4,Starling:3,Kingfisher:3,Puffin:3,Oriole:3,Condor:3,Albatross:2,Budgie:2,Loon:2,Swallow:2,Wren:2,Osprey:2,Kookaburra:1,Quail:1,Pheasant:1,Cassowary:1,Roadrunner:1,Mockingbird:1,Nightingale:1',
+   t:'Chickadee,Nuthatch,Titmouse,Warbler,Tanager,Grosbeak,Bunting,Goldfinch,Junco,Towhee,Thrush,Bluebird,Catbird,Thrasher,Waxwing,Shrike,Vireo,Flycatcher,Phoebe,Kingbird,Swift,Nighthawk,Whip-poor-will,Cuckoo,Grouse,Ptarmigan,Partridge,Guinea Fowl,Kestrel,Harrier,Kite,Buzzard,Secretary Bird,Harpy Eagle,Golden Eagle,Barn Owl,Snowy Owl,Great Horned Owl,Burrowing Owl,Egret,Ibis,Spoonbill,Bittern,Cormorant,Gannet,Blue-footed Booby,Frigatebird,Tern,Skua,Sandpiper,Plover,Killdeer,Curlew,Avocet,Oystercatcher,Godwit,Snipe,Woodcock,Coot,Moorhen,Rail,Grebe,Merganser,Mallard,Wood Duck,Teal,Canada Goose,Snow Goose,Lovebird,Cockatiel,Parakeet,Lorikeet,Conure,African Grey,Kakapo,Kea,Lyrebird,Bowerbird,Bird of Paradise,Hoatzin,Quetzal,Motmot,Trogon,Hornbill,Shoebill,Jabiru,Marabou Stork,Sunbird,Weaver,Bee-eater,Hoopoe,Myna,Bulbul,Drongo,Jay,Steller\'s Jay,Grackle,Cowbird,Meadowlark,Bobolink,Lark,Skylark,Pipit,Wagtail,Dipper,Treecreeper,Chaffinch,Bullfinch,Siskin,Crossbill,Rook,Jackdaw,Chough,Nutcracker,Dodo,Rhea,Tufted Puffin,Gyrfalcon,Peregrine Falcon,Red-tailed Hawk,Turkey Vulture,Mourning Dove,Rock Dove,Barn Swallow,Purple Martin,Bald Eagle,Great Blue Heron,Sandhill Crane,Whooping Crane,Emperor Penguin,King Penguin,Snowy Egret',
+   v:'Seagull=gull|sea gull;Budgie=budgerigar;Blue Jay=bluejay;Hummingbird=humming bird;Kiwi=kiwi bird;Peacock=peafowl|peahen;Chicken=hen|rooster;Owl=owls;Penguin=penguins;Woodpecker=wood pecker;Robin=robin redbreast|american robin;Cardinal=northern cardinal|red cardinal;Duck=ducks'},
+  {q:'Name a superhero',
+   a:'Spider-Man:170,Batman:155,Superman:130,Iron Man:95,Wonder Woman:70,Captain America:60,Hulk:52,Thor:46,Black Panther:34,Wolverine:30,The Flash:28,Deadpool:25,Black Widow:20,Aquaman:16,Green Lantern:14,Captain Marvel:13,Doctor Strange:12,Ant-Man:10,Storm:9,Hawkeye:8,Scarlet Witch:8,Robin:7,Cyclops:6,Batgirl:6,Supergirl:6,Catwoman:5,Daredevil:5,Green Arrow:5,Groot:4,Star-Lord:4,Vision:4,Nightwing:3,Shazam:3,Cyborg:3,Jean Grey:3,Rogue:3,Gambit:3,Falcon:2,Winter Soldier:2,War Machine:2,Ms. Marvel:2,She-Hulk:2,Silver Surfer:2,Beast Boy:2,Raven:2,Starfire:2,Blue Beetle:2,Invisible Woman:1,Mister Fantastic:1,Human Torch:1,The Thing:1,Moon Knight:1,Ghost Rider:1,Punisher:1,Blade:1,Nova:1,Booster Gold:1,Zatanna:1,Hellboy:1,Spawn:1,The Tick:1,Mr. Incredible:1,Elastigirl:1,Frozone:1',
+   t:'Beast,Iceman,Colossus,Nightcrawler,Kitty Pryde,Psylocke,Jubilee,Cable,Domino,X-23,Professor X,Quicksilver,Wasp,Mantis,Drax,Gamora,Rocket Raccoon,Nebula,Okoye,Shuri,Iron Fist,Luke Cage,Jessica Jones,Elektra,Squirrel Girl,Spider-Gwen,Miles Morales,Spider-Woman,Venom,Black Canary,Huntress,Hawkman,Hawkgirl,Martian Manhunter,Firestorm,The Atom,Plastic Man,Swamp Thing,Constantine,Red Hood,Batwoman,Red Robin,Static,Vixen,Kid Flash,Wonder Girl,Superboy,Power Girl,Captain Atom,The Question,Rorschach,Nite Owl,Doctor Manhattan,Silk Spectre,Invincible,Atom Eve,Hit-Girl,Kick-Ass,Darkwing Duck,Mighty Mouse,Underdog,Captain Planet,Sailor Moon,All Might,Deku,Saitama,Astro Boy,Ultraman,Wonder Man,Sentry,Hercules,Namor,Black Bolt,Adam Warlock,Captain Britain,Northstar,Bishop,Havok,Polaris,Dazzler,Emma Frost,Blue Marvel,America Chavez,Kate Bishop,Yelena Belova,US Agent,Moon Girl,Ironheart,Spider-Ham,Mera,Black Lightning,Raven,Jessica Cruz,John Stewart,Hal Jordan,Wally West,Bucky,Sam Wilson,Riri Williams,Echo,Shang-Chi,Sersi,Ikaris,Thena,Kingo,Makkari,Valkyrie,Sif,Heimdall,Loki,Jessica Drew,Spider-Girl,Ghost-Spider,Silk,Scarlet Spider,Peacemaker,Bloodsport,Harley Quinn,Batwing,Orion,Mister Miracle,Big Barda,Etrigan,Spectre,Doctor Fate,Wildcat,Stargirl,Jay Garrick,Alan Scott',
+   v:'Spider-Man=spiderman|spider man|spidey|peter parker;Batman=bruce wayne|the batman;Superman=clark kent|kal el;Iron Man=ironman|tony stark;Hulk=the hulk|incredible hulk|bruce banner;Captain America=cap|steve rogers|captain america;The Flash=flash|barry allen;Wonder Woman=diana prince;Black Panther=tchalla;Wolverine=logan;Ant-Man=antman|scott lang;Star-Lord=starlord|peter quill;Doctor Strange=dr strange|stephen strange;She-Hulk=shehulk;Ms. Marvel=ms marvel|kamala khan;Captain Marvel=carol danvers;Winter Soldier=bucky barnes;Mr. Incredible=mister incredible|mr incredible;Mister Fantastic=mr fantastic|reed richards;Black Widow=natasha romanoff;Hawkeye=clint barton;Scarlet Witch=wanda|wanda maximoff;Thor=thor odinson;Deadpool=wade wilson;Professor X=professor xavier|charles xavier;Rocket Raccoon=rocket;Elastigirl=mrs incredible'},
+ ],
+ [
+  {q:'Name a fruit',
+   a:'Apple:180,Banana:160,Orange:115,Strawberry:85,Grape:66,Mango:54,Watermelon:46,Pineapple:40,Pear:33,Peach:29,Cherry:25,Blueberry:22,Kiwi:19,Lemon:16,Raspberry:14,Plum:12,Melon:11,Pomegranate:10,Grapefruit:8,Coconut:8,Papaya:7,Lime:7,Apricot:6,Blackberry:6,Fig:5,Tomato:5,Avocado:4,Passion Fruit:4,Dragon Fruit:4,Lychee:3,Cantaloupe:3,Nectarine:3,Guava:2,Date:2,Clementine:2,Tangerine:2,Persimmon:1,Durian:1,Starfruit:1,Jackfruit:1,Quince:1,Kumquat:1',
+   t:'Boysenberry,Gooseberry,Elderberry,Mulberry,Huckleberry,Lingonberry,Cloudberry,Goji Berry,Acai,Currant,Blackcurrant,Redcurrant,Cranberry,Olive,Plantain,Breadfruit,Rambutan,Longan,Mangosteen,Salak,Soursop,Custard Apple,Cherimoya,Sapodilla,Mamey,Feijoa,Tamarillo,Loquat,Medlar,Ugli Fruit,Pomelo,Yuzu,Key Lime,Blood Orange,Galia Melon,Casaba,Horned Melon,Miracle Fruit,Ackee,Jabuticaba,Pawpaw,Physalis,Ground Cherry,Prickly Pear,Jujube,Sugar Apple,Wood Apple,Star Apple,Rose Apple,Langsat,Marula,Baobab,Raisin,Prune,Sultana,Pumpkin,Cucumber,Bell Pepper,Tamarind,Honeycrisp,Granny Smith,Pink Lady,Gala,Fuji Apple,Bartlett Pear,Asian Pear,Concord Grape,Cotton Candy Grape,Meyer Lemon,Navel Orange,Mandarin Orange,Cara Cara,White Peach,Donut Peach,Pluot,Aprium,Black Sapote,Lucuma,Pitanga,Acerola,Camu Camu,Calamansi,Finger Lime,Buddha\'s Hand,Citron,Bergamot,Monk Fruit,Snake Fruit,Ice Cream Bean,Pequi,Cupuacu,Noni,Salmonberry,Thimbleberry,Serviceberry,Saskatoon Berry,Chokeberry,Aronia,Sea Buckthorn,Honeyberry,Wineberry,Dewberry,Loganberry,Marionberry,Tayberry',
+   v:'Kiwi=kiwifruit|kiwi fruit;Dragon Fruit=pitaya|pitahaya;Tangerine=mandarin|satsuma;Melon=honeydew|honeydew melon;Cantaloupe=rockmelon|muskmelon;Starfruit=star fruit|carambola;Lychee=litchi|lichee;Apple=apples;Banana=bananas;Grape=grapes;Strawberry=strawberries;Watermelon=water melon;Passion Fruit=passionfruit|maracuya;Soursop=guanabana|graviola;Horned Melon=kiwano;Physalis=cape gooseberry;Feijoa=pineapple guava;Jujube=red date'},
+  {q:'Name a color',
+   a:'Blue:185,Red:150,Green:110,Yellow:78,Purple:70,Pink:56,Orange:50,Black:44,White:30,Teal:22,Turquoise:18,Brown:16,Gray:15,Gold:12,Lavender:10,Magenta:9,Maroon:8,Navy:8,Violet:7,Indigo:7,Silver:6,Cyan:6,Crimson:5,Beige:4,Lime:4,Coral:4,Burgundy:3,Peach:3,Mint:3,Tan:2,Olive:2,Aqua:2,Scarlet:2,Mauve:2,Fuchsia:1,Chartreuse:1,Periwinkle:1,Ochre:1,Vermilion:1,Cerulean:1,Taupe:1',
+   t:'Light Blue,Dark Blue,Sky Blue,Baby Blue,Royal Blue,Light Green,Dark Green,Forest Green,Hot Pink,Baby Pink,Light Pink,Dark Red,Neon Green,Amber,Apricot,Aquamarine,Auburn,Azure,Blush,Bronze,Burnt Orange,Burnt Sienna,Canary Yellow,Caramel,Carmine,Celadon,Cerise,Champagne,Charcoal,Cherry Red,Chestnut,Chocolate,Cinnamon,Cobalt,Copper,Cornflower Blue,Cream,Dandelion,Denim,Ebony,Ecru,Eggplant,Eggshell,Emerald,Ivory,Jade,Jet Black,Khaki,Lemon,Lilac,Mahogany,Malachite,Mustard,Off-White,Orchid,Oxblood,Pastel Pink,Pearl,Persimmon,Pewter,Plum,Powder Blue,Puce,Pumpkin,Raspberry,Raw Umber,Rose,Rose Gold,Ruby,Rust,Saffron,Sage,Salmon,Sand,Sapphire,Sea Green,Sepia,Sienna,Slate,Steel Blue,Tangerine,Terracotta,Thistle,Topaz,Umber,Wine,Wisteria,Midnight Blue,Electric Blue,Seafoam,Dusty Rose,Brick Red,Bubblegum Pink,Ultramarine,Prussian Blue,Viridian,Citrine,Honey,Butter Yellow,Goldenrod,Marigold,Wheat,Almond,Bone,Snow,Ash,Graphite,Onyx,Obsidian,Hunter Green,Avocado,Kelly Green,Shamrock,Moss,Fern,Army Green,Millennial Pink,Cotton Candy,Cranberry,Cardinal,Royal Purple,Lemon Yellow,Mint Green,Blood Red,Fire Engine Red,International Klein Blue',
+   v:'Gray=grey;Navy=navy blue;Lime=lime green;Fuchsia=fuschia;Vermilion=vermillion;Turquoise=turquoise blue;Seafoam=sea foam|seafoam green;Off-White=off white;Light Blue=pale blue;Dark Blue=deep blue;Light Green=pale green;Light Pink=pale pink;Gold=golden;Silver=silvery'},
+  {q:'Name a sport',
+   a:'Soccer:180,Basketball:150,Football:120,Tennis:85,Baseball:75,Swimming:52,Hockey:46,Golf:38,Volleyball:33,Rugby:28,Cricket:25,Running:20,Boxing:17,Cycling:15,Skiing:13,Gymnastics:12,Badminton:11,Track:9,Surfing:8,Wrestling:8,Table Tennis:7,Lacrosse:6,Softball:6,Karate:5,Rowing:5,Snowboarding:5,Skateboarding:4,Archery:4,Fencing:3,Bowling:3,Darts:3,Climbing:3,Judo:2,Polo:2,Handball:2,Curling:2,Squash:1,Pickleball:1,Water Polo:1,Bobsled:1,Kabaddi:1,Sumo:1',
+   t:'Kickball,Dodgeball,Ultimate Frisbee,Disc Golf,Flag Football,Australian Rules Football,Gaelic Football,Hurling,Shinty,Camogie,Sepak Takraw,Netball,Korfball,Futsal,Beach Volleyball,Water Skiing,Wakeboarding,Kitesurfing,Windsurfing,Sailing,Kayaking,Canoeing,Rafting,Diving,Artistic Swimming,Triathlon,Decathlon,Heptathlon,Pentathlon,Biathlon,Sprinting,Hurdles,Long Jump,High Jump,Pole Vault,Javelin,Shot Put,Discus,Hammer Throw,Race Walking,Orienteering,Mountain Biking,BMX,Motocross,Formula 1,NASCAR,Rally Racing,Karting,Drag Racing,Horse Racing,Equestrian,Show Jumping,Dressage,Rodeo,Bull Riding,Figure Skating,Speed Skating,Ice Dancing,Ski Jumping,Luge,Skeleton,Cross-country Skiing,MMA,Kickboxing,Muay Thai,Taekwondo,Jiu-Jitsu,Kung Fu,Aikido,Capoeira,Weightlifting,Powerlifting,Bodybuilding,CrossFit,Strongman,Arm Wrestling,Billiards,Snooker,Chess,Esports,Quidditch,Croquet,Bocce,Petanque,Lawn Bowls,Cornhole,Horseshoes,Shuffleboard,Roller Derby,Roller Hockey,Inline Skating,Parkour,Bouldering,Mountaineering,Skydiving,Bungee Jumping,Paragliding,Hang Gliding,BASE Jumping,Cliff Diving,Spearfishing,Fishing,Hunting,Shooting,Dog Sledding,Jai Alai,Padel,Racquetball,Spikeball,Wiffle Ball,Stickball,Tee Ball,Rounders,Teqball,Bandy,Floorball,Ringette,Lacrosse Box,Sambo,Savate,Kendo,Sumo Wrestling,Freestyle Skiing,Slalom,Synchronized Diving,Trampoline,Cheerleading,Dance,Ballet,Marathon,Ice Climbing,Canyoning,Free Diving,Surf Lifesaving,Underwater Hockey,Underwater Rugby,Polo Crosse,Tug of War',
+   v:'Soccer=football soccer|association football|futbol|fútbol;Football=american football|gridiron;Hockey=ice hockey|field hockey;Table Tennis=ping pong|pingpong;Track=track and field|athletics;Running=jogging|cross country|cross-country running;Cycling=biking|bike racing|road cycling;Climbing=rock climbing|sport climbing;Swimming=swim;Skiing=ski|alpine skiing|downhill skiing;Gymnastics=gymnastic;Darts=dart;MMA=ufc|mixed martial arts|cage fighting;Formula 1=f1|formula one;Jiu-Jitsu=bjj|brazilian jiu jitsu|jujitsu;Artistic Swimming=synchronized swimming;Billiards=pool;Bobsled=bobsleigh;Rugby=rugby union|rugby league;Esports=e sports|video games|gaming;Skateboarding=skating|skateboard'},
+  {q:'Name a dog breed',
+   a:'Golden Retriever:150,Labrador:140,German Shepherd:110,Poodle:75,Bulldog:62,Beagle:55,Chihuahua:48,Husky:44,Pug:38,Dachshund:35,Corgi:30,Pit Bull:28,Rottweiler:25,Boxer:20,Shih Tzu:18,Border Collie:16,Yorkshire Terrier:15,Great Dane:14,French Bulldog:13,Doberman:12,Dalmatian:11,Goldendoodle:10,Australian Shepherd:9,Maltese:8,Pomeranian:8,Bernese Mountain Dog:7,Cocker Spaniel:7,Saint Bernard:6,Greyhound:6,Shiba Inu:5,Boston Terrier:5,Labradoodle:5,Collie:4,Bichon Frise:4,Cavalier King Charles Spaniel:4,Malamute:3,Bloodhound:3,Mastiff:3,Akita:3,Samoyed:3,Newfoundland:2,Basset Hound:2,Schnauzer:2,Jack Russell:2,Whippet:2,Weimaraner:2,Great Pyrenees:2,Sheltie:2,Havanese:1,Papillon:1,Chow Chow:1,Shar Pei:1,Vizsla:1,Irish Wolfhound:1,Borzoi:1,Basenji:1,Afghan Hound:1',
+   t:'Affenpinscher,Airedale Terrier,American Bulldog,American Eskimo Dog,Anatolian Shepherd,Australian Cattle Dog,Bearded Collie,Bedlington Terrier,Belgian Malinois,Bluetick Coonhound,Bolognese,Border Terrier,Bouvier des Flandres,Boykin Spaniel,Briard,Brittany,Brussels Griffon,Bull Terrier,Bullmastiff,Cairn Terrier,Cane Corso,Catahoula,Cesky Terrier,Chesapeake Bay Retriever,Chinese Crested,Clumber Spaniel,Coton de Tulear,Dandie Dinmont Terrier,Dogo Argentino,Dogue de Bordeaux,English Setter,English Springer Spaniel,Entlebucher,Eurasier,Field Spaniel,Finnish Spitz,Flat-coated Retriever,Fox Terrier,German Shorthaired Pointer,Giant Schnauzer,Gordon Setter,Greater Swiss Mountain Dog,Harrier,Ibizan Hound,Irish Setter,Irish Terrier,Italian Greyhound,Japanese Chin,Keeshond,Kerry Blue Terrier,Komondor,Kuvasz,Lagotto Romagnolo,Lakeland Terrier,Leonberger,Lhasa Apso,Lowchen,Manchester Terrier,Miniature Pinscher,Neapolitan Mastiff,Norfolk Terrier,Norwegian Elkhound,Norwich Terrier,Nova Scotia Duck Tolling Retriever,Old English Sheepdog,Otterhound,Pekingese,Pharaoh Hound,Plott Hound,Pointer,Portuguese Water Dog,Puli,Pumi,Redbone Coonhound,Rhodesian Ridgeback,Saluki,Schipperke,Scottish Terrier,Sealyham Terrier,Silky Terrier,Skye Terrier,Soft Coated Wheaten Terrier,Spinone Italiano,Staffordshire Bull Terrier,Sussex Spaniel,Tibetan Mastiff,Tibetan Spaniel,Tibetan Terrier,Treeing Walker Coonhound,Welsh Springer Spaniel,Welsh Terrier,West Highland Terrier,Wirehaired Pointing Griffon,Xoloitzcuintli,Cockapoo,Maltipoo,Cavapoo,Bernedoodle,Sheepadoodle,Puggle,Schnoodle,Yorkipoo,Pomsky,Chiweenie,Morkie,Aussiedoodle,Mutt,Coonhound,Foxhound,Springer Spaniel,Setter,Retriever,Terrier,Spaniel,Hound,Sheepdog,Toy Poodle,Miniature Schnauzer,Toy Fox Terrier,Rat Terrier,Boerboel,Kangal,Presa Canario,Tosa,Jindo,Kai Ken,Shikoku,Thai Ridgeback,Azawakh,Sloughi,Dutch Shepherd,Czechoslovakian Wolfdog,Saarloos Wolfdog,Tamaskan',
+   v:'Labrador=lab|labrador retriever|black lab|yellow lab|chocolate lab;German Shepherd=alsatian|gsd|german shepard;Husky=siberian husky;Pit Bull=pitbull|american pit bull terrier|pittie;Yorkshire Terrier=yorkie;French Bulldog=frenchie;Doberman=doberman pinscher|dobermann;Corgi=pembroke welsh corgi|welsh corgi|cardigan welsh corgi;Goldendoodle=golden doodle;Dachshund=wiener dog|weiner dog|sausage dog|doxie|daschund;Shih Tzu=shitzu|shih tsu;Poodle=standard poodle|miniature poodle;Australian Shepherd=aussie;Jack Russell=jack russell terrier|parson russell terrier;Cavalier King Charles Spaniel=cavalier|king charles spaniel;Malamute=alaskan malamute;Sheltie=shetland sheepdog;Australian Cattle Dog=blue heeler|heeler|red heeler;West Highland Terrier=westie|west highland white terrier;Great Pyrenees=pyrenees;Saint Bernard=st bernard;Bulldog=english bulldog|british bulldog;Golden Retriever=golden;Chihuahua=chiuaua|chihuaha;Rottweiler=rottie|rotweiler;Xoloitzcuintli=xolo;Mutt=mixed breed|mixed|mongrel;Bichon Frise=bichon;Belgian Malinois=malinois;Pomeranian=pom'},
+  {q:'Name a flower',
+   a:'Rose:220,Sunflower:120,Tulip:110,Daisy:90,Lily:70,Orchid:45,Daffodil:38,Lavender:32,Dandelion:28,Carnation:22,Hydrangea:20,Lilac:18,Peony:17,Marigold:16,Poppy:15,Iris:13,Violet:12,Hibiscus:11,Chrysanthemum:10,Magnolia:9,Lotus:8,Jasmine:8,Cherry Blossom:7,Petunia:7,Geranium:6,Zinnia:5,Pansy:5,Buttercup:5,Gardenia:4,Azalea:4,Begonia:4,Snapdragon:4,Lily of the Valley:3,Bluebell:3,Dahlia:3,Gerbera:3,Calla Lily:3,Forget-me-not:3,Morning Glory:2,Honeysuckle:2,Camellia:2,Cosmos:2,Foxglove:2,Sweet Pea:2,Aster:2,Primrose:2,Rhododendron:1,Gladiolus:1,Freesia:1,Ranunculus:1,Anemone:1,Crocus:1,Hyacinth:1,Bird of Paradise:1,Edelweiss:1,Wisteria:1,Plumeria:1,Protea:1',
+   t:'Alstroemeria,Amaryllis,Bleeding Heart,Bougainvillea,Black-eyed Susan,Bottlebrush,Calendula,Chamomile,Clematis,Clover,Columbine,Coneflower,Cornflower,Cyclamen,Daylily,Delphinium,Dianthus,Fuchsia,Gazania,Gentian,Goldenrod,Heather,Heliotrope,Hellebore,Hollyhock,Impatiens,Kalanchoe,Larkspur,Lantana,Lupine,Mimosa,Nasturtium,Oleander,Passion Flower,Phlox,Poinsettia,Queen Anne\'s Lace,Rafflesia,Salvia,Scabiosa,Sea Holly,Shasta Daisy,Snowdrop,Stargazer Lily,Statice,Stock,Sweet William,Thistle,Tiger Lily,Trillium,Verbena,Vinca,Wallflower,Water Lily,Yarrow,Corpse Flower,Baby\'s Breath,Apple Blossom,Orange Blossom,Moonflower,Four O\'Clock,Allium,Agapanthus,Anthurium,Bromeliad,Jonquil,Peace Lily,Periwinkle,Saxifrage,Sedum,Spider Lily,Sweet Alyssum,Tuberose,Waratah,Wattle,Wild Rose,Ixora,Kangaroo Paw,Strawflower,Gaillardia,Blanket Flower,Coreopsis,Cineraria,Celosia,Cockscomb,Ageratum,Lobelia,Penstemon,Bee Balm,Catmint,Speedwell,Astilbe,Hosta,Canna,Crown Imperial,Frangipani,Lisianthus,Sweet Briar,Trumpet Vine,Bachelor\'s Button,Evening Primrose,Gardenia,Night-blooming Cereus,Blue Poppy,California Poppy,Corn Poppy,Red Rose,White Rose,Yellow Rose,Black Rose,Desert Rose,Lenten Rose,Christmas Rose,Indian Paintbrush,Texas Bluebonnet,Bluebonnet,Fireweed,Lady\'s Slipper,Venus Flytrap',
+   v:'Daffodil=narcissus;Chrysanthemum=mum|mums;Cherry Blossom=sakura;Plumeria=frangipani;Forget-me-not=forget me not;Gerbera=gerbera daisy;Coneflower=echinacea;Baby\'s Breath=gypsophila;Lily of the Valley=lily-of-the-valley;Rose=roses;Tulip=tulips;Sunflower=sun flower;Daisy=daisies;Lily=lilies;Peony=peonies|peonie;Hydrangea=hydrangeas;Carnation=carnations;Poppy=poppies;Violet=violets;Orchid=orchids'},
+  {q:'Name a sea creature',
+   a:'Shark:175,Dolphin:140,Whale:110,Octopus:85,Jellyfish:70,Fish:45,Starfish:42,Crab:40,Seahorse:34,Turtle:30,Squid:26,Clownfish:22,Stingray:20,Lobster:18,Orca:16,Seal:15,Eel:13,Shrimp:12,Sea Urchin:10,Manatee:9,Blue Whale:9,Clam:8,Narwhal:8,Coral:7,Sea Lion:6,Oyster:6,Walrus:6,Otter:5,Swordfish:5,Anglerfish:5,Barracuda:4,Manta Ray:4,Pufferfish:4,Beluga:4,Hammerhead:4,Tuna:3,Salmon:3,Krill:3,Sea Cucumber:3,Plankton:3,Hermit Crab:2,Mussel:2,Sea Anemone:2,Great White Shark:2,Humpback Whale:2,Sperm Whale:2,Sea Slug:2,Nudibranch:1,Cuttlefish:1,Nautilus:1,Marlin:1,Sunfish:1,Giant Squid:1,Sea Dragon:1,Lionfish:1,Blobfish:1,Dugong:1,Horseshoe Crab:1,Coelacanth:1',
+   t:'Abalone,Anchovy,Angelfish,Barnacle,Basking Shark,Blue Tang,Bonito,Box Jellyfish,Brittle Star,Bull Shark,Butterflyfish,Cod,Conch,Cone Snail,Copepod,Crown-of-thorns Starfish,Damselfish,Dungeness Crab,Electric Ray,Flounder,Flying Fish,Frogfish,Goblin Shark,Grouper,Gulper Eel,Haddock,Hagfish,Halibut,Herring,Giant Isopod,King Crab,Leopard Seal,Limpet,Mackerel,Mahi-mahi,Megalodon,Moray Eel,Mantis Shrimp,Minke Whale,Monkfish,Mudskipper,Oarfish,Opah,Parrotfish,Pilot Whale,Pipefish,Plaice,Porpoise,Portuguese Man o\' War,Remora,Right Whale,Sailfish,Sardine,Scallop,Sculpin,Sea Bass,Sea Butterfly,Sea Pen,Sea Sponge,Sea Spider,Sea Snake,Skate,Snapper,Snow Crab,Sole,Spider Crab,Spiny Lobster,Sturgeon,Surgeonfish,Tiger Shark,Triggerfish,Tube Worm,Vampire Squid,Viperfish,Wahoo,Whale Shark,Wrasse,Zooplankton,Bowhead Whale,Gray Whale,Fin Whale,Beaked Whale,Elephant Seal,Fur Seal,Polar Bear,Penguin,Sea Turtle,Leatherback Turtle,Loggerhead Turtle,Green Sea Turtle,Hawksbill Turtle,Blue-ringed Octopus,Dumbo Octopus,Mimic Octopus,Giant Pacific Octopus,Firefly Squid,Colossal Squid,Lanternfish,Hatchetfish,Barreleye,Fangtooth,Black Swallower,Cookiecutter Shark,Greenland Shark,Mako Shark,Thresher Shark,Nurse Shark,Lemon Shark,Reef Shark,Wobbegong,Sawfish,Guitarfish,Eagle Ray,Torpedo Ray,Seahare,Sea Lily,Feather Star,Sand Dollar,Coral Polyp,Sea Fan,Comb Jelly,Salp,Siphonophore,Lugworm,Bristle Worm,Christmas Tree Worm,Fiddler Crab,Coconut Crab,Ghost Crab,Pistol Shrimp,Cleaner Shrimp,Sea Angel,Cleaner Wrasse,Goby,Blenny,Stonefish,Scorpionfish',
+   v:'Starfish=sea star;Orca=killer whale;Otter=sea otter;Clownfish=nemo|clown fish;Pufferfish=puffer|blowfish|puffer fish;Shrimp=prawn;Sunfish=mola mola|mola|ocean sunfish;Sea Dragon=leafy sea dragon|seadragon|weedy sea dragon;Turtle=turtles;Jellyfish=jelly|jellyfishes;Great White Shark=great white;Hammerhead=hammerhead shark;Manta Ray=manta;Sea Urchin=urchin;Sea Sponge=sponge;Octopus=octopi|octopuses;Whale=whales;Shark=sharks;Dolphin=dolphins;Sea Anemone=anemone;Mahi-mahi=dorado|dolphinfish;Seal=harbor seal|harbour seal;Anglerfish=angler fish|angler'},
+  {q:'Name a car brand',
+   a:'Toyota:165,Ford:150,Honda:110,BMW:75,Chevrolet:70,Tesla:62,Mercedes:55,Nissan:46,Audi:40,Ferrari:36,Volkswagen:34,Jeep:30,Lamborghini:28,Subaru:24,Porsche:22,Hyundai:20,Kia:18,Mazda:16,Dodge:15,Lexus:14,Volvo:12,Cadillac:11,GMC:10,Chrysler:9,Buick:8,Mitsubishi:8,Land Rover:7,Jaguar:7,Bentley:6,Rolls-Royce:6,Mini:5,Fiat:5,Acura:5,Infiniti:4,Maserati:4,Bugatti:4,Ram:3,Lincoln:3,Aston Martin:3,McLaren:3,Alfa Romeo:2,Peugeot:2,Renault:2,Genesis:2,Polestar:2,Rivian:2,Lotus:1,Skoda:1,SEAT:1,Citroen:1,Pagani:1,Koenigsegg:1,Suzuki:1,Lucid:1',
+   t:'Saab,Pontiac,Oldsmobile,Saturn,Plymouth,Mercury,Hummer,Scion,Datsun,Studebaker,Packard,DeLorean,AMC,Hudson,Edsel,Tata,Mahindra,Maruti Suzuki,BYD,Geely,NIO,XPeng,Chery,Great Wall,Haval,Proton,Perodua,Holden,Vauxhall,Opel,Dacia,Lada,Smart,Cupra,DS,Lancia,Abarth,Morgan,TVR,MG,Triumph,Austin,Rover,Daewoo,SsangYong,Isuzu,Daihatsu,Spyker,Rimac,Hennessey,SSC,Shelby,Saleen,Fisker,Karma,VinFast,Zeekr,Lynk & Co,Alpine,Maybach,De Tomaso,Lagonda,Noble,Ariel,Caterham,Bristol,General Motors,Stellantis,Mustang,Corvette,Camaro,Range Rover,Scout,Checker,Duesenberg,Cord,Auburn,Pierce-Arrow,Nash,Willys,Kaiser,Tucker,Hispano-Suiza,Bugatti Rimac,Lucid Air,Faraday Future,Lordstown,Canoo,Aptera,Slate,Togg,Trabant,Wartburg,Moskvitch,GAZ,UAZ,ZAZ,Zastava,Yugo,Hindustan,Premier,Force Motors,Ashok Leyland,Hongqi,Dongfeng,FAW,SAIC,GAC,Changan,JAC,Li Auto,Leapmotor,Aiways,Ora,Wuling,Baojun,Roewe,Infiniti Q,Mazda Miata,Holden Monaro,Koenigsegg Jesko',
+   v:'Chevrolet=chevy|chevrolet chevy;Mercedes=mercedes-benz|mercedes benz|benz|merc;Volkswagen=vw|volkswagon;Land Rover=landrover;Rolls-Royce=rolls royce|rolls;Mini=mini cooper;Aston Martin=aston;DeLorean=de lorean|dmc;Alfa Romeo=alfa;BMW=beemer|bimmer;Ram=ram trucks|ram truck;Lamborghini=lambo|lamborgini;Ferrari=ferarri;Porsche=porshe|porche;Hyundai=hyundia|hundai;Tesla=tesla motors;Lynk & Co=lynk and co;Citroen=citroën;Skoda=škoda'},
+ ],
+ [
+  {q:'Name a board game',
+   a:'Monopoly:230,Scrabble:110,Chess:100,Clue:72,Checkers:62,Risk:50,The Game of Life:42,Sorry!:36,Candy Land:30,Catan:27,Trouble:20,Battleship:18,Connect Four:16,Operation:13,Trivial Pursuit:12,Chutes and Ladders:11,Backgammon:10,Jenga:8,Ticket to Ride:7,Pictionary:6,Guess Who:6,Mouse Trap:5,Yahtzee:5,Go:4,Stratego:4,Pandemic:4,Twister:3,Carcassonne:3,Mahjong:3,Parcheesi:2,Scattergories:2,Taboo:2,Cranium:2,Ludo:2,Wingspan:1,Othello:1,Azul:1,Gloomhaven:1,Hungry Hungry Hippos:1,Crokinole:1,Senet:1',
+   t:'Agricola,Arkham Horror,Axis and Allies,Balderdash,Betrayal at House on the Hill,Blokus,Boggle,Brass,Chinese Checkers,Codenames,Cosmic Encounter,Dixit,Dominion,Dominoes,Dune,Exploding Kittens,Five Tribes,Hive,Kingdomino,King of Tokyo,Labyrinth,Mancala,Mastermind,Munchkin,Mysterium,Nine Men\'s Morris,Patchwork,Power Grid,Puerto Rico,Qwirkle,Rummikub,Sequence,Small World,Splendor,Sushi Go,Terraforming Mars,Tsuro,Twilight Imperium,7 Wonders,Dead of Winter,Everdell,HeroQuest,Kerplunk,Love Letter,Root,Scotland Yard,Shogi,Xiangqi,Spirit Island,Tikal,Pay Day,Hotels,Careers,Don\'t Break the Ice,Perfection,Aggravation,Cribbage,Wits and Wagers,Telestrations,Apples to Apples,Cards Against Humanity,Monopoly Deal,Stone Age,Scythe,Cascadia,Ark Nova,Lost Cities,Jaipur,Hanabi,The Resistance,Avalon,One Night Ultimate Werewolf,Secret Hitler,Acquire,Diplomacy,Upwords,Bananagrams,Headbanz,Jumanji,Uno,Skip-Bo,Phase 10,Rook,Pit,Sorry Sliders,Life,Mouse Trap,Hungry Hippos,Mille Bornes,Stratego Original,Clue Junior,Scrabble Junior,Monopoly Junior,Go Fish,Chutes,Pente,Abalone,Quoridor,Santorini,Onitama,Tak,Hnefatafl,Fox and Geese,Halma,Snakes and Ladders,Pachisi,Carrom,Shut the Box,Mahjong Solitaire,Escape Room in a Box,Unlock,Exit,Mysterium Park,Codenames Duet,Decrypto,Just One,Wavelength,Sheriff of Nottingham,Coup,Citadels,Bohnanza,Alhambra,El Grande,Tigris and Euphrates,Through the Ages,Gaia Project,Great Western Trail,Terra Mystica,Viticulture,Lords of Waterdeep,Mansions of Madness,Star Wars Rebellion,War of the Ring,Warhammer,Heroscape,Dungeons and Dragons',
+   v:'Clue=cluedo;Checkers=draughts|checker;The Game of Life=game of life|life;Catan=settlers of catan|settlers;Connect Four=connect 4;Chutes and Ladders=chute and ladder;Hungry Hungry Hippos=hungry hippos|hungry hungry hippo;Othello=reversi;Battleship=battleships;Sorry!=sorry;Candy Land=candyland;Trivial Pursuit=trivia pursuit;Jenga=jenga tower;Mahjong=mah jong|mahjongg;Snakes and Ladders=snakes & ladders|snake and ladder;Dungeons and Dragons=d&d|dnd|dungeons & dragons;Axis and Allies=axis & allies;Ticket to Ride=ticket 2 ride;Monopoly=monopolies'},
+  {q:'Name a musical instrument',
+   a:'Guitar:210,Piano:190,Drum:120,Violin:85,Flute:55,Trumpet:46,Saxophone:38,Cello:28,Clarinet:24,Bass:20,Ukulele:17,Harp:14,Trombone:12,Keyboard:11,Harmonica:10,Tuba:8,Banjo:8,Recorder:7,Triangle:6,Xylophone:6,Oboe:5,Accordion:5,Tambourine:4,Viola:4,Bagpipes:4,French Horn:3,Organ:3,Kazoo:3,Mandolin:2,Cowbell:2,Bongo:2,Voice:2,Sitar:2,Piccolo:1,Theremin:1,Didgeridoo:1,Bassoon:1,Maracas:1,Kalimba:1,Glockenspiel:1,Otamatone:1,Spoons:1',
+   t:'Balalaika,Bandoneon,Baritone,Bass Clarinet,Bass Drum,Bell,Bodhran,Bouzouki,Castanets,Celesta,Chimes,Cimbalom,Clavichord,Concertina,Contrabassoon,Cornet,Cymbal,Darbuka,Djembe,Dulcimer,English Horn,Erhu,Euphonium,Fife,Flugelhorn,Gong,Guzheng,Hammered Dulcimer,Handbells,Harmonium,Harpsichord,Hurdy-gurdy,Kettle Drum,Timpani,Koto,Lute,Lyre,Marimba,Melodica,Mbira,Ocarina,Pan Flute,Pipa,Sackbut,Santoor,Sarod,Shakuhachi,Shamisen,Snare Drum,Sousaphone,Steel Drum,Synthesizer,Tabla,Taiko,Tanpura,Tin Whistle,Vibraphone,Washboard,Wood Block,Zither,Vuvuzela,Keytar,Drum Machine,Jaw Harp,Conga,Cajon,Rainstick,Slide Whistle,Washtub Bass,Lap Steel Guitar,Pedal Steel Guitar,Oud,Saz,Veena,Shehnai,Bansuri,Nyckelharpa,Hardanger Fiddle,Crwth,Alphorn,Conch Shell,Electric Guitar,Acoustic Guitar,Bass Guitar,Double Bass,Upright Bass,Grand Piano,Electric Piano,Pipe Organ,Hammond Organ,Alto Saxophone,Tenor Saxophone,Baritone Saxophone,Soprano Saxophone,Mellophone,Bugle,Trumpet Mute,Bells,Tubular Bells,Crotales,Agogo,Guiro,Cabasa,Shaker,Claves,Timbales,Tom-tom,Hi-hat,Drum Kit,Hand Drum,Frame Drum,Tongue Drum,Handpan,Hang Drum,Steelpan,Udu,Talking Drum,Kora,Ngoni,Charango,Cuatro,Requinto,Bajo Sexto,Vihuela,Guitarron,Twelve-string Guitar,Resonator Guitar,Dobro,Mandola,Bouzouki,Tres,Guqin,Dizi,Sheng,Suona,Yangqin,Gayageum,Haegeum,Biwa,Sanshin,Erhu,Morin Khuur,Duduk,Zurna,Ney,Kanun,Qanun,Rebab,Kamancheh,Tar,Setar,Santur,Dhol,Mridangam,Ghatam,Harmonium,Ektara',
+   v:'Drum=drums|drum kit|drum set|drumkit;Saxophone=sax;Bass=bass guitars;Guitar=guitars|gitar;Violin=fiddle;Maracas=maraca;French Horn=horn;Bagpipes=bagpipe;Piano=pianos|keyboard piano;Ukulele=uke|ukelele;Xylophone=xylaphone;Tambourine=tamborine;Harmonica=mouth organ|harmonicas;Didgeridoo=didjeridu;Timpani=kettle drums;Steel Drum=steel pan drum|steel drums;Synthesizer=synth;Hurdy-gurdy=hurdy gurdy;Glockenspiel=glock;Bongo=bongos;Spoons=spoon;Voice=singing|vocals'},
+  {q:'Name a candy',
+   a:'Chocolate:190,Skittles:160,M&M\'s:110,Reese\'s:85,Snickers:75,Kit Kat:66,Twix:52,Starburst:44,Gummy Bear:40,Sour Patch Kids:34,Jolly Rancher:28,Hershey\'s:26,Lollipop:24,Cotton Candy:20,Nerds:18,Twizzlers:17,Milky Way:14,Butterfinger:13,Swedish Fish:12,Candy Corn:11,Airheads:10,Smarties:9,Laffy Taffy:9,Warheads:8,Licorice:8,Jelly Bean:8,Peppermint:7,Candy Cane:7,3 Musketeers:6,Almond Joy:6,Mounds:5,Tootsie Roll:5,Gobstopper:5,Pop Rocks:5,Trolli:4,Hi-Chew:4,Mike and Ike:4,Whoppers:4,Junior Mints:3,Milk Duds:3,Rolo:3,Ferrero Rocher:3,Toblerone:3,Haribo:3,Gumdrop:2,Gummy Worm:2,PayDay:2,Baby Ruth:2,York Peppermint Pattie:2,Heath Bar:2,Crunch Bar:2,Dots:2,Runts:1,Bit-O-Honey:1,Necco Wafers:1,Mary Jane:1,Zagnut:1,Chuckles:1,Sugar Daddy:1,Abba-Zaba:1,Big Hunk:1',
+   t:'Caramel,Toffee,Fudge,Taffy,Salt Water Taffy,Rock Candy,Marshmallow,Peeps,Circus Peanuts,Candy Necklace,Ring Pop,Push Pop,Blow Pop,Dum Dums,Tootsie Pop,Charms,Fun Dip,Pixy Stix,Lemonheads,Red Hots,Boston Baked Beans,Hot Tamales,Good & Plenty,Jujubes,Jujyfruits,Sno-Caps,Raisinets,Goobers,Buncha Crunch,Sugar Babies,Now and Later,Bazooka,Bubble Gum,Chewing Gum,Hubba Bubba,Big League Chew,Juicy Fruit,Mentos,Tic Tac,Altoids,Life Savers,Werther\'s Original,Butterscotch,Andes Mints,Kinder Bueno,Kinder Egg,Cadbury Creme Egg,Cadbury Dairy Milk,Crunchie,Flake,Wispa,Double Decker,Curly Wurly,Aero,Maltesers,Galaxy,Mars Bar,Bounty,Lion Bar,Yorkie,Wine Gums,Jelly Babies,Fruit Pastilles,Fruit Snacks,Sherbet Lemon,Dip Dab,Love Hearts,Parma Violets,Drumstick Lolly,Flumps,Refreshers,Chupa Chups,Pocky,White Rabbit,Botan Rice Candy,Pulparindo,Vero Mango,Mazapan,Glorias,Tamarind Candy,Brigadeiro,Turkish Delight,Halva,Nougat,Marzipan,Praline,Truffle,Bonbon,Gummy Shark,Peach Rings,Sour Belts,Sour Straws,Swedish Berries,Sour Punch,Spree,SweeTarts,Wonka Bar,Nerds Rope,Nerds Gummy Clusters,Ice Breakers,Take 5,100 Grand,Mr. Goodbar,Krackel,Zero Bar,Oh Henry!,Whatchamacallit,Reese\'s Pieces,Peanut M&M\'s,Kisses,Hershey\'s Kisses,Caramello,Cookies \'n\' Creme,Milka,Lindt,Lindor,Ghirardelli,Godiva,Russell Stover,See\'s Candies,Brach\'s,Jelly Belly,Sour Skittles,Tropical Skittles,Gushers,Fruit by the Foot,Fruit Roll-Up,Sour Gummy Bears,Gummy Rings,Gummy Sharks,Albanese,Black Forest Gummies,Sour Patch Watermelon,Watermelon Sour Patch,Twizzlers Pull n Peel,Red Vines,Starburst Jelly Beans,Mamba,Bonkers,Big Red,Trident,Orbit,Extra Gum,Dentyne,Juicy Drop Pop,Baby Bottle Pop,Ring Pop,Candy Buttons,Wax Bottles,Candy Cigarettes,Atomic Fireball,Cinnamon Disc,Cherry Sours,Lemon Drops,Cough Drop,Sugar Free Candy',
+   v:'M&M\'s=m&m|mms|m and m|m n ms|mnms|m ms|eminems|m and ms;Reese\'s=reese|reeses peanut butter cup|reeses cups|peanut butter cup|reese cup;Kit Kat=kitkat|kit kats;Hershey\'s=hershey|hershey bar|hersheys bar;Twizzlers=twizzler;Gummy Bear=gummi bear|gummies|gummy|gummy candy;Sour Patch Kids=sour patch|sour patch kid;Jolly Rancher=jolly ranchers;Lollipop=lolly|lollypop|sucker;Airheads=airhead;3 Musketeers=three musketeers;Ferrero Rocher=ferrero;Jelly Bean=jellybean|jellybeans;Gummy Worm=sour gummy worms|sour worms|gummi worm;York Peppermint Pattie=peppermint pattie|peppermint patty|york peppermint patty;Heath Bar=heath;Crunch Bar=nestle crunch|crunch;Gobstopper=everlasting gobstopper;Hi-Chew=hichew|hi chew;Licorice=liquorice|red licorice|black licorice;Chocolate=chocolate bar|milk chocolate|dark chocolate|white chocolate;Tootsie Roll=tootsie|tootsie rolls;Whoppers=malted milk balls|whopper;Swedish Fish=swedish fishes;Smarties=smartie;Snickers=snicker|snickers bar;Starburst=starbursts|starburst candy;Milk Duds=milk dud;Junior Mints=junior mint;Laffy Taffy=laffy taffies;Candy Corn=candycorn;Cotton Candy=candy floss|fairy floss;Rolo=rolos;Mike and Ike=mike & ike|mike n ike;Good & Plenty=good and plenty;Hershey\'s Kisses=hershey kisses|kiss'},
+  {q:'Name a cheese',
+   a:'Cheddar:200,Mozzarella:150,Swiss:95,Parmesan:80,American:66,Brie:50,Gouda:44,Provolone:36,Feta:33,Pepper Jack:30,Blue Cheese:26,Colby Jack:22,Monterey Jack:20,Goat Cheese:18,Cream Cheese:16,Cottage Cheese:14,Ricotta:13,Gruyere:11,Camembert:10,Havarti:9,Muenster:9,Manchego:7,Gorgonzola:7,Halloumi:6,String Cheese:6,Mascarpone:5,Burrata:5,Stilton:4,Roquefort:4,Asiago:4,Romano:3,Pecorino:3,Emmental:3,Jarlsberg:2,Edam:2,Paneer:2,Queso Fresco:2,Velveeta:2,Cotija:2,Wensleydale:1,Raclette:1,Fontina:1,Taleggio:1,Limburger:1,Comte:1,Boursin:1,Babybel:1,Red Leicester:1',
+   t:'Abondance,Appenzeller,Beaufort,Bel Paese,Bleu d\'Auvergne,Bocconcini,Brick Cheese,Caciocavallo,Cambozola,Cantal,Chaource,Cheshire,Colby,Crottin,Danish Blue,Derby,Double Gloucester,Epoisses,Esrom,Farmer Cheese,Fromage Blanc,Brunost,Grana Padano,Graviera,Idiazabal,Kashkaval,Kasseri,Lancashire,Leerdammer,Livarot,Maasdam,Mahon,Mimolette,Mizithra,Morbier,Nacho Cheese,Oaxaca,Port Salut,Quark,Queso Blanco,Reblochon,Ricotta Salata,Saint Agur,Saint Andre,Sbrinz,Scamorza,Shropshire Blue,Smoked Gouda,Stracchino,Tete de Moine,Tilsit,Tomme,Vacherin,Valencay,Vegan Cheese,Chihuahua Cheese,Panela,Requeson,Labneh,Cheez Whiz,Laughing Cow,Stinking Bishop,Cornish Yarg,Caerphilly,Stracciatella,Provola,Manouri,Kefalotyri,Akkawi,Nabulsi,Sirene,Bryndza,Oscypek,Tvorog,Quesillo,Catupiry,Queijo Coalho,Queijo Minas,Chhena,Cheese Curds,Pimento Cheese,Beer Cheese,Smoked Cheddar,White Cheddar,Sharp Cheddar,Mild Cheddar,Aged Gouda,Baby Swiss,Muenster,Neufchatel,Teleme,Dry Jack,Humboldt Fog,Cougar Gold,Maytag Blue,Point Reyes Blue,Harbison,Rogue River Blue,Pleasant Ridge Reserve,Ossau-Iraty,Tomme de Savoie,Pont-l\'Eveque,Brillat-Savarin,Delice de Bourgogne,Chevre,Saint-Nectaire,Fourme d\'Ambert,Mont d\'Or,Gjetost,Prima Donna,Old Amsterdam,Beemster,Boerenkaas,Leyden,Limburger,Herve,Chimay,Passendale,Westmalle,Vieux-Boulogne,Puzzone di Moena,Bitto,Castelmagno,Robiola,Crescenza,Squacquerone,Burrata Pugliese,Mozzarella di Bufala',
+   v:'American=american cheese|american slices|kraft singles|cheese slices;Parmesan=parmigiano|parmigiano reggiano|parm|parmesan reggiano;Swiss=swiss cheese;Blue Cheese=bleu cheese|blue;Goat Cheese=goats cheese|goat;Cream Cheese=philadelphia|philly|philadelphia cream cheese;Pepper Jack=pepperjack;Colby Jack=cojack|colby-jack;Mozzarella=mozz|fresh mozzarella|mozzerella|mozarella;Emmental=emmentaler|emmenthal;Muenster=munster;Gruyere=gruyère;Comte=comté;String Cheese=cheese stick|cheese sticks;Queso Fresco=queso;Cheese Curds=curds|squeaky cheese;Brunost=brown cheese;Pecorino=pecorino romano;Cheddar=cheddar cheese|chedder|cheddar cheese;Monterey Jack=jack cheese|monterey;Feta=feta cheese;Brie=brie cheese;Gouda=gouda cheese;Provolone=provolone cheese;Velveeta=velveta;Cheez Whiz=cheese whiz;Laughing Cow=la vache qui rit'},
+  {q:'Name an insect',
+   a:'Bee:160,Ant:150,Butterfly:120,Ladybug:80,Fly:70,Mosquito:62,Grasshopper:50,Beetle:44,Cockroach:40,Dragonfly:36,Cricket:30,Moth:28,Caterpillar:22,Wasp:20,Firefly:18,Praying Mantis:16,Flea:14,Termite:12,Hornet:11,Stick Insect:10,Gnat:9,Bumblebee:8,Louse:8,Earwig:6,Cicada:6,Stink Bug:5,June Bug:5,Aphid:5,Bed Bug:4,Silverfish:4,Weevil:3,Horsefly:3,Yellow Jacket:3,Dung Beetle:3,Monarch Butterfly:3,Fruit Fly:2,Katydid:2,Locust:2,Mayfly:2,Water Strider:2,Boll Weevil:1,Scarab:1,Stag Beetle:1,Rhinoceros Beetle:1,Damselfly:1,Lacewing:1,Leaf Insect:1,Mealworm:1,Hercules Beetle:1,Goliath Beetle:1,Assassin Bug:1,Cicada Killer:1,Tarantula Hawk:1',
+   t:'Alderfly,Antlion,Backswimmer,Bark Beetle,Blister Beetle,Blowfly,Bluebottle,Botfly,Caddisfly,Carpenter Ant,Carpenter Bee,Click Beetle,Cochineal,Crane Fly,Darkling Beetle,Deer Fly,Diving Beetle,Emerald Ash Borer,Fire Ant,Flour Beetle,Giant Water Bug,Glowworm,Gypsy Moth,Harvester Ant,Hoverfly,Japanese Beetle,Jewel Beetle,Kissing Bug,Spotted Lanternfly,Leafcutter Ant,Leafhopper,Longhorn Beetle,Luna Moth,Atlas Moth,Mantisfly,Mason Bee,Mealybug,Midge,Mole Cricket,Mud Dauber,No-see-um,Orchid Mantis,Owlfly,Paper Wasp,Peppered Moth,Sawfly,Scale Insect,Scorpionfly,Silkworm,Silk Moth,Snakefly,Spittlebug,Stonefly,Swallowtail,Thrips,Tiger Beetle,Tsetse Fly,Velvet Ant,Wax Moth,Whitefly,Woolly Bear,Army Ant,Bullet Ant,Killer Bee,Cabbage White,Painted Lady,Red Admiral,Blue Morpho,Cockchafer,Firebrat,Booklouse,Camel Cricket,Cave Cricket,Jerusalem Cricket,Weta,Giant Weta,Treehopper,Froghopper,Water Boatman,Whirligig Beetle,Colorado Potato Beetle,Ground Beetle,Rove Beetle,Soldier Beetle,Honeypot Ant,Bullet Ant,Sweat Bee,Orchid Bee,Leafcutter Bee,Cuckoo Wasp,Fig Wasp,Parasitic Wasp,Ichneumon Wasp,Spider Wasp,Hawk Moth,Hummingbird Moth,Death\'s-head Hawkmoth,Clothes Moth,Codling Moth,Tent Caterpillar,Hornworm,Inchworm,Bagworm,Armyworm,Cutworm,Wireworm,Grub,Maggot,Nymph,Larva,Pupa,Cicada Nymph,Periodical Cicada,Dog-day Cicada,Shield Bug,Squash Bug,Boxelder Bug,Milkweed Bug,Lygus Bug,Water Scorpion,Toe-biter,Pond Skater,Mosquito Hawk,Sand Fly,Black Fly,Stable Fly,Robber Fly,Bee Fly,Flower Fly,Snipe Fly,Dobsonfly,Hellgrammite,Fishfly,Webspinner,Zorapteran,Walking Leaf,Ghost Mantis,Devil\'s Flower Mantis,Giant Prickly Stick Insect,Jungle Nymph',
+   v:'Ladybug=ladybird|lady bug|ladybeetle|lady beetle|ladybugs;Praying Mantis=mantis|praying mantid|mantid;Stick Insect=walking stick|stick bug|stickbug;Firefly=lightning bug|lightningbug|fire fly|fireflies;Louse=lice|head lice|headlice;June Bug=junebug|may beetle;Bed Bug=bedbug;Dragonfly=dragon fly|dragonflies;Bee=honeybee|honey bee|bees;Fly=house fly|housefly|flies;Yellow Jacket=yellowjacket;Stink Bug=stinkbug;Antlion=ant lion|doodlebug;Cockchafer=maybug|may bug;Cockroach=roach|cockroaches;Butterfly=butterflies;Ant=ants;Mosquito=mosquitoes|mosquitos|mozzie;Bumblebee=bumble bee;Grasshopper=grass hopper;Horsefly=horse fly;Fruit Fly=fruitfly|drosophila;Monarch Butterfly=monarch;No-see-um=noseeum|biting midge'},
+  {q:'Name a dessert',
+   a:'Cake:170,Ice Cream:160,Pie:80,Cookie:75,Brownie:66,Cheesecake:55,Cupcake:46,Pudding:36,Apple Pie:33,Chocolate Cake:28,Tiramisu:24,Donut:20,Creme Brulee:18,Chocolate:16,Cobbler:14,Sundae:13,Mousse:12,Macaron:11,Banana Split:10,Flan:10,Pumpkin Pie:9,Fudge:8,Jell-O:8,Key Lime Pie:7,Gelato:7,Carrot Cake:7,Cannoli:6,Baklava:6,Red Velvet Cake:5,Eclair:5,Strawberry Shortcake:5,Milkshake:5,Churro:4,Crepe:4,Panna Cotta:4,Trifle:4,Pavlova:3,Sorbet:3,Frozen Yogurt:3,Rice Pudding:3,Bread Pudding:3,Lemon Bar:3,Cinnamon Roll:2,Waffle:2,S\'mores:2,Profiterole:2,Souffle:2,Tart:2,Pecan Pie:2,Angel Food Cake:2,Popsicle:2,Mochi:2,Sticky Toffee Pudding:1,Black Forest Cake:1,Tres Leches:1,Gulab Jamun:1,Crumble:1,Parfait:1,Funnel Cake:1,Beignet:1,Macaroon:1,Banoffee Pie:1,Eton Mess:1,Affogato:1,Semifreddo:1,Mille-feuille:1',
+   t:'Apple Crumble,Apple Strudel,Baked Alaska,Bananas Foster,Basbousa,Bear Claw,Bingsu,Blondie,Boston Cream Pie,Bundt Cake,Buttermilk Pie,Cake Pop,Cassata,Charlotte,Cherry Pie,Chess Pie,Chocolate Chip Cookie,Fondue,Clafoutis,Coconut Cream Pie,Coffee Cake,Cream Puff,Croquembouche,Custard,Dango,Dorayaki,Figgy Pudding,Financier,Fruit Tart,Fruitcake,Galette,German Chocolate Cake,Gingerbread,Granita,Halo-halo,Ice Cream Sandwich,Ice Cream Cake,Jalebi,Kheer,Kulfi,Ladyfinger,Lamington,Lava Cake,Lemon Meringue Pie,Linzer Torte,Madeleine,Magic Bar,Malva Pudding,Meringue,Mud Pie,Petit Four,Pineapple Upside-down Cake,Pound Cake,Praline,Pumpkin Bread,Rasgulla,Rhubarb Crumble,Rocky Road,Rugelach,Sachertorte,Scone,Shortbread,Snickerdoodle,Sopapilla,Spotted Dick,Stollen,Strudel,Sugar Cookie,Summer Pudding,Swiss Roll,Tarte Tatin,Toffee,Treacle Tart,Upside-down Cake,Victoria Sponge,Whoopie Pie,Yule Log,Zabaglione,Zeppole,Oreo,Rice Krispie Treat,Cotton Candy,Candy,Banana Bread,Muffin,Pastry,Danish,Cronut,Kouign-amann,Palmier,Sfogliatella,Struffoli,Pastel de Nata,Kunafa,Halva,Turkish Delight,Loukoumades,Galaktoboureko,Mango Sticky Rice,Buko Pie,Ube Halaya,Sago,Che,Mochi Ice Cream,Taiyaki,Castella,Egg Tart,Mooncake,Tangyuan,Brigadeiro,Quindim,Alfajor,Dulce de Leche,Capirotada,Peach Pie,Blueberry Pie,Strawberry Pie,Sweet Potato Pie,Shoofly Pie,Pecan Bar,Seven Layer Bar,Nanaimo Bar,Butter Tart,Pouding Chomeur,Beavertail,Sticky Bun,Monkey Bread,Babka,Panettone,Pandoro,Tiramisu Cake,Opera Cake,Dobos Torte,Kladdkaka,Princess Cake,Semla,Kanelbulle,Lebkuchen,Spekulatius,Speculoos,Stroopwafel,Poffertjes,Oliebollen,Churros con Chocolate,Crema Catalana,Arroz con Leche,Natillas,Torrijas,Leche Frita,Polvoron,Mantecado,Brazo de Gitano,Ensaimada,Gâteau Basque,Paris-Brest,Saint-Honore,Religieuse,Mont Blanc,Tarte au Citron,Far Breton,Kougelhopf,Canele',
+   v:'Donut=doughnut|donuts;Jell-O=jello|jelly|gelatin;Creme Brulee=crème brûlée|creme brule;S\'mores=smores|smore;Macaron=macarons;Cheesecake=cheese cake;Frozen Yogurt=froyo|frozen yoghurt;Popsicle=ice lolly|ice pop;Mille-feuille=napoleon|millefeuille|mille feuille;Cobbler=peach cobbler|blackberry cobbler|cherry cobbler;Flan=leche flan|creme caramel;Rice Pudding=arroz con leches;Lava Cake=molten chocolate cake|molten lava cake|chocolate lava cake;Cookie=cookies|biscuit;Cupcake=fairy cake|cupcakes;Brownie=brownies;Key Lime Pie=key lime;Strawberry Shortcake=shortcake;Red Velvet Cake=red velvet;Ice Cream=icecream|ice-cream;Sundae=ice cream sundae;Tres Leches=tres leches cake;Tiramisu=tiramisú;Eclair=éclair|eclairs;Halo-halo=halo halo;Gulab Jamun=gulab jamon;Profiterole=profiteroles;Churro=churros'},
+  {q:'Name a body part',
+   a:'Hand:175,Head:165,Arm:110,Leg:100,Eye:90,Foot:75,Nose:62,Heart:50,Finger:46,Mouth:40,Ear:38,Knee:30,Brain:28,Elbow:25,Toe:22,Stomach:20,Shoulder:18,Hair:16,Neck:15,Lung:13,Chest:12,Back:11,Skin:10,Liver:9,Teeth:9,Tongue:8,Lip:7,Thumb:7,Ankle:6,Wrist:6,Kidney:5,Chin:5,Hip:5,Belly Button:4,Eyebrow:4,Cheek:4,Forehead:4,Nail:3,Eyelash:3,Throat:3,Heel:3,Spine:3,Bone:2,Muscle:2,Armpit:2,Pinky:2,Butt:2,Appendix:2,Pancreas:1,Spleen:1,Gallbladder:1,Intestine:1,Bladder:1,Thigh:1,Calf:1,Shin:1,Jaw:1,Skull:1,Rib:1,Collarbone:1,Palm:1,Knuckle:1,Earlobe:1,Nostril:1,Uvula:1,Pupil:1,Iris:1',
+   t:'Abdomen,Achilles Tendon,Adam\'s Apple,Adrenal Gland,Aorta,Artery,Bicep,Tricep,Brainstem,Bronchus,Cartilage,Cerebellum,Colon,Cornea,Diaphragm,Eardrum,Esophagus,Eyelid,Femur,Fibula,Tibia,Gums,Hamstring,Hypothalamus,Kneecap,Larynx,Ligament,Lymph Node,Molar,Nerve,Ovary,Pelvis,Pituitary Gland,Prostate,Quadricep,Retina,Sinus,Sternum,Tailbone,Temple,Tendon,Thyroid,Tonsil,Trachea,Vein,Vertebra,Waist,Uterus,Cuticle,Dimple,Toenail,Big Toe,Ring Finger,Index Finger,Middle Finger,Forearm,Upper Arm,Lower Back,Scalp,Torso,Gland,Blood,Bone Marrow,Joint,Septum,Philtrum,Glabella,Shoulder Blade,Rotator Cuff,Gluteus,Abs,Pec,Lats,Deltoid,Funny Bone,Small Intestine,Large Intestine,Bile Duct,Epiglottis,Sclera,Tear Duct,Eye Socket,Nape,Metacarpal,Phalange,Radius,Ulna,Humerus,Carpal,Tarsal,Arch,Sole,Beard,Mustache,Eyebrows,Fingertip,Fingerprint,Lip,Gum,Palate,Wisdom Tooth,Canine Tooth,Incisor,Enamel,Hairline,Crown,Hamstring Muscle,Calf Muscle,Groin,Hip Bone,Rib Cage,Belly,Love Handles,Cheekbone,Brow,Lash,Pore,Mole,Freckle,Vocal Cords,Taste Bud,Saliva Gland,Lymph,Spinal Cord,Neuron,Cell,Skeleton,Rectum,Duodenum,Ileum,Jejunum,Cecum,Gallstone,Ventricle,Atrium,Valve,Capillary,Alveoli,Pleura,Thymus,Pineal Gland,Hippocampus,Amygdala,Frontal Lobe,Cerebrum,Cortex,Meninges,Cochlea,Ear Canal,Lobe,Tragus,Helix,Septum,Nasal Cavity,Soft Palate,Hard Palate,Jawline,Temple Bone,Occipital Bone,Parietal Bone,Sacrum,Hip Flexor,Iliac Crest,Kneepit,Instep,Ball of the Foot',
+   v:'Teeth=tooth;Belly Button=navel|bellybutton;Butt=buttock|buttocks|bum|behind|rear|bottom|glutes;Stomach=tummy|tum;Eye=eyeball|eyes;Nail=fingernail|fingernails|nails;Collarbone=clavicle|collar bone;Kneecap=patella|knee cap;Skull=cranium;Jaw=mandible|jawbone;Tailbone=coccyx|tail bone;Shoulder Blade=scapula;Uterus=womb;Abs=six pack|abdominals|abdominal muscles;Pec=pectoral|pecs|pectorals;Intestine=intestines|gut|guts|bowel|bowels;Adam\'s Apple=adams apple;Achilles Tendon=achilles;Pinky=pinkie|little finger|pinky finger;Hand=hands;Foot=feet;Leg=legs;Arm=arms;Ear=ears;Finger=fingers;Toe=toes;Lung=lungs;Kidney=kidneys;Hair=hairs;Bicep=biceps;Tricep=triceps;Quadricep=quads|quadriceps;Mustache=moustache;Lip=lips;Cheek=cheeks;Shin=shinbone|shin bone;Rib=ribs;Thigh=thighs;Calf=calves'},
+ ],
+];
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const TAU = Math.PI * 2, PI = Math.PI;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const L10 = Math.log10;
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const tc = s => s.replace(/(^|\s)[a-z]/g, m => m.toUpperCase());
+const REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { let a = seed >>> 0 || 1; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+/* ================= ANSWER MATCHING ================= */
+function clean(s) {
+  return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/&/g, ' and ').replace(/['’`]/g, '').replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ').trim().replace(/^(a|an|the|some) (?=\S)/, '').slice(0, 40).trim();
+}
+function singular(w) {
+  if (w.length < 4) return [w];
+  if (/ies$/.test(w)) return [w.slice(0, -3) + 'y', w.slice(0, -1)];
+  if (/oes$/.test(w)) return [w.slice(0, -2), w.slice(0, -1)];
+  if (/(ch|sh|ss|x|zz)es$/.test(w)) return [w.slice(0, -2)];
+  if (/s$/.test(w) && !/(ss|us|is)$/.test(w)) return [w.slice(0, -1)];
+  return [w];
+}
+function variants(c) {
+  const words = c.split(' '), head = words.slice(0, -1), out = [c];
+  singular(words[words.length - 1]).forEach(v => out.push(head.concat(v).join(' ')));
+  out.push(words.map(w => singular(w)[0]).join(' '));
+  return out.filter((v, i) => out.indexOf(v) === i);
+}
+const flat = s => s.replace(/ /g, '');
+function within1(a, b) { // edit distance <= 1
+  if (a === b) return true;
+  const la = a.length, lb = b.length;
+  if (Math.abs(la - lb) > 1) return false;
+  let i = 0, j = 0, diff = 0;
+  while (i < la && j < lb) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++diff > 1) return false;
+    if (la > lb) i++; else if (lb > la) j++; else { i++; j++; }
+  }
+  return true;
+}
+/* Each prompt has an answer list: `a` = common answers with seeded counts,
+   `t` = rarer accepted answers (most popular first), `v` = aliases that mean the same answer. */
+function buildPrompt(p) {
+  const seed = new Map(), idx = new Map(), name = new Map();
+  const index = (form, key) => variants(form).forEach(v => { const f = flat(v); if (f && !idx.has(f)) idx.set(f, key); });
+  const add = (disp, n) => { const key = clean(disp); if (!key || seed.has(key)) return; seed.set(key, n); name.set(key, disp.trim()); index(key, key); };
+  p.a.split(',').forEach(e => { const j = e.lastIndexOf(':'); add(e.slice(0, j), +e.slice(j + 1)); });
+  const tail = (p.t || '').split(',').filter(Boolean);
+  tail.forEach((d, i) => add(d, i < tail.length / 3 ? 1 : .5));
+  (p.v || '').split(';').forEach(g => {
+    const j = g.indexOf('='); if (j < 0) return;
+    const key = clean(g.slice(0, j)); if (!seed.has(key)) return;
+    g.slice(j + 1).split('|').forEach(a => index(clean(a), key));
+  });
+  let tot = 0; seed.forEach(n => tot += n);
+  return { q: p.q, seed, idx, name, tot };
+}
+const P = DAYS.map(d => d.map(buildPrompt));
+const nameOf = (pr, key) => { const n = pr.name.get(key) || key; return n === n.toLowerCase() ? tc(n) : n; };
+/* Edit distance with adjacent swaps, giving up past `max`. */
+function editDist(a, b, max) {
+  const la = a.length, lb = b.length; if (Math.abs(la - lb) > max) return max + 1;
+  let p2 = null, p1 = Array.from({ length: lb + 1 }, (_, j) => j);
+  for (let i = 1; i <= la; i++) {
+    const cur = [i]; let best = i;
+    for (let j = 1; j <= lb; j++) {
+      let v = Math.min(p1[j] + 1, cur[j - 1] + 1, p1[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (p2 && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, p2[j - 2] + 1);
+      cur.push(v); if (v < best) best = v;
+    }
+    if (best > max) return max + 1;
+    p2 = p1; p1 = cur;
+  }
+  return p1[lb];
+}
+/* Turn what a player typed into an answer on the list: exact, alias, plural, then autocorrect.
+   Returns null when nothing on the list is close enough. */
+function resolve(pr, raw) {
+  const c = clean(raw); if (!c) return null;
+  const vs = variants(c);
+  for (const v of vs) { const k = pr.idx.get(flat(v)); if (k) return { key: k, typed: c, fixed: false }; }
+  const f = flat(vs[1] || vs[0]), max = f.length >= 9 ? 2 : f.length >= 4 ? 1 : 0;
+  if (!max) return null;
+  let best = null, bd = max + 1, bn = -1;
+  for (const [fk, key] of pr.idx) {
+    if (Math.abs(fk.length - f.length) > max) continue;
+    const d = editDist(f, fk, max), n = pr.seed.get(key);
+    if (d < bd || (d === bd && n > bn)) { best = key; bd = d; bn = n; }
+  }
+  return best && bd <= max ? { key: best, typed: c, fixed: true } : null;
+}
+const canon = (pr, raw) => { const c = clean(raw); const k = c && pr.idx.get(flat(c)); return k && pr.seed.has(k) ? k : ''; };
+
+/* ================= STORAGE ================= */
+const store = {
+  load() { try { return JSON.parse(localStorage.getItem(CFG.SAVE_KEY)); } catch (e) { return null; } },
+  save(v) { try { localStorage.setItem(CFG.SAVE_KEY, JSON.stringify(v)); } catch (e) { /* play on without saving */ } },
+};
+const S = Object.assign({ v: 1, streak: 0, lastDay: 0, best: 0, seenHow: false, days: {}, mine: {} }, store.load() || {});
+if (!S.days || typeof S.days !== 'object') S.days = {};
+if (!S.mine || typeof S.mine !== 'object') S.mine = {};
+function save() {
+  const keys = Object.keys(S.days).map(Number).sort((a, b) => a - b);
+  while (keys.length > 60) delete S.days[keys.shift()];
+  store.save(S);
+}
+
+/* ================= DAYS ================= */
+function dayNum(d = new Date()) {
+  return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(CFG.EPOCH[0], CFG.EPOCH[1], CFG.EPOCH[2])) / 864e5) + 1;
+}
+const setOf = dn => (((dn - 1) % DAYS.length) + DAYS.length) % DAYS.length;
+let TODAY = dayNum();
+const activeStreak = () => (S.lastDay >= TODAY - 1 ? S.streak : 0);
+
+/* ================= ZONES AND SCORING ================= */
+function zoneFor(streak) { const w = 1 + CFG.STREAK_WIDEN * Math.min(streak, CFG.STREAK_CAP); return { hot: CFG.HOT_PCT * w, cold: CFG.COLD_PCT / w }; }
+const SPAN = L10(CFG.NEAR_PCT) - L10(CFG.FAR_PCT);
+const pctToT = p => clamp((L10(CFG.NEAR_PCT) - L10(Math.max(p, 1e-4))) / SPAN, 0, 1);
+const tToPct = t => Math.pow(10, L10(CFG.NEAR_PCT) - t * SPAN);
+const sweetOf = z => Math.sqrt(z.hot * z.cold);
+const lushHi = z => sweetOf(z) * CFG.LUSH_SPREAD, lushLo = z => sweetOf(z) / CFG.LUSH_SPREAD;
+/* Life falls off smoothly from the sweet spot to the zone edges; just outside the zone is a near miss. */
+function classify(pct, z) {
+  if (pct >= z.hot) return { kind: 'hot', biome: 'lava', life: 0, edge: 0, near: pct < z.hot * CFG.NEAR_MISS };
+  if (pct < z.cold) return { kind: 'cold', biome: 'ice', life: 0, edge: 0, near: pct >= z.cold / CFG.NEAR_MISS };
+  const s = sweetOf(z), half = L10(z.hot) - L10(s), d = clamp(Math.abs(L10(pct) - L10(s)) / half, 0, 1);
+  const biome = pct >= lushLo(z) && pct <= lushHi(z) ? 'lush' : pct > s ? 'desert' : 'tundra';
+  const life = Math.round(CFG.LIFE_EDGE + (CFG.LIFE_LUSH - CFG.LIFE_EDGE) * Math.pow(1 - d, 1.4));
+  return { kind: 'hab', biome, life, edge: d, bull: d <= L10(CFG.BULL_SPREAD) / half };
+}
+function aimInfo(t, z) { const pct = tToPct(t), c = classify(pct, z); return { pct, biome: c.biome, max: 1 + CFG.AIM_BONUS * (1 + CFG.EDGE_RISK * c.edge), edge: c.edge }; }
+function aimMult(tAim, tLand, z) {
+  const d = Math.abs(tAim - tLand), perfect = d <= CFG.AIM_PERFECT;
+  const close = perfect ? 1 : Math.max(0, 1 - (d - CFG.AIM_PERFECT) / (CFG.AIM_RANGE - CFG.AIM_PERFECT));
+  return { mult: 1 + CFG.AIM_BONUS * close * (1 + CFG.EDGE_RISK * aimInfo(tAim, z).edge), perfect };
+}
+const emojiOf = p => p.bull ? '\u{1F3AF}' : p.kind === 'lost' ? '☄️' : p.kind === 'hot' ? '\u{1F525}' : p.kind === 'cold' ? '\u{1F9CA}' : p.biome === 'lush' ? '\u{1F30D}' : '\u{1F331}';
+const pctText = p => p >= 10 ? Math.round(p) + '%' : Math.max(0.1, p).toFixed(1) + '%';
+
+/* ================= CROWD (answer counts) =================
+   Seeded counts + this player's own past answers + everyone else's answers
+   from the artifact's shared database when it is reachable. */
+const Crowd = {
+  remote: new Map(), totals: [], live: false, players: 0,
+  stats(si, i, key) {
+    const pr = P[si][i], id = si + ':' + i, sc = CFG.PRIOR / pr.tot, m = new Map();
+    pr.seed.forEach((n, k) => m.set(k, n * sc));
+    const rm = this.remote.get(id); if (rm) rm.forEach((n, k) => m.set(k, (m.get(k) || 0) + n));
+    const mine = S.mine['v' + CFG.DATA_V + ':' + id]; if (mine) Object.keys(mine).forEach(k => m.set(k, (m.get(k) || 0) + (+mine[k] || 0)));
+    let total = 0; m.forEach(n => total += n);
+    const top = [...m].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, n]) => ({ k, pct: n / total * 100 }));
+    return { n: m.get(key) || 0, total, pct: (m.get(key) || 0) / total * 100, top };
+  },
+  submit(dn, i, key) {
+    const id = 'v' + CFG.DATA_V + ':' + setOf(dn) + ':' + i; (S.mine[id] = S.mine[id] || {})[key] = (S.mine[id][key] || 0) + 1;
+    Live.push(dn, i, key);
+  },
+};
+const Live = {
+  ref: null, doc: { v: CFG.DATA_V, d: {}, t: {}, m: {} }, chain: Promise.resolve(),
+  async init() {
+    try {
+      if (!window.claude || typeof window.claude.use !== 'function') return;
+      const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      if (!db) return;
+      const uid = user ? await user.id() : null;
+      const col = db.collection('plays');
+      col.limit(1000).onSnapshot(snap => {
+        const remote = new Map(), totals = []; let players = 0;
+        snap.docs.forEach(doc => {
+          if (doc.id === uid) return;
+          const body = doc.data(), d = body && body.d; if (!d || typeof d !== 'object' || body.v !== CFG.DATA_V) return;
+          const tt = body.t && typeof body.t === 'object' ? +body.t[TODAY] : NaN;
+          if (Number.isFinite(tt)) totals.push(clamp(tt, 0, 9999));
+          let today = false;
+          Object.keys(d).slice(0, 24).forEach(k => {
+            const n = +k; if (!Number.isInteger(n) || !Array.isArray(d[k])) return;
+            if (n === TODAY) today = true;
+            const si = setOf(n);
+            d[k].slice(0, CFG.ROUNDS).forEach((raw, i) => {
+              if (typeof raw !== 'string' || !raw) return;
+              const key = canon(P[si][i], raw); if (!key) return;
+              const id = si + ':' + i; let m = remote.get(id); if (!m) remote.set(id, m = new Map());
+              m.set(key, (m.get(key) || 0) + 1);
+            });
+          });
+          if (today) players++;
+        });
+        Crowd.remote = remote; Crowd.totals = totals; Crowd.players = players; Crowd.live = true; renderNote();
+      }, () => { Crowd.live = false; renderNote(); });
+      if (uid) {
+        Live.ref = col.doc(uid);
+        Live.chain = Live.ref.get().then(s => {
+          const old = s.exists && s.data(); if (!old || !old.d || typeof old.d !== 'object' || old.v !== CFG.DATA_V) return;
+          if (old.m && typeof old.m === 'object') Object.keys(old.m).forEach(k => { if (!(k in Live.doc.m) && Array.isArray(old.m[k])) Live.doc.m[k] = old.m[k].slice(0, 10); });
+          Object.keys(old.d).forEach(k => { if (!(k in Live.doc.d) && Array.isArray(old.d[k])) Live.doc.d[k] = old.d[k].slice(0, CFG.ROUNDS); });
+          if (old.t && typeof old.t === 'object') Object.keys(old.t).forEach(k => { if (!(k in Live.doc.t) && Number.isFinite(+old.t[k])) Live.doc.t[k] = +old.t[k]; });
+        }).catch(() => {});
+      }
+    } catch (e) { /* no shared crowd in this view */ }
+  },
+  push(dn, i, key) {
+    if (!this.ref) return;
+    const d = this.doc.d, arr = d[dn] = Array.isArray(d[dn]) ? d[dn] : [];
+    arr[i] = key; for (let j = 0; j < arr.length; j++) if (typeof arr[j] !== 'string') arr[j] = '';
+    this.write(dn);
+  },
+  finish(dn, total) { if (!this.ref) return; this.doc.t[dn] = total; this.write(dn); },
+  /* Answers the list did not recognize, kept so the lists can grow from real play. */
+  miss(dn, i, typed) {
+    if (!this.ref || !typed) return;
+    const k = dn + '-' + i, arr = this.doc.m[k] = this.doc.m[k] || [];
+    if (arr.length >= 10 || arr.includes(typed)) return;
+    arr.push(typed.slice(0, 40)); this.write(dn);
+  },
+  write(dn) {
+    this.chain = this.chain.then(() => {
+      ['d', 't', 'm'].forEach(f => Object.keys(this.doc[f]).forEach(k => { if (parseInt(k, 10) < dn - 12) delete this.doc[f][k]; }));
+      return this.ref.set(JSON.parse(JSON.stringify(this.doc)));
+    }).catch(() => { this.ref = null; });
+  },
+};
+
+/* Today's crowd scores: the seeded crowd played through the real scoring rules,
+   plus finished totals from other players in the shared store. */
+const simCache = {};
+function simTotals(dn) {
+  if (simCache[dn]) return simCache[dn];
+  const si = setOf(dn), R = rng(hash('crowd:' + dn)), z = zoneFor(0), out = [];
+  const pools = P[si].map(pr => { let tot = 0; pr.seed.forEach(n => tot += n); return { arr: [...pr.seed.values()], tot }; });
+  for (let s = 0; s < 320; s++) {
+    let total = 0, chain = 0;
+    pools.forEach(({ arr, tot }) => {
+      let x = R() * tot, n = arr[arr.length - 1];
+      for (const v of arr) { x -= v; if (x <= 0) { n = v; break; } }
+      if (R() < .08) n = 1; // someone with a one-off answer
+      const pct = n / tot * 100, cls = classify(pct, z), t = pctToT(pct);
+      const aim = clamp(t + (R() + R() + R() - 1.5) * .22, 0, 1), am = CFG.AIM ? aimMult(aim, t, z) : { mult: 1 };
+      const evo = cls.kind === 'hab' ? Math.min(chain + 1, 3) : 0; chain = cls.kind === 'hab' ? chain + 1 : 0;
+      total += Math.round(cls.life * CFG.EVO_BONUS[evo] * am.mult * (cls.bull ? CFG.BULL_BONUS : 1));
+    });
+    out.push(total);
+  }
+  return (simCache[dn] = out);
+}
+const crowdTotals = dn => simTotals(dn).concat(dn === TODAY ? Crowd.totals : []);
+
+/* ================= DRAWING ================= */
+function fit(cv) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), w = cv.clientWidth, h = cv.clientHeight;
+  if (!w || !h) return null;
+  const W = Math.round(w * dpr), H = Math.round(h * dpr);
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  return c;
+}
+function blob(c, x, y, s) {
+  c.beginPath(); c.arc(x, y, s, 0, TAU);
+  c.moveTo(x + s * 1.4, y + s * .25); c.arc(x + s * .7, y + s * .25, s * .7, 0, TAU);
+  c.moveTo(x + s * .1, y + s * .45); c.arc(x - s * .5, y + s * .45, s * .6, 0, TAU); c.fill();
+}
+function star4(c, x, y, s) {
+  c.beginPath(); c.moveTo(x, y - s); c.quadraticCurveTo(x, y, x + s, y); c.quadraticCurveTo(x, y, x, y + s);
+  c.quadraticCurveTo(x, y, x - s, y); c.quadraticCurveTo(x, y, x, y - s); c.fill();
+}
+function annulus(c, x, y, r1, r2) { c.beginPath(); c.arc(x, y, r2, 0, TAU); c.moveTo(x + r1, y); c.arc(x, y, r1, 0, TAU); c.fill('evenodd'); }
+function ringHalf(c, x, y, r, back) {
+  c.save(); c.translate(x, y); c.rotate(-.4); c.lineCap = 'round';
+  c.strokeStyle = 'rgba(255,226,150,.95)'; c.lineWidth = Math.max(1, r * .2);
+  c.beginPath(); c.ellipse(0, 0, r * 1.7, r * .52, 0, back ? PI : 0, back ? TAU : PI); c.stroke();
+  c.strokeStyle = 'rgba(255,140,200,.85)'; c.lineWidth = Math.max(.7, r * .08);
+  c.beginPath(); c.ellipse(0, 0, r * 2.02, r * .66, 0, back ? PI : 0, back ? TAU : PI); c.stroke();
+  c.restore();
+}
+function moon(c, x, y, r, a) {
+  const mx = x + Math.cos(a) * r * 1.85, my = y + Math.sin(a) * r * .6 - r * .15, mr = Math.max(1.2, r * .24);
+  c.fillStyle = '#efeaff'; c.beginPath(); c.arc(mx, my, mr, 0, TAU); c.fill();
+  c.fillStyle = 'rgba(120,100,200,.5)'; c.beginPath(); c.arc(mx + mr * .25, my + mr * .2, mr * .35, 0, TAU); c.fill();
+}
+
+/* One planet. p = {kind:'hot'|'cold'|'hab'|'seed', biome, evo, deco, seed} */
+function drawPlanet(c, x, y, r, p, tm) {
+  const R = rng(p.seed || 7), kind = p.kind, bio = p.biome, evo = p.evo || 0;
+  const spin = tm * .035 + R();
+  const fx = (u, sp) => ((((u + (sp || spin)) % 1) + 1) % 1 * 4 - 2) * r;
+  const gc = kind === 'lost' ? '170,165,200' : kind === 'hot' ? '255,110,50' : kind === 'cold' ? '140,200,255' : kind === 'seed' ? '200,190,255' : '90,255,160';
+  const pulse = kind === 'hot' ? .5 + .15 * Math.sin(tm * 3) : .38;
+  let g = c.createRadialGradient(x, y, r * .8, x, y, r * 2);
+  g.addColorStop(0, `rgba(${gc},${pulse})`); g.addColorStop(1, `rgba(${gc},0)`);
+  c.fillStyle = g; c.beginPath(); c.arc(x, y, r * 2, 0, TAU); c.fill();
+
+  const moonA = tm * .9 + (p.seed % 7);
+  if (p.deco === 'ring') ringHalf(c, x, y, r, true);
+  if (p.deco === 'moon' && Math.sin(moonA) < 0) moon(c, x, y, r, moonA);
+
+  c.save(); c.beginPath(); c.arc(x, y, r, 0, TAU); c.clip();
+  const base = (a, b, d) => { const q = c.createRadialGradient(x - r * .4, y - r * .4, r * .1, x, y, r * 1.15); q.addColorStop(0, a); q.addColorStop(.6, b); q.addColorStop(1, d); c.fillStyle = q; c.fillRect(x - r, y - r, 2 * r, 2 * r); };
+  const cap = (top, w, h) => { c.fillStyle = '#fff'; c.beginPath(); c.ellipse(x, y + (top ? -1 : 1) * r * .95, r * w, r * h, 0, 0, TAU); c.fill(); };
+  const cloud = n => { for (let i = 0; i < n; i++) { const u = R(), la = (R() - .5) * 1.3 * r, s = r * (.16 + R() * .14); c.fillStyle = 'rgba(255,255,255,.88)'; c.beginPath(); c.ellipse(x + fx(u, tm * .06 + .3), y + la, s * 1.5, s * .5, 0, 0, TAU); c.fill(); } };
+  const spots = [];
+
+  if (bio === 'lava') {
+    base('#ffe07a', '#ff6b35', '#a3172b');
+    for (let i = 0; i < 7; i++) {
+      const u = R(), la = (R() - .5) * 1.6 * r, s = r * (.22 + R() * .24), cx = x + fx(u), cy = y + la;
+      c.fillStyle = 'rgba(74,12,30,.82)'; blob(c, cx, cy, s);
+      c.strokeStyle = '#ffe98a'; c.lineWidth = Math.max(.8, r * .07); c.lineJoin = 'round';
+      c.beginPath(); c.moveTo(cx - s, cy - s * .2); c.lineTo(cx - s * .3, cy + s * .35); c.lineTo(cx + s * .2, cy - s * .25); c.lineTo(cx + s * .95, cy + s * .25); c.stroke();
+    }
+  } else if (bio === 'ice') {
+    base('#ffffff', '#bfe6ff', '#5c8fe8');
+    for (let i = 0; i < 3; i++) { const yy = y + (R() - .5) * 1.2 * r; c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = Math.max(.8, r * .08); c.beginPath(); c.moveTo(x - r, yy); c.quadraticCurveTo(x, yy + r * .22, x + r, yy); c.stroke(); }
+    for (let i = 0; i < 6; i++) { const cx = x + fx(R()), cy = y + (R() - .5) * 1.3 * r, s = r * (.1 + R() * .12); c.fillStyle = 'rgba(110,165,255,.6)'; c.beginPath(); c.moveTo(cx, cy - s * 1.4); c.lineTo(cx + s, cy); c.lineTo(cx, cy + s * 1.4); c.lineTo(cx - s, cy); c.closePath(); c.fill(); }
+    cap(true, .85, .38); cap(false, .7, .3);
+  } else if (bio === 'lush') {
+    base('#8adcff', '#2f8ff0', '#1b4fc4');
+    const cols = ['#5fe07a', '#3cc46a', '#9aea6c'];
+    for (let i = 0; i < 7; i++) { const u = R(), la = (R() - .5) * 1.4 * r, s = r * (.22 + R() * .24), cx = x + fx(u), cy = y + la; c.fillStyle = cols[i % 3]; blob(c, cx, cy, s); spots.push([cx, cy, s]); }
+    cap(true, .5, .2); cloud(4);
+  } else if (bio === 'desert') {
+    base('#ffe9ad', '#f2a65a', '#c96a2e');
+    for (let i = 0; i < 4; i++) { const yy = y + (i - 1.5) * r * .45 + (R() - .5) * r * .2; c.strokeStyle = 'rgba(196,98,40,.45)'; c.lineWidth = Math.max(1, r * .12); c.beginPath(); c.moveTo(x - r, yy); c.quadraticCurveTo(x, yy - r * .25, x + r, yy + r * .1); c.stroke(); }
+    for (let i = 0; i < 4; i++) { const cx = x + fx(R()), cy = y + (R() - .5) * 1.2 * r, s = r * (.13 + R() * .1); c.fillStyle = '#58d66f'; c.beginPath(); c.arc(cx, cy, s * 1.35, 0, TAU); c.fill(); c.fillStyle = '#35c9d6'; c.beginPath(); c.arc(cx, cy, s * .85, 0, TAU); c.fill(); spots.push([cx, cy, s * 1.3]); }
+    cloud(1);
+  } else if (bio === 'tundra') {
+    base('#eafff8', '#8fd0c4', '#3f8fa8');
+    for (let i = 0; i < 6; i++) { const u = R(), la = (R() - .5) * 1.2 * r, s = r * (.2 + R() * .2), cx = x + fx(u), cy = y + la; c.fillStyle = i % 3 === 2 ? '#f4feff' : i % 3 ? '#6fbf8e' : '#8ad3a2'; blob(c, cx, cy, s); if (i % 3 !== 2) spots.push([cx, cy, s]); }
+    cap(true, .9, .42); cap(false, .75, .32); cloud(2);
+  } else {
+    if (bio === 'rock') base('#d9d4e8', '#8f88a8', '#3d3860'); else base('#f4efff', '#b9a8f5', '#6b54c9');
+    for (let i = 0; i < 3; i++) { c.fillStyle = 'rgba(90,70,180,.4)'; c.beginPath(); c.arc(x + (R() - .5) * r * 1.2, y + (R() - .5) * r * 1.2, r * (.12 + R() * .12), 0, TAU); c.fill(); }
+  }
+  if (evo >= 1) spots.forEach(([sx, sy, s], i) => { // plants
+    c.fillStyle = '#128a48';
+    for (let j = 0; j < 3; j++) { c.beginPath(); c.arc(sx + Math.cos(i + j * 2.1) * s * .5, sy + Math.sin(i * 2 + j * 2.1) * s * .4, Math.max(.8, r * .06), 0, TAU); c.fill(); }
+  });
+  if (evo >= 2) spots.forEach(([sx, sy, s], i) => { // creatures
+    const hop = Math.abs(Math.sin(tm * 4 + i * 1.7)) * r * .1;
+    c.fillStyle = i % 2 ? '#ff7ab8' : '#ffe14d';
+    c.beginPath(); c.arc(sx + Math.sin(tm * .7 + i) * s * .5, sy - hop, Math.max(.9, r * .06), 0, TAU); c.fill();
+  });
+  g = c.createRadialGradient(x - r * .45, y - r * .45, r * .5, x - r * .2, y - r * .2, r * 1.55);
+  g.addColorStop(0, 'rgba(10,5,50,0)'); g.addColorStop(1, 'rgba(10,5,50,.58)');
+  c.fillStyle = g; c.fillRect(x - r, y - r, 2 * r, 2 * r);
+  if (evo >= 3) spots.forEach(([sx, sy, s], i) => { // cities
+    for (let j = 0; j < 4; j++) {
+      const lx = sx + Math.cos(j * 1.6 + i) * s * .55, ly = sy + Math.sin(j * 2.3 + i) * s * .4, a = .65 + .35 * Math.sin(tm * 5 + i + j * 2);
+      c.fillStyle = `rgba(255,225,110,${a * .3})`; c.beginPath(); c.arc(lx, ly, Math.max(1.4, r * .13), 0, TAU); c.fill();
+      c.fillStyle = `rgba(255,244,170,${a})`; c.beginPath(); c.arc(lx, ly, Math.max(.8, r * .05), 0, TAU); c.fill();
+    }
+  });
+  c.fillStyle = 'rgba(255,255,255,.36)'; c.beginPath(); c.ellipse(x - r * .42, y - r * .5, r * .28, r * .13, -.6, 0, TAU); c.fill();
+  c.restore();
+  c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = Math.max(.8, r * .06); c.beginPath(); c.arc(x, y, r - c.lineWidth / 2, 0, TAU); c.stroke();
+  if (p.deco === 'ring') ringHalf(c, x, y, r, false);
+  if (p.deco === 'moon' && Math.sin(moonA) >= 0) moon(c, x, y, r, moonA);
+  if (evo >= 3) { const a = tm * 1.6 + p.seed % 5; if (Math.sin(a) > 0) { c.fillStyle = '#fff'; c.beginPath(); c.arc(x + Math.cos(a) * r * 1.3, y + Math.sin(a) * r * .4 + r * .1, Math.max(.8, r * .06), 0, TAU); c.fill(); } }
+}
+
+/* Goldie the sun. mood: idle | beam | sweat | shiver */
+function drawGoldie(c, x, y, R, mood, tm, glow, look) {
+  glow = glow || 1; look = look || 0;
+  if (mood === 'shiver') x += Math.sin(tm * 45) * R * .035;
+  const tint = mood === 'sweat' ? '255,120,70' : mood === 'shiver' ? '150,200,255' : '255,205,90';
+  const hr = R * (2 + glow * .55);
+  let g = c.createRadialGradient(x, y, R * .6, x, y, hr);
+  g.addColorStop(0, `rgba(${tint},${Math.min(.8, .38 + .14 * glow)})`); g.addColorStop(1, `rgba(${tint},0)`);
+  c.fillStyle = g; c.beginPath(); c.arc(x, y, hr, 0, TAU); c.fill();
+  const beam = mood === 'beam';
+  c.fillStyle = mood === 'shiver' ? '#ffcf70' : '#ffae1a';
+  for (let i = 0; i < 12; i++) {
+    const a = i / 12 * TAU + tm * .25, d = R * (1 + (beam ? .1 + .06 * Math.sin(tm * 6 + i) : .03 * Math.sin(tm * 2 + i * 2)));
+    c.beginPath(); c.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, R * .24, 0, TAU); c.fill();
+  }
+  g = c.createRadialGradient(x - R * .3, y - R * .35, R * .1, x, y, R);
+  g.addColorStop(0, '#fffbd0'); g.addColorStop(.5, '#ffd93b'); g.addColorStop(1, '#ffa51f');
+  c.fillStyle = g; c.beginPath(); c.arc(x, y, R, 0, TAU); c.fill();
+  if (mood === 'sweat') { c.fillStyle = 'rgba(255,70,50,.24)'; c.beginPath(); c.arc(x, y, R, 0, TAU); c.fill(); }
+  if (mood === 'shiver') { c.fillStyle = 'rgba(130,190,255,.42)'; c.beginPath(); c.arc(x, y, R, 0, TAU); c.fill(); }
+  c.fillStyle = 'rgba(255,110,140,.55)';
+  [-1, 1].forEach(s => { c.beginPath(); c.arc(x + s * R * .54, y + R * .2, R * .15, 0, TAU); c.fill(); });
+
+  const ink = '#5a2a0a', ex = R * .3, ey = y - R * .08;
+  c.strokeStyle = ink; c.fillStyle = ink; c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = Math.max(1.2, R * .075);
+  if (beam) {
+    [-1, 1].forEach(s => { c.beginPath(); c.arc(x + s * ex, ey + R * .06, R * .12, PI * 1.1, PI * 1.9); c.stroke(); });
+  } else if (mood === 'shiver') {
+    [-1, 1].forEach(s => { c.beginPath(); c.moveTo(x + s * (ex + R * .1), ey - R * .09); c.lineTo(x + s * (ex - R * .08), ey); c.lineTo(x + s * (ex + R * .1), ey + R * .09); c.stroke(); });
+  } else {
+    const blink = (tm % 4.2) < .12, big = mood === 'sweat';
+    [-1, 1].forEach(s => {
+      const cx = x + s * ex + look * R * .05;
+      c.fillStyle = ink; c.beginPath(); c.ellipse(cx, ey, R * (big ? .1 : .085), blink ? R * .02 : R * (big ? .15 : .13), 0, 0, TAU); c.fill();
+      if (!blink) { c.fillStyle = '#fff'; c.beginPath(); c.arc(cx + R * .03, ey - R * .05, R * .035, 0, TAU); c.fill(); }
+      if (big) { c.beginPath(); c.moveTo(x + s * (ex + R * .15), ey - R * .22); c.lineTo(x + s * (ex - R * .1), ey - R * .32); c.stroke(); }
+    });
+  }
+  const my = y + R * .3;
+  c.strokeStyle = ink;
+  if (beam) {
+    c.fillStyle = '#a8321f'; c.beginPath(); c.arc(x, my - R * .06, R * .26, 0, PI); c.closePath(); c.fill();
+    c.fillStyle = '#ff8fa8'; c.beginPath(); c.ellipse(x, my + R * .12, R * .12, R * .07, 0, 0, TAU); c.fill();
+  } else if (mood === 'sweat') {
+    c.beginPath(); c.moveTo(x - R * .2, my); c.quadraticCurveTo(x - R * .1, my - R * .1, x, my); c.quadraticCurveTo(x + R * .1, my + R * .1, x + R * .2, my); c.stroke();
+  } else if (mood === 'shiver') {
+    const j = Math.sin(tm * 40) * R * .012;
+    c.fillStyle = '#fff'; c.beginPath(); c.rect(x - R * .2, my - R * .09 + j, R * .4, R * .18); c.fill(); c.lineWidth = Math.max(1, R * .05); c.stroke();
+    c.beginPath(); c.moveTo(x - R * .2, my + j); c.lineTo(x + R * .2, my + j);
+    [-.1, 0, .1].forEach(o => { c.moveTo(x + R * o, my - R * .09 + j); c.lineTo(x + R * o, my + R * .09 + j); }); c.stroke();
+  } else {
+    c.beginPath(); c.arc(x, my - R * .1, R * .2, PI * .15, PI * .85); c.stroke();
+  }
+  if (mood === 'sweat') for (let i = 0; i < 3; i++) {
+    const s = i % 2 ? 1 : -1, k = (tm * .7 + i * .37) % 1, dx = x + s * R * (.78 + .1 * i), dy = y - R * .55 + k * R * 1.2, q = R * .08;
+    c.fillStyle = `rgba(120,205,255,${1 - k})`; c.beginPath(); c.moveTo(dx, dy - q * 2.2); c.quadraticCurveTo(dx + q * 1.6, dy + q * .4, dx, dy + q); c.quadraticCurveTo(dx - q * 1.6, dy + q * .4, dx, dy - q * 2.2); c.fill();
+  }
+  if (mood === 'shiver') {
+    c.strokeStyle = 'rgba(205,232,255,.9)'; c.lineWidth = Math.max(1, R * .06);
+    [-1, 1].forEach(s => { const sx = x + s * R * 1.45; c.beginPath(); c.moveTo(sx, y - R * .35); for (let i = 1; i <= 4; i++) c.lineTo(sx + (i % 2 ? s * R * .12 : 0), y - R * .35 + i * R * .18); c.stroke(); });
+  }
+  if (beam) { c.fillStyle = '#fff6c2'; for (let i = 0; i < 4; i++) { const a = i / 4 * TAU + tm * .5, s = R * .14 * (.6 + .4 * Math.sin(tm * 5 + i * 2)); star4(c, x + Math.cos(a) * R * 1.62, y + Math.sin(a) * R * 1.62, s); } }
+}
+
+/* A pill label that rides with the planet in flight. */
+function tag(c, x, y, text, a) {
+  if (a <= 0) return;
+  c.save(); c.globalAlpha = a; c.font = '900 13px Nunito, sans-serif';
+  const w = c.measureText(text).width + 20; x = clamp(x, w / 2 + 6, scene.W - w / 2 - 6);
+  c.fillStyle = 'rgba(10,8,36,.82)'; c.strokeStyle = 'rgba(255,255,255,.4)'; c.lineWidth = 1;
+  c.beginPath(); if (c.roundRect) c.roundRect(x - w / 2, y - 13, w, 26, 13); else c.rect(x - w / 2, y - 13, w, 26); c.fill(); c.stroke();
+  c.fillStyle = '#fff7e8'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, x, y + 1);
+  c.restore();
+}
+
+const ringCol = p => p.kind === 'lost' ? '175,170,205' : p.kind === 'hot' ? '255,140,80' : p.kind === 'cold' ? '140,200,255' : '90,255,170';
+
+/* The whole system orbiting Goldie: end of day and galaxy thumbnails. */
+function drawSystem(c, W, H, day, tm, mini) {
+  const cx = W / 2, cy = H / 2, maxR = Math.min(W, H) / 2 - (mini ? 5 : 14), GR = maxR * (mini ? .17 : .14), minR = GR * 2;
+  const rr = t => minR + t * (maxR - minR), z = day.z || zoneFor(0);
+  let g = c.createRadialGradient(cx, cy, GR, cx, cy, maxR * 1.12);
+  g.addColorStop(0, 'rgba(255,170,70,.5)'); g.addColorStop(.2, 'rgba(255,95,130,.3)'); g.addColorStop(.5, 'rgba(150,80,230,.2)'); g.addColorStop(.85, 'rgba(60,90,220,.14)'); g.addColorStop(1, 'rgba(40,50,160,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(cx, cy, maxR * 1.12, 0, TAU); c.fill();
+  const rh = rr(pctToT(z.hot)), rc = rr(pctToT(z.cold));
+  g = c.createRadialGradient(cx, cy, rh, cx, cy, rc);
+  g.addColorStop(0, 'rgba(77,255,160,.1)'); g.addColorStop(.5, 'rgba(77,255,160,.3)'); g.addColorStop(1, 'rgba(77,255,160,.1)');
+  c.fillStyle = g; annulus(c, cx, cy, rh, rc);
+  c.strokeStyle = 'rgba(77,255,160,.55)'; c.lineWidth = 1; c.setLineDash([3, 6]);
+  [rh, rc].forEach(r => { c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.stroke(); }); c.setLineDash([]);
+  const pr = clamp(maxR * .085, 3.2, 13);
+  let hab = 0;
+  day.planets.forEach((p, i) => {
+    if (p.kind === 'hab') hab++;
+    const r = rr(p.t);
+    c.strokeStyle = `rgba(${ringCol(p)},${mini ? .35 : .45})`; c.lineWidth = mini ? .8 : 1.5;
+    c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.stroke();
+  });
+  day.planets.forEach((p, i) => {
+    const r = rr(p.t), a = (p.seed % 628) / 100 + i * .9 + tm * (.45 / (.6 + p.t * 1.6));
+    drawPlanet(c, cx + Math.cos(a) * r, cy + Math.sin(a) * r, pr, p, tm);
+  });
+  drawGoldie(c, cx, cy, GR, hab >= 4 ? 'beam' : 'idle', tm, 1 + .12 * Math.min(day.streak || 0, CFG.STREAK_CAP));
+}
+
+/* ================= GAME SCENE ================= */
+const scene = { cv: $('scene'), W: 0, H: 0, top: 0, bot: 200, x0: 110, x1: 300, gx: 52, gy: null, gyT: 100, GR: 30, mood: 'idle', parts: [], stars: [], zoom: 1, fx: 0, shake: 0, measured: false };
+const aimEl = $('aim');
+/* The canvas fills the whole window; the play area is the gap between prompt and controls. */
+function layoutScene() {
+  const r = scene.cv.getBoundingClientRect(), a = aimEl.getBoundingClientRect(), w = $('scene-wrap').getBoundingClientRect();
+  if (!r.width || !w.width) return;
+  scene.W = r.width; scene.H = r.height; scene.top = w.top - r.top; scene.bot = w.bottom - r.top;
+  if (a.width > 40) { scene.x0 = a.left - r.left + 14; scene.x1 = a.right - r.left - 14; scene.measured = true; }
+  else if (!scene.measured) { scene.x0 = w.left - r.left + 128; scene.x1 = w.right - r.left - 26; }
+  const hh = scene.bot - scene.top;
+  scene.GR = clamp(hh * .19, 22, 40);
+  scene.gx = Math.max(w.left - r.left + scene.GR * .7, scene.x0 - (scene.GR + 30));
+  scene.gyT = scene.top + hh * .5; if (scene.gy == null) scene.gy = scene.gyT;
+}
+const SLOTS = [1, -1, 2, -2, 3, -3, 0];
+const G = { dn: 0, si: 0, day: null, phase: 'idle', aim: .425, cur: null, a0: 0, off: [], stats: null, left: 0, grace: 0, sec: -1 };
+
+/* ================= SOUND (synthesized, starts after the first tap) ================= */
+const Snd = {
+  ctx: null, on: S.sound !== false,
+  wake() { if (!this.on) return; try { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) {} },
+  tone(f, d, type, vol, to, at) {
+    const c = this.ctx, t = c.currentTime + (at || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(to, t + d);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + .05);
+  },
+  noise(d, vol, freq) {
+    const c = this.ctx, n = Math.floor(c.sampleRate * d), b = c.createBuffer(1, n, c.sampleRate), ch = b.getChannelData(0);
+    for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    src.buffer = b; f.type = 'bandpass'; f.frequency.value = freq; g.gain.value = vol;
+    src.connect(f); f.connect(g); g.connect(c.destination); src.start();
+  },
+  play(name) {
+    if (!this.on || !this.ctx) return;
+    try {
+      const arp = (fs, d, gap) => fs.forEach((f, i) => this.tone(f, d, 'triangle', .12, 0, i * gap));
+      if (name === 'tick') this.tone(880, .06, 'square', .05);
+      else if (name === 'launch') { this.tone(180, .55, 'sine', .16, 900); this.noise(.5, .08, 1200); }
+      else if (name === 'hot') { this.noise(.9, .22, 3000); this.tone(320, .7, 'sawtooth', .08, 70); }
+      else if (name === 'cold') arp([1760, 1480, 1175, 880], .5, .09);
+      else if (name === 'hab') arp([523, 659, 784, 1047], .35, .08);
+      else if (name === 'perfect') arp([523, 659, 784, 1047, 1319, 1568], .4, .07);
+      else if (name === 'lost') this.tone(220, .6, 'sawtooth', .08, 90);
+    } catch (e) {}
+  },
+};
+const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+
+function spawn(x, y, kind, n) {
+  if (REDUCED) return;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, sp = 30 + Math.random() * 90;
+    const p = { x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0, max: .7 + Math.random() * .8, s: 1.5 + Math.random() * 3 };
+    if (kind === 'hot') { p.col = Math.random() < .5 ? '255,200,80' : '255,110,50'; p.vy -= 60; }
+    else if (kind === 'cold') { p.col = Math.random() < .5 ? '255,255,255' : '160,215,255'; p.g = 40; }
+    else if (kind === 'trail') { p.col = '215,200,255'; p.vx *= .15; p.vy *= .15; p.max = .5; }
+    else { p.col = ['120,255,170', '255,225,110', '255,140,200'][i % 3]; p.star = true; }
+    scene.parts.push(p);
+  }
+}
+
+function drawScene(c, tm, now, dt) {
+  const s = scene, W = s.W, H = s.bot, hh = s.bot - s.top, { gx, GR } = s;
+  const gyGoal = G.phase === 'reveal' || G.phase === 'result' ? s.top + hh * .68 : s.gyT;
+  s.gy += (gyGoal - s.gy) * (REDUCED ? 1 : Math.min(1, dt * 5));
+  const gy = s.gy;
+  const X = t => s.x0 + t * (s.x1 - s.x0), rad = t => X(t) - gx;
+  const day = G.day, z = day.z;
+  let g = c.createRadialGradient(gx, gy, GR, gx, gy, Math.max(W, s.H * .8) * 1.05);
+  g.addColorStop(0, 'rgba(255,170,70,.6)'); g.addColorStop(.16, 'rgba(255,95,130,.36)'); g.addColorStop(.42, 'rgba(150,80,230,.24)'); g.addColorStop(.75, 'rgba(60,100,230,.2)'); g.addColorStop(1, 'rgba(30,40,150,.12)');
+  c.fillStyle = g; c.fillRect(0, 0, W, s.H);
+
+  // camera: lean in on the landing, shake on a scorch
+  if (G.cur) s.fx = X(G.cur.t);
+  const zt = (G.phase === 'reveal' || G.phase === 'result') && !REDUCED ? 1.12 : 1;
+  s.zoom += (zt - s.zoom) * Math.min(1, dt * 4);
+  s.shake = Math.max(0, s.shake - dt);
+  c.save();
+  if (s.shake > 0) c.translate((Math.random() - .5) * 14 * s.shake, (Math.random() - .5) * 14 * s.shake);
+  c.translate(s.fx, gy); c.scale(s.zoom, s.zoom); c.translate(-s.fx, -gy);
+
+  if (!REDUCED && Math.random() < dt * .25) s.stars.push({ x: Math.random() * W, y: Math.random() * s.H * .6, k: 0 });
+  for (let i = s.stars.length - 1; i >= 0; i--) {
+    const q = s.stars[i]; q.k += dt * 1.6; if (q.k >= 1) { s.stars.splice(i, 1); continue; }
+    const sx = q.x + q.k * 160, sy = q.y + q.k * 70, gr = c.createLinearGradient(sx - 50, sy - 22, sx, sy);
+    gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(1, `rgba(255,255,255,${Math.sin(q.k * PI)})`);
+    c.strokeStyle = gr; c.lineWidth = 2; c.beginPath(); c.moveTo(sx - 50, sy - 22); c.lineTo(sx, sy); c.stroke();
+  }
+
+  const th = pctToT(z.hot), tcold = pctToT(z.cold), rh = rad(th), rc = rad(tcold);
+  g = c.createRadialGradient(gx, gy, rh, gx, gy, rc);
+  g.addColorStop(0, 'rgba(77,255,160,.1)'); g.addColorStop(.5, 'rgba(77,255,160,.3)'); g.addColorStop(1, 'rgba(77,255,160,.1)');
+  c.fillStyle = g; annulus(c, gx, gy, rh, rc);
+  c.fillStyle = 'rgba(77,255,160,.14)'; annulus(c, gx, gy, rad(pctToT(lushHi(z))), rad(pctToT(lushLo(z))));
+  c.save(); c.strokeStyle = 'rgba(255,214,90,.85)'; c.lineWidth = 2; c.shadowColor = 'rgba(255,214,90,.9)'; c.shadowBlur = 8;
+  c.beginPath(); c.arc(gx, gy, rad(pctToT(sweetOf(z))), 0, TAU); c.stroke(); c.restore();
+  c.save(); c.shadowColor = 'rgba(77,255,160,.9)'; c.shadowBlur = 8; c.strokeStyle = 'rgba(120,255,190,.75)'; c.lineWidth = 1.5; c.setLineDash([3, 7]);
+  [rh, rc].forEach(r => { c.beginPath(); c.arc(gx, gy, r, 0, TAU); c.stroke(); }); c.restore();
+
+  c.font = '900 10px Nunito, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  c.fillStyle = 'rgba(255,170,110,.95)'; c.fillText('TOO HOT', (s.x0 + X(th)) / 2 - 4, H - 9);
+  c.fillStyle = 'rgba(140,255,195,.95)'; c.fillText('JUST RIGHT', (X(th) + X(tcold)) / 2, H - 9);
+  c.fillStyle = 'rgba(160,210,255,.95)'; c.fillText('TOO COLD', (X(tcold) + s.x1) / 2 + 4, H - 9);
+  if (G.phase === 'aim') {
+  c.fillStyle = 'rgba(255,255,255,.55)'; c.font = '800 10px Nunito, sans-serif';
+  c.textAlign = 'right'; c.fillText('nobody says it →', s.x1 + 14, s.top + 14);
+  c.textAlign = 'left'; c.fillText('← everybody says it', Math.max(8, gx - GR), s.top + 14);
+  // percent marks where each boundary ring crosses the top of the play area
+  c.textAlign = 'center'; c.font = '900 10px Nunito, sans-serif';
+  [[z.hot, '255,170,110'], [sweetOf(z), '255,214,90'], [z.cold, '160,210,255']].forEach(([pc, col]) => {
+    const r = rad(pctToT(pc)), y = s.top + 32, dy = gy - y;
+    if (r <= Math.abs(dy) + 4) return;
+    const x = gx + Math.sqrt(r * r - dy * dy);
+    c.fillStyle = 'rgba(10,8,36,.7)'; c.beginPath(); c.arc(x, y, 14, 0, TAU); c.fill();
+    c.fillStyle = `rgba(${col},1)`; c.fillText(Math.round(pc) + '%', x, y + 3.5);
+  });
+  }
+
+  const placed = day.planets.filter(p => p !== G.cur);
+  c.save(); c.shadowBlur = 8; c.lineWidth = 1.5;
+  placed.forEach(p => { c.shadowColor = `rgba(${ringCol(p)},.9)`; c.strokeStyle = `rgba(${ringCol(p)},.4)`; c.beginPath(); c.arc(gx, gy, rad(p.t), 0, TAU); c.stroke(); });
+  c.restore();
+
+  // aim marker
+  const live = G.phase === 'aim';
+  if (CFG.AIM && (live || G.cur)) {
+    const at = live ? G.aim : G.cur.aim, ax = X(at), al = live ? 1 : .45;
+    c.save(); c.strokeStyle = `rgba(255,255,255,${.85 * al})`; c.lineWidth = 2; c.setLineDash([6, 7]); c.lineDashOffset = -tm * 14;
+    c.beginPath(); c.arc(gx, gy, ax - gx, 0, TAU); c.stroke(); c.setLineDash([]);
+    c.strokeStyle = `rgba(255,255,255,${.25 * al})`; c.beginPath(); c.moveTo(ax, gy + 13); c.lineTo(ax, H - 24); c.stroke();
+    c.strokeStyle = `rgba(255,214,90,${al})`; c.lineWidth = 3; c.beginPath(); c.arc(ax, gy, 10 + (live ? Math.sin(tm * 4) * 1.5 : 0), 0, TAU); c.stroke();
+    c.fillStyle = `rgba(255,214,90,${al})`; c.beginPath(); c.arc(ax, gy, 3, 0, TAU); c.fill();
+    c.beginPath(); c.moveTo(ax, H - 22); c.lineTo(ax - 6, H - 1); c.lineTo(ax + 6, H - 1); c.closePath(); c.globalAlpha = live ? .9 : 0; c.fill();
+    c.restore();
+  }
+
+  const pr = W < 350 ? 12 : 14, sp = Math.min(34, (hh / 2 - 30) / 3);
+  placed.forEach(p => {
+    const i = day.planets.indexOf(p), target = SLOTS[i % 7] * sp;
+    if (G.off[i] == null) G.off[i] = target;
+    G.off[i] += (target - G.off[i]) * (REDUCED ? 1 : Math.min(1, dt * 5));
+    const r = rad(p.t), a = G.off[i] / Math.max(r, 20) + Math.sin(tm * .3 + i) * .012;
+    drawPlanet(c, gx + Math.cos(a) * r, gy + Math.sin(a) * r, pr, p, tm);
+  });
+
+  // the planet in flight
+  if (G.cur) {
+    const p = G.cur, lx = X(p.t), seedP = { kind: 'seed', seed: p.seed };
+    if (G.phase === 'fly') {
+      const k = CFG.FLY_MS && !REDUCED ? clamp((now - G.a0) / CFG.FLY_MS, 0, 1) : 1, e = 1 - Math.pow(1 - k, 3);
+      const px = lerp(gx, lx, e), py = gy - Math.sin(PI * e) * Math.min(hh * .28, 64);
+      drawPlanet(c, px, py, lerp(4, pr * 1.2, e), seedP, tm);
+      tag(c, px, py - pr * 1.2 - 20, p.kind === 'lost' ? 'out of time' : '“' + p.ans.slice(0, 24) + '”', Math.min(1, e * 3));
+      if (Math.random() < .7) spawn(px, py, 'trail', 1);
+      if (k >= 1) { G.phase = 'reveal'; G.a0 = now; s.mood = p.kind === 'hab' ? 'beam' : p.kind === 'hot' ? 'sweat' : 'shiver'; spawn(lx, gy, p.kind === 'lost' ? 'cold' : p.kind, 30);
+        Snd.play(p.kind === 'hab' && (p.perfect || p.bull) ? 'perfect' : p.near ? 'lost' : p.kind); if (p.kind === 'hot') { s.shake = .5; buzz([60, 40, 60]); } else buzz(30); }
+    } else {
+      const k = G.phase === 'reveal' && !REDUCED ? clamp((now - G.a0) / CFG.REVEAL_MS, 0, 1) : 1;
+      const back = 1 + 2.70158 * Math.pow(k - 1, 3) + 1.70158 * Math.pow(k - 1, 2), rr2 = pr * (1.2 + .25 * back);
+      c.save(); c.shadowColor = `rgba(${ringCol(p)},.9)`; c.shadowBlur = 10; c.strokeStyle = `rgba(${ringCol(p)},${.6 * k})`; c.lineWidth = 2;
+      c.beginPath(); c.arc(gx, gy, lx - gx, 0, TAU); c.stroke(); c.restore();
+      if (k < 1) { c.globalAlpha = 1 - k; drawPlanet(c, lx, gy, rr2, seedP, tm); c.globalAlpha = k; }
+      drawPlanet(c, lx, gy, rr2, p, tm); c.globalAlpha = 1;
+      if (G.phase === 'reveal') tag(c, lx, gy - rr2 - 20, p.kind === 'lost' ? 'out of time' : '“' + p.ans.slice(0, 24) + '”', 1 - k);
+      if (G.phase === 'reveal' && k >= 1) { G.phase = 'result'; showResult(); }
+    }
+  }
+
+  for (let i = s.parts.length - 1; i >= 0; i--) {
+    const q = s.parts[i]; q.life += dt; if (q.life >= q.max) { s.parts.splice(i, 1); continue; }
+    q.x += q.vx * dt; q.y += q.vy * dt; q.vy += (q.g || 0) * dt; q.vx *= .98; q.vy *= .98;
+    const a = 1 - q.life / q.max; c.fillStyle = `rgba(${q.col},${a})`;
+    if (q.star) star4(c, q.x, q.y, q.s * 1.6 * a + 1); else { c.beginPath(); c.arc(q.x, q.y, q.s * a + .5, 0, TAU); c.fill(); }
+  }
+  const look = clamp(((live ? G.aim : G.cur ? G.cur.t : .5) - .2) * 2, -1, 1);
+  drawGoldie(c, gx, gy, GR, s.mood, tm, 1 + .12 * Math.min(day.streak || 0, CFG.STREAK_CAP), look);
+  c.restore();
+  g = c.createRadialGradient(W / 2, s.H / 2, Math.min(W, s.H) * .45, W / 2, s.H / 2, Math.max(W, s.H) * .75);
+  g.addColorStop(0, 'rgba(5,3,25,0)'); g.addColorStop(1, 'rgba(5,3,25,.55)');
+  c.fillStyle = g; c.fillRect(0, 0, W, s.H);
+}
+
+/* ================= SCREENS ================= */
+const SCREENS = ['title', 'how', 'game', 'end', 'galaxy'];
+let cur = 'title', howThenPlay = false, endDn = 0, endBack = 'title';
+function show(name) {
+  cur = name; SCREENS.forEach(s => { $('s-' + s).hidden = s !== name; });
+  if (name === 'game') { layoutScene(); requestAnimationFrame(layoutScene); }
+}
+const dayOf = dn => S.days[dn];
+const totalOf = d => d.planets.reduce((a, p) => a + p.pts, 0);
+
+function renderNote() {
+  $('t-note').textContent = Crowd.live
+    ? 'Live crowd on' + (Crowd.players ? ' · ' + Crowd.players + ' other player' + (Crowd.players === 1 ? '' : 's') + ' today' : '')
+    : 'Playing with the built-in crowd';
+}
+function renderTitle() {
+  const d = dayOf(TODAY), date = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  $('t-day').textContent = 'Star #' + TODAY + ' · ' + date;
+  const st = activeStreak();
+  $('t-streak').textContent = st > 0 ? st + '-day streak · zone +' + Math.round(Math.min(st, CFG.STREAK_CAP) * CFG.STREAK_WIDEN * 100) + '%' : 'Start a streak today';
+  $('t-play').textContent = d && d.done ? "See today's system" : d && d.planets.length ? 'Continue · planet ' + (d.planets.length + 1) + ' of ' + CFG.ROUNDS : "Play today's star";
+  renderNote();
+}
+
+function startPlay() {
+  const d = dayOf(TODAY);
+  if (d && d.done) return showEnd(TODAY, 'title');
+  if (!S.seenHow) { howThenPlay = true; $('h-go').textContent = "Let's play"; return show('how'); }
+  enterGame();
+}
+function enterGame() {
+  G.dn = TODAY; G.si = setOf(TODAY);
+  if (!S.days[G.dn]) { const st = activeStreak(); S.days[G.dn] = { v: CFG.DATA_V, planets: [], done: false, z: zoneFor(st), streak: st }; }
+  G.day = S.days[G.dn]; G.off = []; G.cur = null; scene.parts.length = 0;
+  if (G.day.planets.length >= CFG.ROUNDS) { finishDay(); return showEnd(G.dn, 'title'); }
+  const z = G.day.z; aimEl.style.setProperty('--h', pctToT(z.hot).toFixed(4)); aimEl.style.setProperty('--c', pctToT(z.cold).toFixed(4));
+  show('game'); setRound();
+}
+function renderHud() {
+  const d = G.day, pips = $('pips'); pips.textContent = '';
+  for (let i = 0; i < CFG.ROUNDS; i++) {
+    const p = d.planets[i], e = el('i');
+    if (p && p !== G.cur) e.className = p.kind === 'hab' ? (p.biome === 'lush' ? 'lush' : 'hab') : p.kind;
+    else if (i === (G.cur ? d.planets.length - 1 : d.planets.length)) e.className = 'now';
+    pips.appendChild(e);
+  }
+  const done = d.planets.filter(p => p !== G.cur);
+  $('g-score').textContent = fmt(done.reduce((a, p) => a + p.pts, 0));
+  $('g-hab').textContent = done.filter(p => p.kind === 'hab').length + '/' + CFG.ROUNDS;
+}
+function setRound() {
+  const i = G.day.planets.length;
+  G.cur = null; G.phase = 'aim'; scene.mood = 'idle';
+  $('g-round').textContent = 'Planet ' + (i + 1) + ' of ' + CFG.ROUNDS;
+  $('g-q').textContent = P[G.si][i].q;
+  $('controls').hidden = false; $('result').hidden = true; $('verdict').hidden = true; $('g-prompt').hidden = false;
+  $('answer').value = ''; $('launch').disabled = false;
+  const ck = G.day.clock;
+  G.left = ck && ck.i === i && ck.left > 0 ? Math.min(ck.left, CFG.ROUND_SECONDS) : CFG.ROUND_SECONDS;
+  G.grace = CFG.READY_SECONDS; G.wait = 0; G.sec = -1;
+  const dial = $('g-timer'); dial.classList.remove('urgent', 'mid'); dial.classList.add('wait');
+  $('g-tnum').textContent = Math.ceil(G.left); $('g-tfill').style.strokeDashoffset = (100 * (1 - G.left / CFG.ROUND_SECONDS)).toFixed(2);
+  const pe = $('g-prompt'); pe.classList.remove('pop'); void pe.offsetWidth; pe.classList.add('pop');
+  aimEl.value = 425; onAim(); renderHud(); layoutScene();
+  if (window.matchMedia && matchMedia('(pointer:fine)').matches) $('answer').focus({ preventScroll: true });
+}
+function setHint(t, err) { const h = $('hint'); h.textContent = t; h.classList.toggle('err', !!err); }
+const VERDICT = { lava: 'Scorched', ice: 'Frozen', lush: 'Just right', desert: 'Desert edge', tundra: 'Tundra edge', rock: 'Lost' };
+const ZONE_NAME = { lava: 'Too hot', desert: 'Desert edge', lush: 'Lush', tundra: 'Tundra edge', ice: 'Too cold' };
+const ZONE_COL = { lava: 'var(--ember)', desert: 'var(--sun)', lush: 'var(--life)', tundra: 'var(--life)', ice: 'var(--ice)' };
+function onAim() {
+  G.aim = aimEl.value / 1000;
+  const a = aimInfo(G.aim, G.day.z), dead = a.biome === 'lava' || a.biome === 'ice';
+  $('aim-zone').textContent = ZONE_NAME[a.biome];
+  $('aim-info').textContent = '~' + pctText(a.pct) + (dead ? ' · no life' : ' · ×' + a.max.toFixed(1));
+  $('aim-chip').style.setProperty('--chip', ZONE_COL[a.biome]);
+  aimEl.setAttribute('aria-valuetext', ZONE_NAME[a.biome] + ', about ' + pctText(a.pct) + ' of players');
+}
+
+function launch() {
+  if (G.phase !== 'aim') return;
+  const i = G.day.planets.length, pr = P[G.si][i], res = resolve(pr, $('answer').value);
+  if (!res || !/[a-z0-9]/.test(res.key)) {
+    const typed = clean($('answer').value);
+    if (typed) { setHint('\u201c' + typed + '\u201d isn\u2019t on the list. Try another.', true); Live.miss(G.dn, i, typed); Snd.play('lost'); }
+    else setHint('Type an answer first.', true);
+    const f = $('answer-form'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
+    $('answer').focus(); $('answer').select(); return;
+  }
+  Crowd.submit(G.dn, i, res.key);
+  const st = Crowd.stats(G.si, i, res.key), z = G.day.z, cls = classify(st.pct, z), t = pctToT(st.pct);
+  const am = CFG.AIM ? aimMult(G.aim, t, z) : { mult: 1, perfect: false }, seed = hash(res.key + ':' + G.dn + ':' + i);
+  let chain = 0; for (let j = i - 1; j >= 0 && G.day.planets[j].kind === 'hab'; j--) chain++;
+  const evo = cls.kind === 'hab' ? Math.min(chain + 1, 3) : 0;
+  const p = {
+    ans: nameOf(pr, res.key), typed: res.fixed ? res.typed : null, key: res.key, pct: st.pct, solo: false, t, aim: G.aim,
+    kind: cls.kind, biome: cls.biome, life: cls.life, mult: am.mult, perfect: am.perfect, evo,
+    bull: !!cls.bull, near: !!cls.near,
+    deco: cls.bull ? 'ring' : am.perfect ? 'moon' : null, seed,
+    pts: Math.round(cls.life * CFG.EVO_BONUS[evo] * am.mult * (cls.bull ? CFG.BULL_BONUS : 1)),
+  };
+  G.day.planets.push(p); G.stats = st; G.cur = p; save();
+  beginFlight();
+}
+function beginFlight() {
+  $('launch').disabled = true; $('answer').blur(); setHint('');
+  $('controls').hidden = true; $('g-prompt').hidden = true; // clear the stage for the flight
+  G.phase = 'fly'; G.a0 = performance.now(); renderHud(); Snd.play('launch');
+}
+/* Clock ran out: launch whatever is typed, otherwise the planet is lost. */
+function timeUp() {
+  if (G.phase !== 'aim') return;
+  const i = G.day.planets.length, res = resolve(P[G.si][i], $('answer').value);
+  if (res) return launch();
+  const p = { ans: 'out of time', key: '', pct: 0, solo: false, t: 1, aim: G.aim, kind: 'lost', biome: 'rock', life: 0, mult: 1,
+    perfect: false, evo: 0, deco: null, seed: hash('lost:' + G.dn + ':' + i), pts: 0 };
+  G.day.planets.push(p); G.stats = Crowd.stats(G.si, i, ''); G.cur = p; save();
+  beginFlight();
+}
+function tickTimer(dt) {
+  if (G.phase !== 'aim') return;
+  const dial = $('g-timer');
+  if (G.grace > 0) { // short countdown so the prompt can land before the clock runs
+    G.grace -= dt;
+    const n = Math.ceil(G.grace);
+    if (n > 0) { if (n !== G.wait) { G.wait = n; setHint('Clock starts in ' + n + (CFG.AIM ? ' · read, aim, start typing' : ' · read and start typing')); } return; }
+    dial.classList.remove('wait'); setHint(CFG.AIM ? 'Call the landing, type, launch.' : 'Type one answer and launch it.');
+  }
+  G.left -= dt;
+  const sec = Math.max(0, Math.ceil(G.left)), f = clamp(G.left / CFG.ROUND_SECONDS, 0, 1);
+  if (sec !== G.sec) {
+    G.sec = sec; $('g-tnum').textContent = sec;
+    const urgent = sec <= CFG.URGENT_SECONDS;
+    dial.classList.toggle('urgent', urgent); dial.classList.toggle('mid', !urgent && f < .5);
+    scene.mood = urgent ? 'sweat' : 'idle';
+    if (urgent && sec > 0) Snd.play('tick');
+    G.day.clock = { i: G.day.planets.length, left: G.left }; save();
+  }
+  $('g-tfill').style.strokeDashoffset = (100 * (1 - f)).toFixed(2);
+  if (G.left <= 0) timeUp();
+}
+
+function showResult() {
+  const p = G.cur, st = G.stats, last = G.day.planets.length >= CFG.ROUNDS;
+  const v = $('res-verdict');
+  v.textContent = p.bull ? 'Bullseye!' : p.near ? (p.kind === 'hot' ? 'Just too hot' : 'Just too cold') : VERDICT[p.biome];
+  v.style.color = p.bull ? 'var(--sun)' : p.kind === 'lost' ? 'var(--ink-dim)' : p.kind === 'hot' ? 'var(--ember)' : p.kind === 'cold' ? 'var(--ice)' : 'var(--life)';
+  $('res-quote').textContent = p.kind === 'lost' ? 'Nothing launched in time' : '“' + p.ans + '”';
+  const line = $('res-line');
+  line.textContent = p.kind === 'lost' ? '' : (p.typed ? 'Autocorrected from \u201c' + p.typed + '\u201d \u00b7 ' : '')
+    + (p.pct < .1 ? 'Under 0.1% of players said it' : pctText(p.pct) + ' of players said it');
+  line.hidden = !line.textContent;
+  const evoText = ['', ' Plants take root.', ' Creatures roam the land.', ' Tiny cities light up.'][p.evo];
+  const z = G.day.z, sw = sweetOf(z);
+  $('res-flavor').textContent = p.kind === 'lost' ? 'A bare rock drifts off into the dark.'
+    : p.near && p.kind === 'hot' ? 'So close. The green starts just under ' + pctText(z.hot) + '.'
+    : p.near ? 'So close. The green starts at ' + pctText(z.cold) + '.'
+    : p.kind === 'hot' ? 'The answer everyone blurts out. It scorched.'
+    : p.kind === 'cold' ? 'Too far out for anyone else. It froze solid.'
+    : p.bull ? 'Dead center of the zone. Double life.' + evoText
+    : (p.pct > sw ? 'A little too common' : 'A little too rare') + ' for the sweet spot (about ' + pctText(sw) + ').' + evoText;
+  drawMeter(p, z);
+  const top = $('res-top'); top.textContent = '';
+  st.top.forEach(t => {
+    const li = el('li', t.k === p.key ? 'me' : ''), bar = el('span', 'bar'), fill = el('i');
+    fill.style.width = clamp(t.pct / st.top[0].pct * 100, 4, 100) + '%'; bar.appendChild(fill);
+    li.append(el('span', 'nm', nameOf(P[G.si][G.day.planets.length - 1], t.k)), bar, el('span', 'pc', pctText(t.pct))); top.appendChild(li);
+  });
+  const eq = $('res-eq'); eq.textContent = '';
+  const perfect = p.perfect ? 'Perfect aim! ' + (p.deco === 'ring' ? 'Rings' : 'A moon') + ' earned.' : '';
+  if (p.kind === 'hab') {
+    eq.append(p.life + ' life' + (CFG.AIM ? ' × ' + p.mult.toFixed(1) + ' aim' : '') + (CFG.EVO_BONUS[p.evo] > 1 ? ' × ' + CFG.EVO_BONUS[p.evo] + ' evolved' : '') + (p.bull ? ' × ' + CFG.BULL_BONUS + ' bullseye' : ''));
+    if (CFG.AIM && perfect) eq.append(el('b', '', perfect));
+    else if (CFG.AIM && p.mult < 1.05) eq.append(el('b', '', 'Aim was way off: no bonus.'));
+    else if (!p.bull) eq.append(el('b', '', 'The gold ring pays double.'));
+  } else {
+    eq.append('No life, no points.'); if (CFG.AIM && perfect) eq.append(el('b', '', perfect));
+  }
+  const pts = $('res-pts'); pts.textContent = (p.pts ? '+' + fmt(p.pts) : '0') + ' life'; pts.classList.toggle('zero', !p.pts);
+  $('next').textContent = last ? 'See your system' : 'Next planet';
+  $('controls').hidden = true; $('result').hidden = false; $('verdict').hidden = false;
+  $('g-score').textContent = fmt(totalOf(G.day));
+  const cur2 = G.cur; G.cur = null; renderHud(); G.cur = cur2;
+  $('next').focus({ preventScroll: true });
+}
+function next() {
+  if (G.phase !== 'result') return;
+  const idx = G.day.planets.length - 1; G.off[idx] = 0; G.cur = null;
+  if (G.day.planets.length >= CFG.ROUNDS) { finishDay(); showEnd(G.dn, 'title'); }
+  else setRound();
+}
+function finishDay() {
+  const d = G.day; if (d.done) return;
+  d.done = true; d.total = totalOf(d);
+  if (S.lastDay !== G.dn) { S.streak = S.lastDay === G.dn - 1 ? S.streak + 1 : 1; S.lastDay = G.dn; }
+  S.best = Math.max(S.best || 0, d.total); save();
+  Live.finish(G.dn, d.total);
+}
+
+function shareText(dn, d) {
+  const hab = d.planets.filter(p => p.kind === 'hab').length;
+  return 'GOLDILOCKS #' + dn + '\n' + d.planets.map(emojiOf).join('') + '\n' + hab + '/' + CFG.ROUNDS + ' habitable · ' + fmt(totalOf(d)) + ' life';
+}
+function showEnd(dn, back) {
+  const d = dayOf(dn); if (!d) return;
+  endDn = dn; endBack = back || 'title';
+  $('e-title').textContent = 'Star #' + dn + (d.done ? '' : ' (in progress)');
+  $('e-total').textContent = fmt(totalOf(d));
+  const hab = d.planets.filter(p => p.kind === 'hab').length;
+  const bulls = d.planets.filter(p => p.bull).length;
+  $('e-sub').textContent = 'life · ' + hab + ' of ' + CFG.ROUNDS + ' habitable' + (bulls ? ' · ' + bulls + ' bullseye' + (bulls > 1 ? 's' : '') : '') + (dn === TODAY && d.done && S.streak > 1 ? ' · ' + S.streak + '-day streak' : '');
+  const ul = $('e-answers'); ul.textContent = '';
+  d.planets.forEach(p => ul.appendChild(el('li', '', emojiOf(p) + ' ' + p.ans + (p.pts ? ' +' + fmt(p.pts) : ''))));
+  $('share').textContent = shareText(dn, d);
+  $('copy').textContent = 'Copy result'; $('copy').hidden = !d.done; $('share').hidden = !d.done;
+  $('e-title').textContent = 'Star #' + dn + (d.done ? ' complete' : ' (in progress)');
+  $('e-rankblock').hidden = !d.done;
+  show('end'); tick(); drawEndStatic(); $('s-end').scrollTop = 0;
+}
+/* A strip from very common (left) to very rare (right), zones colored, with where this answer landed. */
+function drawMeter(p, z) {
+  const m = $('res-meter'), lo = L10(.8), hi = L10(20), pos = v => clamp((hi - L10(Math.max(v, .01))) / (hi - lo), 0, 1) * 100;
+  const a = pos(z.hot), b = pos(lushHi(z)), c = pos(lushLo(z)), d = pos(z.cold);
+  m.hidden = p.kind === 'lost';
+  m.style.background = `linear-gradient(90deg,#ff5a4d 0,#ff8a3d ${a}%,#b8e65a ${a}%,#4dffa0 ${b}%,#4dffa0 ${c}%,#7fe0c0 ${c}%,#7cc8ff ${d}%,#8b6cff ${d}%,#8b6cff 100%)`;
+  m.querySelector('b').style.left = pos(sweetOf(z)) + '%';
+  const dot = m.querySelector('i'); dot.style.transition = 'none'; dot.style.left = (p.kind === 'hot' ? 0 : 50) + '%';
+  void dot.offsetWidth; dot.style.transition = ''; dot.style.left = pos(p.pct) + '%';
+}
+/* The non-animated end-screen graphics: crowd curve, flight log, zone legend. */
+function drawEndStatic() {
+  const d = dayOf(endDn); if (!d) return;
+  if (d.done) {
+    const vals = crowdTotals(endDn), mine = totalOf(d), below = vals.filter(v => v < mine).length;
+    const pctBetter = Math.round(below / vals.length * 100);
+    $('e-rank').textContent = 'Better than ' + pctBetter + "% of " + (endDn === TODAY ? "today's" : "that day's") + ' crowd';
+    drawCurve($('curve'), vals, mine);
+  }
+  drawLog($('log'), d);
+  document.querySelectorAll('canvas[data-lg]').forEach(cv => {
+    const b = cv.dataset.lg, c = fit(cv); if (!c) return;
+    const kind = b === 'hot' ? 'hot' : b === 'ice' ? 'cold' : b === 'rock' ? 'lost' : 'hab';
+    drawPlanet(c, 15, 15, b === 'bull' ? 8 : 10, { kind, biome: b === 'hot' ? 'lava' : b === 'bull' ? 'lush' : b, deco: b === 'bull' ? 'ring' : null, seed: hash(b) }, 2);
+  });
+}
+function drawCurve(cv, vals, mine) {
+  const c = fit(cv); if (!c) return;
+  const W = cv.clientWidth, H = cv.clientHeight, base = H - 18, N = 90;
+  const max = Math.max(1500, mine * 1.1, Math.max.apply(null, vals) * 1.05), bw = max / 28, ys = new Array(N).fill(0);
+  vals.forEach(v => { for (let i = 0; i < N; i++) { const x = i / (N - 1) * max, q = (x - v) / bw; ys[i] += Math.exp(-q * q / 2); } });
+  const top = Math.max.apply(null, ys) || 1, X = v => 4 + v / max * (W - 8), Y = y => base - y / top * (base - 8);
+  c.beginPath(); c.moveTo(X(0), base); ys.forEach((y, i) => c.lineTo(X(i / (N - 1) * max), Y(y))); c.lineTo(X(max), base); c.closePath();
+  const g = c.createLinearGradient(0, 8, 0, base); g.addColorStop(0, 'rgba(124,200,255,.38)'); g.addColorStop(1, 'rgba(124,200,255,.04)');
+  c.fillStyle = g; c.fill();
+  c.beginPath(); ys.forEach((y, i) => { const x = X(i / (N - 1) * max); i ? c.lineTo(x, Y(y)) : c.moveTo(x, Y(y)); });
+  c.strokeStyle = '#7cc8ff'; c.lineWidth = 2; c.stroke();
+  c.strokeStyle = 'rgba(255,255,255,.2)'; c.lineWidth = 1; c.beginPath(); c.moveTo(4, base + .5); c.lineTo(W - 4, base + .5); c.stroke();
+  c.font = '800 10px Nunito, sans-serif'; c.fillStyle = 'rgba(189,183,234,.9)'; c.textBaseline = 'alphabetic';
+  const step = max > 3000 ? 1000 : 500;
+  for (let v = 0; v <= max; v += step) { c.textAlign = v === 0 ? 'left' : 'center'; c.fillText(fmt(v), X(v), H - 3); }
+  const mx = X(Math.min(mine, max)), my = Y(ys[Math.round(Math.min(mine, max) / max * (N - 1))]);
+  c.strokeStyle = '#ff5fa2'; c.lineWidth = 2; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(mx, base); c.lineTo(mx, my); c.stroke(); c.setLineDash([]);
+  c.fillStyle = '#ff5fa2'; c.beginPath(); c.arc(mx, my, 4.5, 0, TAU); c.fill();
+  c.font = '900 11px Nunito, sans-serif'; c.textAlign = mx > W - 30 ? 'right' : mx < 30 ? 'left' : 'center';
+  c.fillText('YOU', mx, Math.max(11, my - 9));
+}
+function drawLog(cv, d) {
+  const c = fit(cv); if (!c) return;
+  const W = cv.clientWidth, H = cv.clientHeight, L = 34, T = 6, B = H - 18, z = d.z || zoneFor(0);
+  const Y = t => T + t * (B - T), col = i => L + (i + .5) * (W - L) / CFG.ROUNDS;
+  const band = (t0, t1, rgba) => { c.fillStyle = rgba; c.fillRect(L, Y(t0), W - L, Y(t1) - Y(t0)); };
+  band(0, pctToT(z.hot), 'rgba(255,138,61,.16)');
+  band(pctToT(z.hot), pctToT(z.cold), 'rgba(77,255,160,.12)');
+  band(pctToT(lushHi(z)), pctToT(lushLo(z)), 'rgba(77,255,160,.14)');
+  c.strokeStyle = 'rgba(255,214,90,.8)'; c.beginPath(); c.moveTo(L, Y(pctToT(sweetOf(z))) + .5); c.lineTo(W, Y(pctToT(sweetOf(z))) + .5); c.stroke();
+  band(pctToT(z.cold), 1, 'rgba(124,200,255,.12)');
+  c.font = '800 10px Nunito, sans-serif'; c.textAlign = 'right'; c.textBaseline = 'middle';
+  [[z.hot, '#ffab7a'], [sweetOf(z), '#ffd65a'], [z.cold, '#a0d2ff']].forEach(([pc, fill]) => {
+    const y = Y(pctToT(pc)); c.fillStyle = fill; c.fillText(Math.round(pc) + '%', L - 6, y);
+    c.strokeStyle = 'rgba(255,255,255,.12)'; c.beginPath(); c.moveTo(L, y + .5); c.lineTo(W, y + .5); c.stroke();
+  });
+  c.textBaseline = 'alphabetic'; c.textAlign = 'center';
+  for (let i = 0; i < CFG.ROUNDS; i++) {
+    const x = col(i), p = d.planets[i];
+    c.fillStyle = 'rgba(189,183,234,.85)'; c.fillText(String(i + 1), x, H - 3);
+    if (!p) continue;
+    const y = Y(p.t);
+    c.strokeStyle = `rgba(${ringCol(p)},.55)`; c.lineWidth = 1.5; c.setLineDash([2, 3]);
+    c.beginPath(); c.moveTo(x, T); c.lineTo(x, y); c.stroke(); c.setLineDash([]);
+    drawPlanet(c, x, y, Math.min(9, (W - L) / CFG.ROUNDS * .26), p, 2);
+  }
+}
+let copyTimer = 0;
+function copyResult() {
+  const text = $('share').textContent, btn = $('copy');
+  const done = ok => {
+    btn.textContent = ok ? 'Copied!' : 'Selected: copy it from above';
+    clearTimeout(copyTimer); copyTimer = setTimeout(() => { btn.textContent = 'Copy result'; }, 2200);
+  };
+  const fallback = () => {
+    try { const r = document.createRange(); r.selectNodeContents($('share')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {}
+    done(false);
+  };
+  try { navigator.clipboard.writeText(text).then(() => done(true), fallback); } catch (e) { fallback(); }
+}
+
+function showGalaxy() {
+  $('x-streak').textContent = activeStreak();
+  $('x-best').textContent = fmt(S.best || 0);
+  const keys = Object.keys(S.days).map(Number).filter(k => S.days[k] && S.days[k].planets && S.days[k].planets.length).sort((a, b) => b - a);
+  $('x-count').textContent = keys.filter(k => S.days[k].done).length;
+  const grid = $('x-grid'); grid.textContent = '';
+  if (!keys.length) grid.appendChild(el('p', 'empty', "No systems yet. Play today's star and it will show up here."));
+  show('galaxy');
+  keys.forEach(k => {
+    const d = S.days[k], card = el('button', 'sys-card'), cv = el('canvas');
+    card.type = 'button'; card.setAttribute('aria-label', 'Open star ' + k);
+    card.append(cv, el('b', '', '#' + k + ' · ' + fmt(totalOf(d))), el('span', 'em', d.planets.map(emojiOf).join('')));
+    if (!d.done) card.appendChild(el('span', '', 'In progress'));
+    card.addEventListener('click', () => showEnd(k, 'galaxy'));
+    grid.appendChild(card);
+    const c = fit(cv); if (c) drawSystem(c, cv.clientWidth, cv.clientHeight, d, 3 + k, true);
+  });
+}
+
+/* countdown + day rollover */
+function tick() {
+  const n = new Date(), now = dayNum(n);
+  if (now !== TODAY) { TODAY = now; renderTitle(); }
+  if (cur !== 'end') return;
+  const foot = $('e-foot'); foot.textContent = '';
+  if (endDn !== TODAY) { if (endDn === TODAY - 1 && !dayOf(TODAY)) foot.textContent = 'A new star is up. Head home to play it.'; return; }
+  if (!dayOf(endDn).done) return;
+  const s = Math.max(0, Math.floor((new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1) - n) / 1000));
+  const pad = v => String(v).padStart(2, '0');
+  foot.append("Tomorrow's star rises in ", el('b', '', pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60)));
+}
+setInterval(tick, 1000);
+
+/* ================= EVENTS ================= */
+$('t-play').addEventListener('click', startPlay);
+$('t-how').addEventListener('click', () => { howThenPlay = false; $('h-go').textContent = 'Got it'; show('how'); });
+$('t-galaxy').addEventListener('click', showGalaxy);
+$('h-back').addEventListener('click', () => { renderTitle(); show('title'); });
+$('h-go').addEventListener('click', () => { S.seenHow = true; save(); if (howThenPlay) enterGame(); else { renderTitle(); show('title'); } });
+$('g-home').addEventListener('click', () => { renderTitle(); show('title'); });
+$('answer-form').addEventListener('submit', e => { e.preventDefault(); launch(); });
+aimEl.addEventListener('input', onAim);
+$('next').addEventListener('click', next);
+['pointerdown', 'keydown'].forEach(t => document.addEventListener(t, () => Snd.wake()));
+function renderSnd() { const b = $('g-snd'); b.classList.toggle('off', !Snd.on); b.setAttribute('aria-pressed', String(Snd.on)); }
+$('g-snd').addEventListener('click', () => { Snd.on = !Snd.on; S.sound = Snd.on; save(); Snd.wake(); renderSnd(); });
+renderSnd();
+$('copy').addEventListener('click', copyResult);
+$('e-back').addEventListener('click', () => { if (endBack === 'galaxy') showGalaxy(); else { renderTitle(); show('title'); } });
+$('e-home').addEventListener('click', () => { renderTitle(); show('title'); });
+$('e-galaxy').addEventListener('click', showGalaxy);
+$('x-back').addEventListener('click', () => { renderTitle(); show('title'); });
+window.addEventListener('resize', () => { if (cur === 'game') layoutScene(); if (cur === 'galaxy') showGalaxy(); if (cur === 'end') drawEndStatic(); });
+
+let drag = false;
+function aimFromX(cx) {
+  const r = scene.cv.getBoundingClientRect();
+  aimEl.value = Math.round(clamp((cx - r.left - scene.x0) / (scene.x1 - scene.x0), 0, 1) * 1000); onAim();
+}
+scene.cv.addEventListener('pointerdown', e => { if (G.phase !== 'aim' || !CFG.AIM) return; drag = true; try { scene.cv.setPointerCapture(e.pointerId); } catch (x) {} aimFromX(e.clientX); });
+scene.cv.addEventListener('pointermove', e => { if (drag && G.phase === 'aim') aimFromX(e.clientX); });
+['pointerup', 'pointercancel'].forEach(t => scene.cv.addEventListener(t, () => { drag = false; }));
+
+/* ================= LOOP ================= */
+const HOW = [['h-hot', { kind: 'hot', biome: 'lava', seed: 11 }], ['h-cold', { kind: 'cold', biome: 'ice', seed: 23 }], ['h-ok', { kind: 'hab', biome: 'lush', evo: 3, deco: 'ring', seed: 42 }]];
+let last = performance.now();
+function frame(now) {
+  const raw = Math.min(.25, (now - last) / 1000), dt = Math.min(.05, raw); last = now;
+  const tm = REDUCED ? 2 : now / 1000;
+  if (cur === 'title') {
+    const cv = $('t-goldie'), c = fit(cv);
+    if (c) { const d = dayOf(TODAY), st = activeStreak(); drawGoldie(c, cv.clientWidth / 2, cv.clientHeight / 2, Math.min(cv.clientWidth, cv.clientHeight) * .185, d && d.done ? 'beam' : 'idle', tm, 1 + .12 * Math.min(st, CFG.STREAK_CAP), Math.sin(tm * .6)); }
+  } else if (cur === 'how') {
+    HOW.forEach(([id, p]) => { const cv = $(id), c = fit(cv); if (c) drawPlanet(c, 32, 32, 15, p, tm); });
+  } else if (cur === 'game' && G.day) {
+    layoutScene(); tickTimer(raw);
+    const c = fit(scene.cv); if (c) drawScene(c, tm, now, dt);  } else if (cur === 'end') {
+    const cv = $('system'), c = fit(cv), d = dayOf(endDn); if (c && d) drawSystem(c, cv.clientWidth, cv.clientHeight, d, tm, false);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ================= BOOT ================= */
+(function sky() {
+  const sk = $('sky'), r = rng(99), cols = ['#fff', '#ffe9a8', '#bfe0ff', '#ffc9e6'];
+  for (let i = 0; i < 80; i++) {
+    const s = el('i'), z = 1 + r() * 2.2;
+    s.style.cssText = `left:${r() * 100}%;top:${r() * 100}%;width:${z}px;height:${z}px;background:${cols[i % 4]};animation-delay:${-r() * 4}s;animation-duration:${2 + r() * 3}s`;
+    sk.appendChild(s);
+  }
+})();
+if (!CFG.AIM) {
+  document.querySelector('.aim-row').hidden = true; scene.cv.style.cursor = 'default';
+  document.querySelectorAll('[data-aim]').forEach(e => { e.hidden = true; });
+}
+/* Today's star was played on the old answer lists: let it be played again on the new ones. */
+(() => {
+  const td = S.days[TODAY]; if (!td || td.v === CFG.DATA_V) return;
+  delete S.days[TODAY];
+  if (S.lastDay === TODAY) { S.streak = Math.max(0, S.streak - 1); S.lastDay = S.streak ? TODAY - 1 : 0; }
+  save();
+})();
+renderTitle(); show('title'); requestAnimationFrame(frame); Live.init();
+})();
+</script>
+</body>
+</html>
