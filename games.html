@@ -516,6 +516,48 @@ const GAMES = [
       ctx.fillRect(bx - 5, by - 5, 10, 10);
       ctx.shadowBlur = 0;
     }
+  },
+  {
+    id: 'goldilocks',
+    name: 'GOLDILOCKS',
+    url: 'goldilocks.html',
+    desc: 'Daily word game. Not too common, not too rare. Land your answers in the green.',
+    color: '#4dffa0',
+    tags: ['DAILY', 'WORDS'],
+    draw(ctx, w, h, t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#0a0824';
+      ctx.fillRect(0, 0, w, h);
+      const cx = w * 0.32, cy = h / 2;
+      // Habitable zone ring
+      ctx.lineWidth = 22;
+      ctx.strokeStyle = 'rgba(77,255,160,0.18)';
+      ctx.beginPath(); ctx.arc(cx, cy, 92, 0, Math.PI * 2); ctx.stroke();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(255,214,90,0.8)';
+      ctx.beginPath(); ctx.arc(cx, cy, 92, 0, Math.PI * 2); ctx.stroke();
+      // Sun
+      ctx.shadowColor = '#ffc531';
+      ctx.shadowBlur = 30;
+      ctx.fillStyle = '#ffc531';
+      ctx.beginPath(); ctx.arc(cx, cy, 26, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#5a2a0a';
+      ctx.fillRect(cx - 9, cy - 6, 4, 6);
+      ctx.fillRect(cx + 5, cy - 6, 4, 6);
+      ctx.fillRect(cx - 6, cy + 8, 12, 3);
+      // Planets: scorched, just right, frozen
+      [[50, '#ff6b35', 0.03], [92, '#2f8ff0', 0.02], [138, '#bfe6ff', 0.012]].forEach(([r, col, sp], i) => {
+        const a = t * sp + i * 2.1;
+        const px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r * 0.9;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(px, py, i === 1 ? 9 : 7, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        if (i === 1) { ctx.fillStyle = '#5fe07a'; ctx.beginPath(); ctx.arc(px - 2, py - 2, 4, 0, Math.PI * 2); ctx.fill(); }
+      });
+    }
   }
 ];
 
